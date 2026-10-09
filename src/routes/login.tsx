@@ -87,14 +87,14 @@ function LoginPage() {
   const labelClass = "block text-sm font-medium";
 
   return (
-    <main className="min-h-dvh">
-      <section className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-dvh bg-muted">
+      <section className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-16">
         <div className="absolute top-4 right-4 md:top-6 md:right-6">
           <LanguageSwitcher />
         </div>
 
-        <div className="w-full max-w-sm">
-          <p className="mb-10 text-lg font-semibold">{t("app.name")}</p>
+        <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-lg sm:p-10">
+          <p className="mb-8 text-lg font-semibold">{t("app.name")}</p>
           <header className="mb-8 space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">{t("auth.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
