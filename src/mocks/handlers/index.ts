@@ -1,3 +1,4 @@
+import { approvalsHandlers } from "./approvals";
 import { assistantHandlers } from "./assistant";
 import { authHandlers } from "./auth";
 import { filesHandlers } from "./files";
@@ -17,4 +18,5 @@ export const handlers = [
   ...vatHandlers,
   ...workHandlers,
   ...assistantHandlers,
+  ...approvalsHandlers,
 ];

@@ -1,5 +1,6 @@
 // DEMO CONTENT. Answers, sources and tool runs are scripted; the real model, retrieval and tools belong to the backend.
 import type { components } from "@/api/schema";
+import { addApprovalRequest } from "./approvals";
 
 type Conversation = components["schemas"]["Conversation"];
 type Message = components["schemas"]["Message"];
@@ -166,6 +167,22 @@ export function answer(conversation: StoredConversation, content: string, attach
       comment: null,
     };
     approvals.set(approval.id, approval);
+    addApprovalRequest({
+      id: approval.id,
+      kind: "tool_action",
+      title: "Jurnal yazılışı təsdiqə göndərilsin",
+      summary: approval.argumentsSummary,
+      riskLevel: approval.riskLevel,
+      status: "pending",
+      requestedBy: approval.requestedBy,
+      requestedAt: new Date().toISOString(),
+      expiresAt: approval.expiresAt,
+      decidedBy: null,
+      decidedAt: null,
+      comment: null,
+      changes: [{ label: "Yazılış je-seed-3", before: "Təklif", after: "Təsdiq gözləyir" }],
+      source: { type: "conversation", id: conversation.id },
+    });
     toolRuns = [run];
     approvalList = [approval];
     push("tool.requested", { toolRun: { ...run, status: "proposed" } });
@@ -259,23 +276,12 @@ export function setFeedback(message: Message, rating: "up" | "down"): void {
   message.feedback = rating;
 }
 
-export type DecideResult =
-  { ok: true; approval: Approval } | { ok: false; reason: "not-found" | "own-request" | "conflict" };
-
-export function decide(
-  id: string,
-  decision: "approved" | "denied",
-  comment: string | undefined,
-  approver: User,
-): DecideResult {
+/** Keeps the chat's own copy in step after the queue has accepted a decision. */
+export function syncToolApproval(id: string, decision: "approved" | "denied", comment: string | null): void {
   const approval = approvals.get(id);
-  if (!approval) return { ok: false, reason: "not-found" };
-  // Separation of duties: whoever asked can never be the one who approves.
-  if (approval.requestedBy.id === approver.id) return { ok: false, reason: "own-request" };
-  if (approval.status !== "pending") return { ok: false, reason: "conflict" };
-
+  if (!approval) return;
   approval.status = decision;
-  approval.comment = comment?.trim() || null;
+  approval.comment = comment;
   const run = db
     .flatMap((entry) => entry.messages)
     .flatMap((message) => message.toolRuns)
@@ -284,5 +290,4 @@ export function decide(
     run.status = decision === "approved" ? "done" : "denied";
     run.resultSummary = decision === "approved" ? "Yazılış təsdiqə göndərildi (demo)" : "Əməliyyat rədd edildi";
   }
-  return { ok: true, approval };
 }

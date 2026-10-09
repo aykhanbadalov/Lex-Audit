@@ -195,3 +195,26 @@ See `openapi.yaml` (`/excel/...`, `/reconciliations`, `/imports`, `/exports/onec
   the training signal for `MODEL_TRAINING.md`.
 - ❓ Rate limiting: answer **429** (`RATE_LIMITED`) when a user or company is over budget; the UI shows it as a failed answer.
 - ❓ Attachments (`news`, `legislation`, `file`, `invoice`) are ids only; the server loads the content itself and re-checks access.
+
+## 11. Approvals and the audit log (phase F11)
+
+- ✅ **One queue for every kind of request** (`tool_action`, `access_request`, `tax_rate_change`, `model_release`), each with a
+  `changes` list of before/after pairs written by the server. Add a kind by adding it to the enum; the UI needs a translation.
+- ✅ **`POST /approvals/{id}/decide` is the only way to decide**, from the queue and from the chat card alike. Rules the server
+  must enforce (the UI only mirrors them): **403** for the requester and for callers without `approvals:decide`; **409** if already
+  decided _or past its deadline_ (an overdue pending item is `expired`, never silently approved); **422** if the comment is
+  shorter than 3 characters (the comment is mandatory for both outcomes).
+- ✅ `canDecide` and `pendingCount` are hints for the UI. They must be computed for the caller and never trusted by the server.
+- ✅ Deciding a `tool_action` must continue the tool run (and the conversation shows it as done / denied). Deciding the other kinds
+  must apply the change in the same transaction as the decision.
+- ❓ Who may approve what (for example, only an admin for `model_release`, never someone who also wrote the change) is a policy
+  decision; today any holder of `approvals:decide` may decide any request that is not their own.
+- ❓ Deadlines and what happens at expiry (notify the requester? re-request?) need a product decision.
+- ✅ **The audit log is append-only.** There is no update or delete endpoint and there must not be one. Every write, every
+  decision, every refused attempt (`outcome: denied`), every login and every export is an event. `resourceLabel` is captured at the
+  time so the log stays readable after the resource changes or is archived.
+- ✅ `GET /audit-events` needs the new permission **`audit:read`** (auditor, chief accountant, admin in the mock). `POST
+/audit-events/export` builds a CSV with the same filters, stores it under Files, and is itself an audited event.
+- ❓ Retention, tamper-evidence (hash chain or WORM storage) and who may export are open; the log must outlive the data it describes.
+- ❓ Event `action` strings are a contract with the frontend (translated as `audit.action.<action with . replaced by _>`); unknown
+  actions are shown raw, so adding new ones is safe.

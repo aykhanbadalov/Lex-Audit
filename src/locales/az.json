@@ -23,7 +23,8 @@
     "legislation": "Qanunvericilik",
     "files": "Fayllar",
     "reconciliation": "Uzlaşdırma",
-    "integrations": "İnteqrasiyalar"
+    "integrations": "İnteqrasiyalar",
+    "audit": "Audit jurnalı"
   },
   "auth": {
     "title": "Daxil ol",
@@ -85,7 +86,8 @@
     "legislation": "Qanunlar, məcəllələr, qərarlar və standartlar; versiyalar və dəyişikliklər",
     "files": "Sənədlərin yüklənməsi, saxlanması və axtarışı",
     "reconciliation": "Bank çıxarışı və e-qaimə reyestrinin uçotla müqayisəsi",
-    "integrations": "1C, e-taxes və bank faylları ilə idxal və ixrac"
+    "integrations": "1C, e-taxes və bank faylları ilə idxal və ixrac",
+    "audit": "Dəyişməz hadisə jurnalı: kim, nə vaxt, nə etdi"
   },
   "risk": {
     "low": "Aşağı risk",
@@ -892,7 +894,7 @@
       "waitingOther": "Bu əməliyyatı başqa şəxs təsdiq etməlidir. Öz sorğunuzu özünüz təsdiq edə bilməzsiniz.",
       "waiting": "Təsdiq gözləyir. Qərar vermək üçün icazəniz yoxdur.",
       "request": "{{name}} bu əməliyyatı istəyir: {{target}}. Təsdiq etməzdən əvvəl yoxlayın.",
-      "comment": "Şərh",
+      "comment": "Şərh (məcburi)",
       "approve": "Təsdiq et",
       "deny": "Rədd et"
     },
@@ -905,6 +907,75 @@
       "description": "Düzgün cavabı yazsanız, sistem sizdən öyrənəcək. Bu istəyə bağlıdır.",
       "correction": "Düzgün cavab",
       "send": "Göndər"
+    }
+  },
+  "approvals": {
+    "decided": "Qərar saxlanıldı",
+    "decideFailed": "Qərar saxlanmadı",
+    "waitingForYou": "Sizin qərarınızı gözləyən: {{count}}",
+    "empty": "Bu filtrə uyğun sorğu yoxdur",
+    "emptyPending": "Gözləyən sorğu yoxdur",
+    "emptyHint": "Yeni sorğular burada görünəcək.",
+    "filters": {
+      "status": "Vəziyyət",
+      "kind": "Növ"
+    },
+    "kind": {
+      "tool_action": "AI əməliyyatı",
+      "access_request": "Giriş sorğusu",
+      "tax_rate_change": "Vergi dərəcəsi",
+      "model_release": "Model buraxılışı"
+    },
+    "status": {
+      "pending": "Gözləyir",
+      "approved": "Təsdiqlənib",
+      "denied": "Rədd edilib",
+      "expired": "Müddəti bitib"
+    },
+    "requestedBy": "{{name}} istəyib, {{date}}",
+    "deadline": "Son tarix: {{date}}",
+    "deadlineWas": "Son tarix idi: {{date}}",
+    "changes": "Dəyişikliklər",
+    "change": {
+      "what": "Nə",
+      "before": "Əvvəl",
+      "after": "Sonra",
+      "none": "—"
+    },
+    "openConversation": "Söhbətə bax",
+    "commentRequired": "Şərh (məcburi, ən azı 3 simvol)",
+    "decidedBy": "{{name}} qərar verib, {{date}}"
+  },
+  "audit": {
+    "export": "CSV-yə ixrac",
+    "exported": "Fayl hazırdır:",
+    "exportFailed": "İxrac alınmadı",
+    "searchPlaceholder": "Şəxs, əməliyyat və ya resurs",
+    "empty": "Hadisə yoxdur",
+    "emptyHint": "Hadisələr istifadəçilərin əməliyyatlarından sonra burada görünəcək.",
+    "columns": {
+      "at": "Vaxt",
+      "actor": "Kim",
+      "action": "Əməliyyat",
+      "resource": "Resurs",
+      "outcome": "Nəticə"
+    },
+    "outcome": {
+      "success": "Uğurlu",
+      "denied": "İcazə verilmədi",
+      "failed": "Alınmadı"
+    },
+    "action": {
+      "auth_login": "Sistemə giriş",
+      "invoice_upload": "Qaimə yükləndi",
+      "invoice_update": "Qaimə dəyişdirildi",
+      "journal_submit": "Yazılış təsdiqə göndərildi",
+      "vat_declaration_draft": "ƏDV bəyannaməsi qaralaması",
+      "file_archive": "Fayl arxivə atıldı",
+      "import_commit": "İdxal icra edildi",
+      "assistant_message": "AI-ya sual verildi",
+      "approval_decide": "Təsdiq qərarı",
+      "audit_export": "Audit jurnalı ixrac edildi"
     }
   }
 }

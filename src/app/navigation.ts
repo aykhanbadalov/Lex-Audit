@@ -11,6 +11,7 @@ import {
   Receipt,
   Scale,
   Settings,
+  ScrollText,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +31,7 @@ export interface NavItem {
     | "/legislation"
     | "/assistant"
     | "/approvals"
+    | "/audit-log"
     | "/admin";
   labelKey: `nav.${string}`;
   icon: LucideIcon;
@@ -56,6 +58,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/legislation", labelKey: "nav.legislation", icon: Scale, permission: "legislation:read", group: "knowledge" },
   { to: "/assistant", labelKey: "nav.assistant", icon: Bot, permission: "assistant:use", group: "knowledge" },
   { to: "/approvals", labelKey: "nav.approvals", icon: ShieldCheck, permission: "approvals:read", group: "governance" },
+  { to: "/audit-log", labelKey: "nav.audit", icon: ScrollText, permission: "audit:read", group: "governance" },
   { to: "/admin", labelKey: "nav.admin", icon: Settings, permission: "admin:manage", group: "governance" },
 ];
 

@@ -7,7 +7,7 @@ import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { useDecideApproval } from "../api";
+import { MIN_COMMENT_LENGTH, useDecide } from "@/features/approvals/api";
 import type { Approval, ToolRun } from "../chatReducer";
 
 const TONE: Record<ToolRun["status"], BadgeTone> = {
@@ -22,10 +22,9 @@ const TONE: Record<ToolRun["status"], BadgeTone> = {
 interface ToolCardProps {
   toolRun: ToolRun;
   approval: Approval | undefined;
-  conversationId: string;
 }
 
-export function ToolCard({ toolRun, approval, conversationId }: ToolCardProps) {
+export function ToolCard({ toolRun, approval }: ToolCardProps) {
   const { t } = useTranslation();
   return (
     <li className="space-y-2 rounded-lg border bg-card p-3 text-sm">
@@ -39,7 +38,7 @@ export function ToolCard({ toolRun, approval, conversationId }: ToolCardProps) {
       </div>
       <p className="text-xs text-muted-foreground">{toolRun.argumentsSummary}</p>
       {toolRun.resultSummary ? <p className="text-xs">{toolRun.resultSummary}</p> : null}
-      {approval ? <ApprovalSection approval={approval} conversationId={conversationId} /> : null}
+      {approval ? <ApprovalSection approval={approval} /> : null}
     </li>
   );
 }
@@ -48,12 +47,13 @@ export function ToolCard({ toolRun, approval, conversationId }: ToolCardProps) {
  * A write the assistant wants to make. It does nothing until a person other than the requester approves.
  * The buttons are hidden for the requester and for people without the permission; the server checks both again.
  */
-function ApprovalSection({ approval, conversationId }: { approval: Approval; conversationId: string }) {
+function ApprovalSection({ approval }: { approval: Approval }) {
   const { t } = useTranslation();
   const canDecide = usePermission("approvals:decide");
   const me = useAuthStore((state) => state.user?.id);
-  const decide = useDecideApproval(conversationId);
+  const decide = useDecide();
   const [comment, setComment] = useState("");
+  const ready = comment.trim().length >= MIN_COMMENT_LENGTH && !decide.isPending;
 
   if (approval.status !== "pending") {
     return (
@@ -94,7 +94,7 @@ function ApprovalSection({ approval, conversationId }: { approval: Approval; con
         <Button
           type="button"
           size="sm"
-          disabled={decide.isPending}
+          disabled={!ready}
           onClick={() => decide.mutate({ id: approval.id, decision: "approved", comment })}
         >
           {t("assistant.approval.approve")}
@@ -103,7 +103,7 @@ function ApprovalSection({ approval, conversationId }: { approval: Approval; con
           type="button"
           size="sm"
           variant="outline"
-          disabled={decide.isPending}
+          disabled={!ready}
           onClick={() => decide.mutate({ id: approval.id, decision: "denied", comment })}
         >
           {t("assistant.approval.deny")}

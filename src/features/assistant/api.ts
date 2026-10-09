@@ -54,23 +54,6 @@ export function useUpdateConversation(id: string) {
   });
 }
 
-export function useDecideApproval(conversationId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (vars: { id: string; decision: "approved" | "denied"; comment: string }) =>
-      unwrap(
-        await api.POST("/approvals/{id}/decide", {
-          params: { path: { id: vars.id } },
-          body: { decision: vars.decision, comment: vars.comment || undefined },
-        }),
-      ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: assistantKeys.detail(conversationId) }),
-    onError: () => {
-      toast.error(i18n.t("assistant.approval.failed"));
-    },
-  });
-}
-
 export function useSendFeedback(conversationId: string) {
   const queryClient = useQueryClient();
   return useMutation({

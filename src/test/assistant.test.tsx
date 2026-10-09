@@ -371,7 +371,7 @@ describe("approvals", () => {
     const { queryClient } = renderApp(`/assistant/${id}`);
     expect(await screen.findByText(/Aygün Məmmədova bu əməliyyatı istəyir/)).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText("Şərh"), "yoxlandı");
+    await userEvent.type(screen.getByLabelText(/Şərh/), "yoxlandı");
     await userEvent.click(screen.getByRole("button", { name: "Təsdiq et" }));
 
     await act(async () => void (await queryClient.invalidateQueries()));
@@ -392,7 +392,10 @@ describe("approvals", () => {
     const approvalId = conversation.messages[1]!.approvals[0]!.id;
 
     await expect(
-      api.POST("/approvals/{id}/decide", { params: { path: { id: approvalId } }, body: { decision: "approved" } }),
+      api.POST("/approvals/{id}/decide", {
+        params: { path: { id: approvalId } },
+        body: { decision: "approved", comment: "yoxlandı" },
+      }),
     ).rejects.toMatchObject({ status: 403 });
   });
 
@@ -401,13 +404,22 @@ describe("approvals", () => {
     const conversation = (await api.GET("/conversations/{id}", { params: { path: { id } } })).data!;
     const approvalId = conversation.messages[1]!.approvals[0]!.id;
     await expect(
-      api.POST("/approvals/{id}/decide", { params: { path: { id: approvalId } }, body: { decision: "approved" } }),
+      api.POST("/approvals/{id}/decide", {
+        params: { path: { id: approvalId } },
+        body: { decision: "approved", comment: "yoxlandı" },
+      }),
     ).rejects.toMatchObject({ status: 403 });
 
     signInAs("bas.muhasib@lexaudit.test");
-    await api.POST("/approvals/{id}/decide", { params: { path: { id: approvalId } }, body: { decision: "denied" } });
+    await api.POST("/approvals/{id}/decide", {
+      params: { path: { id: approvalId } },
+      body: { decision: "denied", comment: "yoxlandı" },
+    });
     await expect(
-      api.POST("/approvals/{id}/decide", { params: { path: { id: approvalId } }, body: { decision: "approved" } }),
+      api.POST("/approvals/{id}/decide", {
+        params: { path: { id: approvalId } },
+        body: { decision: "approved", comment: "yoxlandı" },
+      }),
     ).rejects.toMatchObject({ status: 409 });
   });
 });

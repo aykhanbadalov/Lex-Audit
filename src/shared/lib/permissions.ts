@@ -20,6 +20,7 @@ export const PERMISSIONS = [
   "assistant:use",
   "approvals:read",
   "approvals:decide",
+  "audit:read",
   "admin:manage",
 ] as const;
 

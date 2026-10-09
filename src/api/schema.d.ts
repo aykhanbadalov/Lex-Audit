@@ -919,6 +919,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The approval queue, soonest deadline first for pending items, newest first otherwise */
+        get: operations["listApprovals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getApproval"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/approvals/{id}/decide": {
         parameters: {
             query?: never;
@@ -928,8 +961,42 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Approve or deny a tool run. The person who asked for it can never decide it. */
+        /** Approve or deny a request (a tool run, an access request, a tax-rate change, a model release). The person who asked can never decide it. A comment is required for both decisions. */
         post: operations["decideApproval"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The audit log, newest first. Events are append-only; there is no way to change or delete one. */
+        get: operations["listAuditEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit-events/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Build a CSV of the events that match the same filters, stored under Files. The export itself is audited. */
+        post: operations["exportAuditEvents"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1691,6 +1758,61 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
             comment: string | null;
+        };
+        /** @enum {string} */
+        ApprovalKind: "tool_action" | "access_request" | "tax_rate_change" | "model_release";
+        /** @description One thing that will change. Either side is null when the value is being added or removed. */
+        ApprovalChange: {
+            label: string;
+            before: string | null;
+            after: string | null;
+        };
+        ApprovalRequest: {
+            id: string;
+            kind: components["schemas"]["ApprovalKind"];
+            title: string;
+            summary: string;
+            riskLevel: components["schemas"]["ToolRisk"];
+            status: components["schemas"]["ApprovalStatus"];
+            requestedBy: components["schemas"]["PersonRef"];
+            /** Format: date-time */
+            requestedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            decidedBy: components["schemas"]["PersonRef"] | null;
+            /** Format: date-time */
+            decidedAt: string | null;
+            /** @description The decider's comment */
+            comment: string | null;
+            changes: components["schemas"]["ApprovalChange"][];
+            /** @description True when the caller has the permission and is not the requester. A hint for the UI only; the server checks again on decide. */
+            canDecide: boolean;
+            source?: {
+                /** @enum {string} */
+                type: "conversation";
+                id: string;
+            } | null;
+        };
+        PersonRef: {
+            id: string;
+            name: string;
+        };
+        /** @enum {string} */
+        AuditOutcome: "success" | "denied" | "failed";
+        AuditEvent: {
+            id: string;
+            /** Format: date-time */
+            at: string;
+            actor: components["schemas"]["PersonRef"];
+            /** @description Dotted verb such as invoice.update or approval.decide */
+            action: string;
+            resourceType: string;
+            resourceId: string;
+            /** @description A human label captured at the time */
+            resourceLabel: string;
+            outcome: components["schemas"]["AuditOutcome"];
+            ip: string | null;
+            requestId: string;
         };
         /** @enum {string} */
         MessageStatus: "complete" | "failed" | "stopped";
@@ -3430,6 +3552,59 @@ export interface operations {
             422: components["responses"]["ValidationFailed"];
         };
     };
+    listApprovals: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ApprovalStatus"];
+                kind?: components["schemas"]["ApprovalKind"];
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["ApprovalRequest"][];
+                        nextCursor: string | null;
+                        /** @description Pending items the caller may decide */
+                        pendingCount: number;
+                    };
+                };
+            };
+        };
+    };
+    getApproval: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequest"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
     decideApproval: {
         parameters: {
             query?: never;
@@ -3444,23 +3619,93 @@ export interface operations {
                 "application/json": {
                     /** @enum {string} */
                     decision: "approved" | "denied";
-                    comment?: string;
+                    comment: string;
                 };
             };
         };
         responses: {
-            /** @description The approval after the decision */
+            /** @description The request after the decision */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Approval"];
+                    "application/json": components["schemas"]["ApprovalRequest"];
                 };
             };
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    listAuditEvents: {
+        parameters: {
+            query?: {
+                /** @description Matches the person */
+                q?: string;
+                action?: string;
+                resourceType?: string;
+                outcome?: components["schemas"]["AuditOutcome"];
+                from?: string;
+                to?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["AuditEvent"][];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    exportAuditEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    q?: string;
+                    action?: string;
+                    resourceType?: string;
+                    outcome?: components["schemas"]["AuditOutcome"];
+                    /** Format: date */
+                    from?: string;
+                    /** Format: date */
+                    to?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The generated file */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["ValidationFailed"];
         };
     };
 }

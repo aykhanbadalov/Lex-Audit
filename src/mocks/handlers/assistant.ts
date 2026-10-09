@@ -3,7 +3,6 @@ import type { components } from "@/api/schema";
 import {
   answer,
   createConversation,
-  decide,
   eventsOf,
   findConversation,
   findMessage,
@@ -124,19 +123,5 @@ export const assistantHandlers = [
     if (body.rating !== "up" && body.rating !== "down") return apiError(422, "VALIDATION_FAILED", "Invalid rating");
     setFeedback(message, body.rating);
     return new HttpResponse(null, { status: 204 });
-  }),
-
-  http.post(apiPath("/approvals/:id/decide"), async ({ request, params }) => {
-    const auth = authorize(request, "approvals:decide");
-    if ("response" in auth) return auth.response;
-    const body = (await request.json()) as { decision?: string; comment?: string };
-    if (body.decision !== "approved" && body.decision !== "denied")
-      return apiError(422, "VALIDATION_FAILED", "Invalid decision");
-    const result = decide(String(params.id), body.decision, body.comment, auth.user);
-    if (result.ok) return HttpResponse.json(result.approval);
-    if (result.reason === "own-request") return apiError(403, "FORBIDDEN", "You cannot decide your own request");
-    return result.reason === "not-found"
-      ? apiError(404, "NOT_FOUND", "Approval not found")
-      : apiError(409, "CONFLICT", "Already decided");
   }),
 ];

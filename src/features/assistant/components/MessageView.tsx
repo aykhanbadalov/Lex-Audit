@@ -70,7 +70,6 @@ export function MessageView({ message, conversationId, onRetry }: MessageViewPro
                 key={toolRun.id}
                 toolRun={toolRun}
                 approval={message.approvals.find((approval) => approval.id === toolRun.approvalId)}
-                conversationId={conversationId}
               />
             ))}
           </ul>

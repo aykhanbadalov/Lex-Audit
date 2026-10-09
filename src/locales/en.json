@@ -23,7 +23,8 @@
     "legislation": "Legislation",
     "files": "Files",
     "reconciliation": "Reconciliation",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "audit": "Audit log"
   },
   "auth": {
     "title": "Sign in",
@@ -85,7 +86,8 @@
     "legislation": "Laws, codes, decisions and standards, with versions and changes",
     "files": "Upload, store and search documents",
     "reconciliation": "Compare bank statements and the e-invoice register with the books",
-    "integrations": "Import and export with 1C, e-taxes and bank files"
+    "integrations": "Import and export with 1C, e-taxes and bank files",
+    "audit": "Immutable event log: who did what, and when"
   },
   "risk": {
     "low": "Low risk",
@@ -892,7 +894,7 @@
       "waitingOther": "Someone else must approve this operation. You cannot approve your own request.",
       "waiting": "Awaiting approval. You are not allowed to decide.",
       "request": "{{name}} asks for this operation: {{target}}. Check it before approving.",
-      "comment": "Comment",
+      "comment": "Comment (required)",
       "approve": "Approve",
       "deny": "Deny"
     },
@@ -905,6 +907,75 @@
       "description": "If you write the right answer, the system can learn from it. This is optional.",
       "correction": "The right answer",
       "send": "Send"
+    }
+  },
+  "approvals": {
+    "decided": "Decision saved",
+    "decideFailed": "The decision was not saved",
+    "waitingForYou": "Waiting for your decision: {{count}}",
+    "empty": "No requests match this filter",
+    "emptyPending": "Nothing is waiting",
+    "emptyHint": "New requests will appear here.",
+    "filters": {
+      "status": "Status",
+      "kind": "Type"
+    },
+    "kind": {
+      "tool_action": "AI action",
+      "access_request": "Access request",
+      "tax_rate_change": "Tax rate",
+      "model_release": "Model release"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "denied": "Denied",
+      "expired": "Expired"
+    },
+    "requestedBy": "Requested by {{name}}, {{date}}",
+    "deadline": "Deadline: {{date}}",
+    "deadlineWas": "Deadline was: {{date}}",
+    "changes": "Changes",
+    "change": {
+      "what": "What",
+      "before": "Before",
+      "after": "After",
+      "none": "—"
+    },
+    "openConversation": "Open the conversation",
+    "commentRequired": "Comment (required, at least 3 characters)",
+    "decidedBy": "Decided by {{name}}, {{date}}"
+  },
+  "audit": {
+    "export": "Export to CSV",
+    "exported": "The file is ready:",
+    "exportFailed": "Export failed",
+    "searchPlaceholder": "Person, action or resource",
+    "empty": "No events",
+    "emptyHint": "Events appear here after people act.",
+    "columns": {
+      "at": "Time",
+      "actor": "Who",
+      "action": "Action",
+      "resource": "Resource",
+      "outcome": "Outcome"
+    },
+    "outcome": {
+      "success": "Succeeded",
+      "denied": "Denied",
+      "failed": "Failed"
+    },
+    "action": {
+      "auth_login": "Signed in",
+      "invoice_upload": "Invoice uploaded",
+      "invoice_update": "Invoice changed",
+      "journal_submit": "Entry sent for approval",
+      "vat_declaration_draft": "VAT return draft",
+      "file_archive": "File archived",
+      "import_commit": "Import run",
+      "assistant_message": "Asked the assistant",
+      "approval_decide": "Approval decision",
+      "audit_export": "Audit log exported"
     }
   }
 }

@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppAdminRouteImport } from './routes/_app/admin'
 import { Route as AppApprovalsRouteImport } from './routes/_app/approvals'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
+import { Route as AppAuditLogRouteImport } from './routes/_app/audit-log'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppVatRouteImport } from './routes/_app/vat'
 import { Route as AppAssistantIndexRouteImport } from './routes/_app/assistant.index'
@@ -64,6 +65,11 @@ const AppApprovalsRoute = AppApprovalsRouteImport.update({
 const AppAssistantRoute = AppAssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuditLogRoute = AppAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AppAdminRoute
   '/approvals': typeof AppApprovalsRoute
   '/assistant': typeof AppAssistantRouteWithChildren
+  '/audit-log': typeof AppAuditLogRoute
   '/dashboard': typeof AppDashboardRoute
   '/vat': typeof AppVatRoute
   '/assistant/$id': typeof AppAssistantIdRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin': typeof AppAdminRoute
   '/approvals': typeof AppApprovalsRoute
+  '/audit-log': typeof AppAuditLogRoute
   '/dashboard': typeof AppDashboardRoute
   '/vat': typeof AppVatRoute
   '/assistant/$id': typeof AppAssistantIdRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/_app/admin': typeof AppAdminRoute
   '/_app/approvals': typeof AppApprovalsRoute
   '/_app/assistant': typeof AppAssistantRouteWithChildren
+  '/_app/audit-log': typeof AppAuditLogRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/vat': typeof AppVatRoute
   '/_app/assistant/$id': typeof AppAssistantIdRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/approvals'
     | '/assistant'
+    | '/audit-log'
     | '/dashboard'
     | '/vat'
     | '/assistant/$id'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin'
     | '/approvals'
+    | '/audit-log'
     | '/dashboard'
     | '/vat'
     | '/assistant/$id'
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/_app/admin'
     | '/_app/approvals'
     | '/_app/assistant'
+    | '/_app/audit-log'
     | '/_app/dashboard'
     | '/_app/vat'
     | '/_app/assistant/$id'
@@ -392,6 +404,13 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof AppAssistantRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/audit-log': {
+      id: '/_app/audit-log'
+      path: '/audit-log'
+      fullPath: '/audit-log'
+      preLoaderRoute: typeof AppAuditLogRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -562,6 +581,7 @@ interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppApprovalsRoute: typeof AppApprovalsRoute
   AppAssistantRoute: typeof AppAssistantRouteWithChildren
+  AppAuditLogRoute: typeof AppAuditLogRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppVatRoute: typeof AppVatRoute
   AppExcelIdRoute: typeof AppExcelIdRoute
@@ -587,6 +607,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppApprovalsRoute: AppApprovalsRoute,
   AppAssistantRoute: AppAssistantRouteWithChildren,
+  AppAuditLogRoute: AppAuditLogRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppVatRoute: AppVatRoute,
   AppExcelIdRoute: AppExcelIdRoute,
