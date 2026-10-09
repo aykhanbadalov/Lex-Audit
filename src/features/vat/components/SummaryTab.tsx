@@ -63,17 +63,17 @@ export function SummaryTab({ periodId }: { periodId: string }) {
         </p>
       ) : null}
 
-      <dl className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Stat label={t("vat.summary.outputVat")} amount={data.outputVat} currency={currency} extra={drill("output")} />
         <Stat label={t("vat.summary.inputVat")} amount={data.inputVat} currency={currency} extra={drill("input")} />
         <Stat label={resultLabel} amount={data.result} currency={currency} strong />
-      </dl>
+      </div>
 
       <section aria-labelledby="turnover-heading" className="space-y-3">
         <h2 id="turnover-heading" className="text-lg font-semibold">
           {t("vat.summary.turnover")}
         </h2>
-        <dl className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Stat label={t("vat.summary.taxable")} amount={data.taxableTurnover} currency={currency} />
           <Stat
             label={t("vat.summary.zeroRated")}
@@ -87,7 +87,7 @@ export function SummaryTab({ periodId }: { periodId: string }) {
             currency={currency}
             extra={drill("exempt")}
           />
-        </dl>
+        </div>
       </section>
     </div>
   );
@@ -108,12 +108,14 @@ function Stat({
 }) {
   return (
     <Card>
-      <CardContent className="space-y-1">
-        <dt className="text-sm text-muted-foreground">{label}</dt>
-        <dd className={strong ? "text-2xl font-semibold" : "text-xl font-medium"}>
-          <MoneyText amount={amount} currency={currency} />
-        </dd>
-        {extra ? <dd>{extra}</dd> : null}
+      <CardContent>
+        <dl className="space-y-1">
+          <dt className="text-sm text-muted-foreground">{label}</dt>
+          <dd className={strong ? "text-2xl font-semibold" : "text-xl font-medium"}>
+            <MoneyText amount={amount} currency={currency} />
+          </dd>
+          {extra ? <dd>{extra}</dd> : null}
+        </dl>
       </CardContent>
     </Card>
   );

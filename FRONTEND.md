@@ -309,7 +309,7 @@ features/invoices/
 | F10 | AI Assistent (SSE, mənbələr, alətlər, feedback) | |
 | F11 | Təsdiqlər + audit jurnalı | |
 | F12 | Admin + model idarəetməsi | |
-| F13 | E2E testlər, a11y, performans, production build + deploy (statik hosting) | |
+| F13 | E2E testlər, a11y, performans, production build + deploy (statik hosting) | Yekun |
 
 ---
 
@@ -340,5 +340,6 @@ features/invoices/
 | F10 AI Assistent | tamamlanıb (SSE axını və kəsilmədən davam, mənbələr, alət kartları, təsdiq ayrılığı, feedback, söhbət idarəsi, xəbər/qanun/qaimədən «AI-dan soruş») |
 | F11 Təsdiqlər + audit jurnalı | tamamlanıb (növbə: son tarix, əvvəl/sonra cədvəli, məcburi şərh, sorğu verən təsdiq edə bilmir; audit jurnalı: filtr, axtarış, CSV ixracı) |
 | F12 Admin | tamamlanıb (istifadəçilər və rollar, xəbər mənbələri, vergi dərəcələri, model versiyaları; bütün dəyişikliklər təsdiq üzərindən) |
+| F13 Yekun | tamamlanıb (axe ilə 17 ekranda açıq/qaranlıq temada a11y yoxlaması, `pnpm build:prod` və `check-dist` mock/büdcə qoruması, `deploy/` qaydaları) |
 
 

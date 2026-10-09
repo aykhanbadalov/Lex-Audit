@@ -3,10 +3,27 @@ import { fileURLToPath, URL } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { rm } from "node:fs/promises";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
-export default defineConfig({
-  plugins: [tanstackRouter({ target: "react", autoCodeSplitting: true }), react(), tailwindcss()],
+/** The mock service worker is a development tool: a production build must not carry it, or the app could be switched to fake data. */
+function dropMockServiceWorker(keep: boolean): Plugin {
+  return {
+    name: "drop-mock-service-worker",
+    apply: "build",
+    async closeBundle() {
+      if (!keep) await rm(fileURLToPath(new URL("./dist/mockServiceWorker.js", import.meta.url)), { force: true });
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    tanstackRouter({ target: "react", autoCodeSplitting: true }),
+    react(),
+    tailwindcss(),
+    dropMockServiceWorker(loadEnv(mode, process.cwd(), "VITE_").VITE_ENABLE_MSW === "true"),
+  ],
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
@@ -28,4 +45,4 @@ export default defineConfig({
     // Node requires absolute URLs; in the browser the relative /api/v1 base is used.
     env: { VITE_API_BASE_URL: "http://localhost/api/v1", VITE_ENABLE_MSW: "false" },
   },
-});
+}));

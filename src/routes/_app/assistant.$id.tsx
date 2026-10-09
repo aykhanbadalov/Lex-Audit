@@ -134,26 +134,28 @@ function Chat({ id, title, stored }: { id: string; title: string; stored: Displa
       {messages.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("assistant.emptyHint")}</p>
       ) : (
-        <ol role="log" aria-label={t("assistant.messages")} className="space-y-6">
-          {messages.map((message, index) => (
-            <MessageView
-              key={message.id ?? `local-${index}`}
-              message={message}
-              conversationId={id}
-              onRetry={
-                message.live && message.status === "failed" && chat.pending
-                  ? () => {
-                      const request = chat.pending!;
-                      chat.dismiss();
-                      void chat.send(request);
-                    }
-                  : index === messages.length - 1
-                    ? retryStored
-                    : undefined
-              }
-            />
-          ))}
-        </ol>
+        <div role="log" aria-label={t("assistant.messages")}>
+          <ol className="space-y-6">
+            {messages.map((message, index) => (
+              <MessageView
+                key={message.id ?? `local-${index}`}
+                message={message}
+                conversationId={id}
+                onRetry={
+                  message.live && message.status === "failed" && chat.pending
+                    ? () => {
+                        const request = chat.pending!;
+                        chat.dismiss();
+                        void chat.send(request);
+                      }
+                    : index === messages.length - 1
+                      ? retryStored
+                      : undefined
+                }
+              />
+            ))}
+          </ol>
+        </div>
       )}
       <div ref={endRef} />
 
