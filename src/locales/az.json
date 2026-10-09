@@ -1,0 +1,41 @@
+{
+  "app": {
+    "name": "LexAudit AI",
+    "loading": "Yüklənir…"
+  },
+  "nav": {
+    "dashboard": "Bu gün",
+    "invoices": "Qaimələr",
+    "vat": "ƏDV",
+    "ledger": "Jurnal",
+    "excel": "Excel",
+    "news": "Xəbərlər",
+    "assistant": "AI Assistent",
+    "approvals": "Təsdiqlər",
+    "admin": "Tənzimləmələr"
+  },
+  "auth": {
+    "title": "Daxil ol",
+    "subtitle": "Hesabınıza daxil olun",
+    "email": "E-poçt",
+    "password": "Şifrə",
+    "submit": "Daxil ol",
+    "logout": "Çıxış",
+    "invalidCredentials": "E-poçt və ya şifrə yanlışdır.",
+    "networkError": "Serverə qoşulmaq mümkün olmadı. Yenidən cəhd edin.",
+    "fieldRequired": "Bu sahə məcburidir",
+    "emailInvalid": "E-poçt ünvanı düzgün deyil"
+  },
+  "dashboard": {
+    "title": "Bu gün",
+    "welcome": "Xoş gəldiniz, {{name}}",
+    "placeholder": "Dashboard F5–F8 mərhələlərində doldurulacaq."
+  },
+  "errors": {
+    "notFound": "Səhifə tapılmadı",
+    "forbidden": "Bu bölməyə giriş icazəniz yoxdur",
+    "retry": "Yenidən cəhd et",
+    "generic": "Xəta baş verdi"
+  },
+  "language": "Dil"
+}

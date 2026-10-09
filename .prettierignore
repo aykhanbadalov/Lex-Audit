@@ -1,0 +1,7 @@
+dist
+coverage
+pnpm-lock.yaml
+public/mockServiceWorker.js
+src/routeTree.gen.ts
+src/api/schema.d.ts
+FRONTEND.md

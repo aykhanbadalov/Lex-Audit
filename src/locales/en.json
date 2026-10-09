@@ -1,0 +1,41 @@
+{
+  "app": {
+    "name": "LexAudit AI",
+    "loading": "Loading…"
+  },
+  "nav": {
+    "dashboard": "Today",
+    "invoices": "Invoices",
+    "vat": "VAT",
+    "ledger": "Ledger",
+    "excel": "Excel",
+    "news": "News",
+    "assistant": "AI Assistant",
+    "approvals": "Approvals",
+    "admin": "Settings"
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Sign in to your account",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "logout": "Sign out",
+    "invalidCredentials": "Incorrect email or password.",
+    "networkError": "Could not reach the server. Please try again.",
+    "fieldRequired": "This field is required",
+    "emailInvalid": "Enter a valid email address"
+  },
+  "dashboard": {
+    "title": "Today",
+    "welcome": "Welcome, {{name}}",
+    "placeholder": "The dashboard will be filled in during phases F5–F8."
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "forbidden": "You do not have access to this section",
+    "retry": "Try again",
+    "generic": "Something went wrong"
+  },
+  "language": "Language"
+}
