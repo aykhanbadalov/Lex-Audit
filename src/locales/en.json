@@ -21,7 +21,9 @@
       "governance": "Governance"
     },
     "legislation": "Legislation",
-    "files": "Files"
+    "files": "Files",
+    "reconciliation": "Reconciliation",
+    "integrations": "Integrations"
   },
   "auth": {
     "title": "Sign in",
@@ -81,7 +83,9 @@
     "approvals": "Operations awaiting approval",
     "admin": "Users, roles, sources and model management",
     "legislation": "Laws, codes, decisions and standards, with versions and changes",
-    "files": "Upload, store and search documents"
+    "files": "Upload, store and search documents",
+    "reconciliation": "Compare bank statements and the e-invoice register with the books",
+    "integrations": "Import and export with 1C, e-taxes and bank files"
   },
   "risk": {
     "low": "Low risk",
@@ -585,6 +589,236 @@
       "valid": "In force",
       "source": "Source",
       "now": "present"
+    }
+  },
+  "excel": {
+    "columns": {
+      "file": "File",
+      "status": "Status",
+      "rows": "Rows",
+      "created": "Uploaded"
+    },
+    "status": {
+      "uploaded": "Queued",
+      "profiling": "Being analysed",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "empty": "No spreadsheets yet",
+    "emptyHint": "Uploaded spreadsheets will appear here.",
+    "emptyHintWrite": "Upload your first Excel or CSV file using the area above.",
+    "back": "Back to spreadsheets",
+    "notFound": "Spreadsheet not found",
+    "notFoundHint": "It may have been removed or is not available to you.",
+    "originalSafe": "The original file is never changed: every operation creates a new file.",
+    "failedTitle": "The file could not be read",
+    "profiling": "The file is being analysed. This page updates by itself when it is ready.",
+    "sheet": "Sheet \"{{name}}\" · {{rows}} rows",
+    "profile": "Column analysis",
+    "profileColumns": {
+      "column": "Column",
+      "type": "Type",
+      "meaning": "Meaning",
+      "filled": "Filled",
+      "empty": "Empty",
+      "duplicates": "Duplicates",
+      "samples": "Samples"
+    },
+    "type": {
+      "text": "Text",
+      "number": "Number",
+      "money": "Amount",
+      "date": "Date",
+      "taxId": "Tax ID",
+      "empty": "Empty"
+    },
+    "checkMeaning": "Check · {{percent}}%",
+    "jobs": "Operations",
+    "noJobs": "No operations have been run yet.",
+    "operation": {
+      "trim_spaces": "Remove extra spaces",
+      "remove_duplicates": "Remove duplicate rows",
+      "normalize_dates": "Put dates in one format"
+    },
+    "operationHint": {
+      "trim_spaces": "Removes spaces at the start and end of text in every column.",
+      "remove_duplicates": "Removes duplicate rows by the chosen columns and keeps the first one.",
+      "normalize_dates": "Puts the dates in the chosen column into DD.MM.YYYY."
+    },
+    "run": {
+      "title": "Run an operation",
+      "operation": "Operation",
+      "keyColumns": "Key columns",
+      "dateColumn": "Date column",
+      "needColumn": "Choose at least one column.",
+      "needOneColumn": "Choose exactly one column.",
+      "submit": "Run"
+    },
+    "job": {
+      "started": "The operation has started",
+      "failed": "The operation could not be started",
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "done": "Done",
+        "failed": "Failed"
+      },
+      "result": "Read: {{read}} · changed: {{changed}} · removed: {{removed}}",
+      "changes": "Sample of the changes",
+      "row": "Row",
+      "column": "Column",
+      "before": "Before",
+      "after": "After",
+      "output": "Result (a new file):"
+    }
+  },
+  "reconciliation": {
+    "columns": {
+      "file": "File",
+      "kind": "Type",
+      "period": "Period",
+      "status": "Status",
+      "summary": "Result"
+    },
+    "kind": {
+      "bank_ledger": "Bank statement ↔ books",
+      "invoices_etaxes": "Invoices ↔ e-taxes register"
+    },
+    "status": {
+      "running": "Being prepared",
+      "ready": "Ready",
+      "failed": "Failed",
+      "confirmed": "Confirmed",
+      "suggested": "Awaiting confirmation",
+      "unmatched": "Not matched",
+      "rejected": "Rejected"
+    },
+    "summaryLine": "Confirmed: {{confirmed}} · awaiting confirmation: {{suggested}} · not matched: {{unmatched}}",
+    "empty": "No reconciliations yet",
+    "emptyHint": "Start a new reconciliation and the result will appear here.",
+    "new": "New reconciliation",
+    "file": "File",
+    "chooseFile": "Choose a file",
+    "fileHint": "Only spreadsheets and XML files that have finished processing are shown.",
+    "start": "Start",
+    "created": "The reconciliation has started",
+    "createFailed": "The reconciliation could not be started",
+    "decideFailed": "The decision was not saved",
+    "back": "Back to reconciliations",
+    "notFound": "Reconciliation not found",
+    "notFoundHint": "It may have been removed or is not available to you.",
+    "running": "The reconciliation is being prepared. This page updates by itself when it is ready.",
+    "differenceTotal": "Remaining difference",
+    "filter": "Row status",
+    "rows": "Reconciliation rows",
+    "side": {
+      "bank_ledger": {
+        "left": "Bank statement",
+        "right": "Books"
+      },
+      "invoices_etaxes": {
+        "left": "Invoices (books)",
+        "right": "e-taxes register"
+      }
+    },
+    "rowColumns": {
+      "difference": "Difference",
+      "status": "Status"
+    },
+    "confidence": "confidence {{percent}}%",
+    "confirm": "Confirm",
+    "reject": "Reject"
+  },
+  "integrations": {
+    "columns": {
+      "file": "File",
+      "source": "Source",
+      "status": "Status",
+      "result": "Result",
+      "created": "Uploaded"
+    },
+    "source": {
+      "onec": "1C",
+      "etaxes": "e-taxes invoice register",
+      "bank": "Bank statement"
+    },
+    "sourceHint": {
+      "onec": "An Excel or XML export from 1C. Column names may be in Russian or Azerbaijani.",
+      "etaxes": "The invoice register downloaded from the e-taxes.gov.az portal.",
+      "bank": "The Excel or CSV statement your bank provides."
+    },
+    "status": {
+      "analysing": "Being analysed",
+      "needs_mapping": "Needs column mapping",
+      "ready": "Ready to import",
+      "importing": "Importing",
+      "done": "Completed",
+      "failed": "Failed"
+    },
+    "resultLine": "Succeeded: {{rowsOk}} · failed: {{rowsFailed}} · duplicates: {{duplicates}}",
+    "newImport": "New import",
+    "empty": "No imports yet",
+    "emptyHint": "Uploaded files will appear here.",
+    "back": "Back to imports",
+    "notFound": "Import not found",
+    "notFoundHint": "It may have been removed or is not available to you.",
+    "analysing": "The file is being analysed. This page updates by itself when it is ready.",
+    "importing": "The rows are being written. The result will appear here when it is done.",
+    "mappingSaved": "Mapping saved",
+    "mappingFailed": "The mapping could not be saved",
+    "commitFailed": "The import could not be started",
+    "summary": {
+      "rowsTotal": "Total rows",
+      "rowsOk": "Succeeded",
+      "rowsFailed": "Failed",
+      "duplicates": "Duplicates"
+    },
+    "mapping": {
+      "title": "Column mapping",
+      "hint": "For each field, choose the column of the file it should come from. The system made a proposal; check it.",
+      "required": "required",
+      "none": "— not chosen —",
+      "save": "Save mapping"
+    },
+    "field": {
+      "date": "Date",
+      "number": "Number",
+      "counterparty": "Counterparty",
+      "voen": "Tax ID (VÖEN)",
+      "amount": "Amount",
+      "currency": "Currency",
+      "net": "Excl. VAT",
+      "vat": "VAT",
+      "gross": "Total",
+      "description": "Description",
+      "reference": "Reference"
+    },
+    "error": {
+      "REQUIRED_UNMAPPED": "No column is chosen for the required \"{{field}}\" field.",
+      "INVALID_DATE": "invalid date",
+      "INVALID_AMOUNT": "invalid amount",
+      "INVALID_TAX_ID": "invalid tax ID",
+      "DUPLICATE_ROW": "duplicate row"
+    },
+    "preview": {
+      "title": "Preview of the first rows",
+      "row": "Row",
+      "invalid": "invalid",
+      "rowError": "Row {{row}}, \"{{field}}\": {{message}}"
+    },
+    "commit": {
+      "button": "Import",
+      "saveFirst": "Save the mapping first.",
+      "cannot": "Map the required fields. If every row is invalid, the mapping is wrong.",
+      "confirmTitle": "Start the import?",
+      "confirmDescription": "{{count}} rows will be imported. Rows with errors will be skipped and shown in the result. This cannot be undone later."
+    },
+    "export": {
+      "title": "Export to 1C",
+      "hint": "Turns the approved journal entries of the chosen period into a file 1C can import. The file also appears under Files.",
+      "submit": "Create file",
+      "ready": "The file is ready:",
+      "failed": "The file could not be created"
     }
   }
 }

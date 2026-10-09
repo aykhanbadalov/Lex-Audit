@@ -219,6 +219,7 @@ describe("uploading", () => {
   });
 
   it("refreshes an expired session and sends the file again with the same idempotency key", async () => {
+    pollConfig.intervalMs = 60_000; // a background poll would refresh the session before the upload and hide the very 401 under test
     setMockRefreshUser("muhasib@lexaudit.test");
     useAuthStore.getState().setSession({
       accessToken: "stale",

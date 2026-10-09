@@ -2,9 +2,11 @@ import {
   BookOpenCheck,
   Bot,
   FileSpreadsheet,
+  GitCompareArrows,
   Files,
   Gauge,
   Newspaper,
+  PlugZap,
   Percent,
   Receipt,
   Scale,
@@ -22,6 +24,8 @@ export interface NavItem {
     | "/ledger"
     | "/files"
     | "/excel"
+    | "/reconciliation"
+    | "/integrations"
     | "/news"
     | "/legislation"
     | "/assistant"
@@ -40,6 +44,14 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/ledger", labelKey: "nav.ledger", icon: BookOpenCheck, permission: "ledger:read", group: "work" },
   { to: "/files", labelKey: "nav.files", icon: Files, permission: "files:read", group: "work" },
   { to: "/excel", labelKey: "nav.excel", icon: FileSpreadsheet, permission: "excel:read", group: "work" },
+  {
+    to: "/reconciliation",
+    labelKey: "nav.reconciliation",
+    icon: GitCompareArrows,
+    permission: "reconciliation:read",
+    group: "work",
+  },
+  { to: "/integrations", labelKey: "nav.integrations", icon: PlugZap, permission: "integrations:read", group: "work" },
   { to: "/news", labelKey: "nav.news", icon: Newspaper, permission: "news:read", group: "knowledge" },
   { to: "/legislation", labelKey: "nav.legislation", icon: Scale, permission: "legislation:read", group: "knowledge" },
   { to: "/assistant", labelKey: "nav.assistant", icon: Bot, permission: "assistant:use", group: "knowledge" },

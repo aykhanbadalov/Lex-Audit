@@ -596,6 +596,224 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/excel/workbooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Uploaded spreadsheets, newest first (no paging yet; see BACKEND_REQUIREMENTS) */
+        get: operations["listWorkbooks"];
+        put?: never;
+        /** Upload a spreadsheet. It is profiled in the background; the original is never modified. */
+        post: operations["uploadWorkbook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/excel/workbooks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getWorkbook"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/excel/workbooks/{id}/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run an operation. The result is always a new file; the workbook is never changed. */
+        post: operations["createExcelJob"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listReconciliations"];
+        put?: never;
+        /** Compare an uploaded file with the books (or an e-invoice register with the invoices) for a period */
+        post: operations["createReconciliation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getReconciliation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}/rows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listReconciliationRows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}/rows/{rowId}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept the server's suggested match. A person decides; the model only suggests. */
+        post: operations["confirmReconciliationRow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}/rows/{rowId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Say the suggested match is wrong. Both sides go back to unmatched. */
+        post: operations["rejectReconciliationRow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listImports"];
+        put?: never;
+        /** Upload a file from 1C, the e-taxes portal or a bank. Nothing is written until the import is committed. */
+        post: operations["uploadImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getImport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{id}/mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Choose which file column feeds which field. The server validates again and returns a fresh preview. */
+        put: operations["saveImportMapping"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Write the rows. Only allowed when the server says `canCommit`. It cannot be undone from the UI. */
+        post: operations["commitImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exports/onec": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Build a file of the approved journal entries of a period, in a format 1C can import */
+        post: operations["exportToOneC"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1110,6 +1328,194 @@ export interface components {
             lines: components["schemas"]["VatReturnLine"][];
             /** @description Invoices left out when the draft was prepared */
             excludedInvoiceCount: number;
+        };
+        /** @enum {string} */
+        WorkbookStatus: "uploaded" | "profiling" | "ready" | "failed";
+        Workbook: {
+            id: string;
+            fileName: string;
+            status: components["schemas"]["WorkbookStatus"];
+            statusDetail: string | null;
+            sheetCount: number;
+            /** @description Rows over all sheets, 0 until profiled */
+            rowCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        /** @enum {string} */
+        ColumnType: "text" | "number" | "money" | "date" | "taxId" | "empty";
+        /** @description What the model thinks the column holds */
+        ColumnMeaning: {
+            label: string;
+            confidence: number;
+        };
+        ColumnProfile: {
+            /** @description Column letter, the stable handle used when asking for an operation */
+            letter: string;
+            name: string;
+            detectedType: components["schemas"]["ColumnType"];
+            meaning: components["schemas"]["ColumnMeaning"] | null;
+            filled: number;
+            empty: number;
+            /** @description Rows whose value already appeared earlier in the column */
+            duplicates: number;
+            samples: string[];
+        };
+        Sheet: {
+            name: string;
+            rowCount: number;
+            columns: components["schemas"]["ColumnProfile"][];
+        };
+        /** @enum {string} */
+        ExcelOperation: "trim_spaces" | "remove_duplicates" | "normalize_dates";
+        ExcelJobRequest: {
+            operation: components["schemas"]["ExcelOperation"];
+            sheet: string;
+            /** @description trim_spaces: empty means all; remove_duplicates: the key columns (at least one); normalize_dates: exactly one */
+            columns: string[];
+        };
+        /** @enum {string} */
+        ExcelJobStatus: "queued" | "running" | "done" | "failed";
+        CellChange: {
+            row: number;
+            column: string;
+            before: string;
+            after: string;
+        };
+        ExcelJob: {
+            id: string;
+            workbookId: string;
+            operation: components["schemas"]["ExcelOperation"];
+            sheet: string;
+            columns: string[];
+            status: components["schemas"]["ExcelJobStatus"];
+            statusDetail: string | null;
+            rowsRead: number;
+            rowsChanged: number;
+            rowsRemoved: number;
+            /** @description A sample of the first changes, for a preview */
+            changes: components["schemas"]["CellChange"][];
+            /** @description The new file, stored under Files */
+            outputFileId: string | null;
+            outputFileName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        WorkbookDetail: components["schemas"]["Workbook"] & {
+            sheets: components["schemas"]["Sheet"][];
+            /** @description Newest first */
+            jobs: components["schemas"]["ExcelJob"][];
+        };
+        /** @enum {string} */
+        ReconciliationKind: "bank_ledger" | "invoices_etaxes";
+        ReconciliationRequest: {
+            kind: components["schemas"]["ReconciliationKind"];
+            /** @description A file from Files that has finished processing (status ready) */
+            fileId: string;
+            periodId: string;
+        };
+        /**
+         * @description confirmed (a person agreed), suggested (the model proposes, a person decides), unmatched, rejected (a person said no)
+         * @enum {string}
+         */
+        ReconciliationRowStatus: "confirmed" | "suggested" | "unmatched" | "rejected";
+        ReconItem: {
+            /** Format: date */
+            date: string;
+            description: string;
+            amount: components["schemas"]["Money"];
+            reference: string | null;
+        };
+        ReconciliationSummary: {
+            confirmed: number;
+            suggested: number;
+            /** @description Rows with no partner, plus rejected suggestions */
+            unmatched: number;
+            differenceTotal: components["schemas"]["Money"];
+            currency: string;
+        };
+        Reconciliation: {
+            id: string;
+            kind: components["schemas"]["ReconciliationKind"];
+            fileName: string;
+            periodId: string;
+            /** @enum {string} */
+            status: "running" | "ready" | "failed";
+            statusDetail: string | null;
+            summary: components["schemas"]["ReconciliationSummary"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ReconciliationRow: {
+            id: string;
+            status: components["schemas"]["ReconciliationRowStatus"];
+            /** @description Only for suggestions */
+            confidence: number | null;
+            left: components["schemas"]["ReconItem"] | null;
+            right: components["schemas"]["ReconItem"] | null;
+            /** @description Computed by the server */
+            difference: components["schemas"]["Money"] | null;
+        };
+        ReconciliationRowPage: {
+            items: components["schemas"]["ReconciliationRow"][];
+            nextCursor: string | null;
+        };
+        /** @enum {string} */
+        ImportSource: "onec" | "etaxes" | "bank";
+        /** @enum {string} */
+        ImportStatus: "analysing" | "needs_mapping" | "ready" | "importing" | "done" | "failed";
+        ImportSummary: {
+            rowsTotal: number;
+            rowsOk: number;
+            rowsFailed: number;
+            duplicates: number;
+        };
+        ImportJob: {
+            id: string;
+            source: components["schemas"]["ImportSource"];
+            fileName: string;
+            status: components["schemas"]["ImportStatus"];
+            statusDetail: string | null;
+            rowCount: number;
+            /** @description Set once the import has run */
+            summary: components["schemas"]["ImportSummary"] | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ImportColumn: {
+            name: string;
+            samples: string[];
+        };
+        ImportTargetField: {
+            /** @description A stable key the UI translates, for example date, number, voen, amount */
+            key: string;
+            required: boolean;
+        };
+        ImportRowError: {
+            row: number;
+            field: string;
+            /** @enum {string} */
+            code: "REQUIRED_UNMAPPED" | "INVALID_DATE" | "INVALID_AMOUNT" | "INVALID_TAX_ID" | "DUPLICATE_ROW";
+        };
+        ImportPreviewRow: {
+            row: number;
+            values: {
+                [key: string]: string;
+            };
+        };
+        ImportDetail: components["schemas"]["ImportJob"] & {
+            columns: components["schemas"]["ImportColumn"][];
+            targetFields: components["schemas"]["ImportTargetField"][];
+            /** @description The server's proposal, then the user's choice. target key to file column name, or null. */
+            mapping: {
+                [key: string]: string | null;
+            };
+            preview: components["schemas"]["ImportPreviewRow"][];
+            errors: components["schemas"]["ImportRowError"][];
+            /** @description Decided by the server. The button follows it. */
+            canCommit: boolean;
         };
     };
     responses: {
@@ -2189,6 +2595,420 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthenticated"];
+        };
+    };
+    listWorkbooks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workbook"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    uploadWorkbook: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workbook"];
+                };
+            };
+            413: components["responses"]["PayloadTooLarge"];
+            415: components["responses"]["UnsupportedType"];
+        };
+    };
+    getWorkbook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkbookDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createExcelJob: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExcelJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExcelJob"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    listReconciliations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reconciliation"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    createReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReconciliationRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reconciliation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    getReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reconciliation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listReconciliationRows: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ReconciliationRowStatus"];
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationRowPage"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    confirmReconciliationRow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                rowId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The row after the decision */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationRow"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    rejectReconciliationRow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                rowId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The row after the decision */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationRow"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listImports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJob"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    uploadImport: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    source: components["schemas"]["ImportSource"];
+                };
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJob"];
+                };
+            };
+            413: components["responses"]["PayloadTooLarge"];
+            415: components["responses"]["UnsupportedType"];
+        };
+    };
+    getImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    saveImportMapping: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    mapping: {
+                        [key: string]: string | null;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    commitImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted. The status becomes `importing`, then `done`. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    exportToOneC: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    periodId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The generated file (it is also listed under Files) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            422: components["responses"]["ValidationFailed"];
         };
     };
 }

@@ -142,3 +142,33 @@ See `openapi.yaml` (`/vat/...`, `/journal`). Again the server computes; the scre
   grouped by type otherwise. The mock has no hierarchy because inventing one would mean inventing the chart of accounts.
 - ❓ `GET /invoices` now takes `vatPeriod` and `vatBucket` so a figure on the VAT screen can be traced to its invoices. The
   server must use the same inclusion rule there as in the summary, or the counts will not match.
+
+## 9. Excel, reconciliation and imports (phase F9)
+
+See `openapi.yaml` (`/excel/...`, `/reconciliations`, `/imports`, `/exports/onec`).
+
+- ✅ **The original spreadsheet is never modified.** Every Excel operation produces a **new file stored under Files**
+  (`outputFileId`); the screen links to it and says so. `trim_spaces`, `remove_duplicates`, `normalize_dates` are the first
+  operations; each new one needs a translation on the frontend.
+- ✅ Profiling returns, per column, a detected type, a **meaning with a confidence** (the UI flags anything under 85%), counts of
+  filled / empty / duplicate cells and a few sample values. Samples come from the user's file and are rendered as plain text.
+- ✅ Operation parameters are validated by the server (`remove_duplicates` needs at least one key column, `normalize_dates`
+  exactly one); the UI checks the same rule first. A workbook that is not `ready` answers **409** to a job.
+- ❓ **Natural-language commands** ("find the rows where VAT is wrong") are not in this phase. They belong to the assistant (F10)
+  and will call these same operations as tools.
+- ✅ **Reconciliation compares a file that is `ready`.** The server must answer **422** for a file that is still processing, or is
+  not a statement, so a half-read file can never be "reconciled" against nothing. The UI only offers ready files, but must
+  not be the only line of defence.
+- ✅ A row's `difference` and the summary's `differenceTotal` are computed by the server. The model **only suggests** a match;
+  `confirm` / `reject` are made by a person, are allowed **once**, and only for a `suggested` row (**409** otherwise).
+- ❓ Manual matching (pairing two unmatched rows by hand) is not in the contract yet.
+- ✅ **Imports write nothing until committed.** `canCommit` is decided by the server and the button follows it: all required
+  fields mapped, and not every row invalid. Bad rows are **reported and skipped**, not fatal. ❓ Confirm that policy.
+- ✅ The mapping is the server's proposal first; a person may change it, which is saved with `PUT /imports/{id}/mapping`
+  and answered with a fresh preview and errors. One file column may feed only one field.
+- ✅ Committing cannot be undone from the UI, so it is confirmed first. ❓ Decide whether imported rows need a rollback and,
+  per `BACKEND.md`, whether an import is subject to the approval workflow (F11).
+- ❓ Lists (`/excel/workbooks`, `/reconciliations`, `/imports`) return plain arrays with no paging; add cursor paging before volume grows.
+- ✅ `POST /exports/onec` builds a file of approved entries for 1C and returns a File (also listed under Files). ❓ The real 1C format
+  and the choice of which entries are included belong to the backend and an accountant.
+- ❓ New permission keys: `excel:write`, `reconciliation:read|write`, `integrations:read|write`.

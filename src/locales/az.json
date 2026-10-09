@@ -21,7 +21,9 @@
       "governance": "İdarəetmə"
     },
     "legislation": "Qanunvericilik",
-    "files": "Fayllar"
+    "files": "Fayllar",
+    "reconciliation": "Uzlaşdırma",
+    "integrations": "İnteqrasiyalar"
   },
   "auth": {
     "title": "Daxil ol",
@@ -81,7 +83,9 @@
     "approvals": "Təsdiq gözləyən əməliyyatlar",
     "admin": "İstifadəçilər, rollar, mənbələr və model idarəetməsi",
     "legislation": "Qanunlar, məcəllələr, qərarlar və standartlar; versiyalar və dəyişikliklər",
-    "files": "Sənədlərin yüklənməsi, saxlanması və axtarışı"
+    "files": "Sənədlərin yüklənməsi, saxlanması və axtarışı",
+    "reconciliation": "Bank çıxarışı və e-qaimə reyestrinin uçotla müqayisəsi",
+    "integrations": "1C, e-taxes və bank faylları ilə idxal və ixrac"
   },
   "risk": {
     "low": "Aşağı risk",
@@ -585,6 +589,236 @@
       "valid": "Qüvvədədir",
       "source": "Mənbə",
       "now": "hazırda"
+    }
+  },
+  "excel": {
+    "columns": {
+      "file": "Fayl",
+      "status": "Status",
+      "rows": "Sətir",
+      "created": "Yüklənib"
+    },
+    "status": {
+      "uploaded": "Növbədə",
+      "profiling": "Təhlil edilir",
+      "ready": "Hazırdır",
+      "failed": "Xəta"
+    },
+    "empty": "Hələ cədvəl yoxdur",
+    "emptyHint": "Yüklənmiş cədvəllər burada görünəcək.",
+    "emptyHintWrite": "Yuxarıdakı sahədən ilk Excel və ya CSV faylını yükləyin.",
+    "back": "Cədvəllərə qayıt",
+    "notFound": "Cədvəl tapılmadı",
+    "notFoundHint": "Cədvəl silinmiş və ya əlçatan olmaya bilər.",
+    "originalSafe": "Orijinal fayl heç vaxt dəyişdirilmir: hər əməliyyat yeni fayl yaradır.",
+    "failedTitle": "Fayl oxuna bilmədi",
+    "profiling": "Fayl təhlil edilir. Hazır olanda bu səhifə özü yenilənəcək.",
+    "sheet": "Vərəq «{{name}}» · {{rows}} sətir",
+    "profile": "Sütunların təhlili",
+    "profileColumns": {
+      "column": "Sütun",
+      "type": "Növ",
+      "meaning": "Məna",
+      "filled": "Dolu",
+      "empty": "Boş",
+      "duplicates": "Təkrar",
+      "samples": "Nümunələr"
+    },
+    "type": {
+      "text": "Mətn",
+      "number": "Rəqəm",
+      "money": "Məbləğ",
+      "date": "Tarix",
+      "taxId": "VÖEN",
+      "empty": "Boş"
+    },
+    "checkMeaning": "Yoxlayın · {{percent}}%",
+    "jobs": "Əməliyyatlar",
+    "noJobs": "Hələ əməliyyat icra olunmayıb.",
+    "operation": {
+      "trim_spaces": "Artıq boşluqları təmizlə",
+      "remove_duplicates": "Təkrar sətirləri sil",
+      "normalize_dates": "Tarixləri vahid formata sal"
+    },
+    "operationHint": {
+      "trim_spaces": "Bütün sütunlarda mətnin əvvəlindəki və sonundakı boşluqları silir.",
+      "remove_duplicates": "Seçilən sütunlar üzrə təkrar sətirləri silir, birincisini saxlayır.",
+      "normalize_dates": "Seçilən sütundakı tarixləri GG.AA.İİİİ formatına salır."
+    },
+    "run": {
+      "title": "Əməliyyat icra et",
+      "operation": "Əməliyyat",
+      "keyColumns": "Açar sütunlar",
+      "dateColumn": "Tarix sütunu",
+      "needColumn": "Ən azı bir sütun seçin.",
+      "needOneColumn": "Tam bir sütun seçin.",
+      "submit": "İcra et"
+    },
+    "job": {
+      "started": "Əməliyyat başladı",
+      "failed": "Əməliyyat başlamadı",
+      "status": {
+        "queued": "Növbədə",
+        "running": "İcra olunur",
+        "done": "Hazırdır",
+        "failed": "Xəta"
+      },
+      "result": "Oxunub: {{read}} · dəyişdirilib: {{changed}} · silinib: {{removed}}",
+      "changes": "Dəyişikliklərin nümunəsi",
+      "row": "Sətir",
+      "column": "Sütun",
+      "before": "Əvvəl",
+      "after": "Sonra",
+      "output": "Nəticə (yeni fayl):"
+    }
+  },
+  "reconciliation": {
+    "columns": {
+      "file": "Fayl",
+      "kind": "Növ",
+      "period": "Dövr",
+      "status": "Status",
+      "summary": "Nəticə"
+    },
+    "kind": {
+      "bank_ledger": "Bank çıxarışı ↔ uçot",
+      "invoices_etaxes": "Qaimələr ↔ e-taxes reyestri"
+    },
+    "status": {
+      "running": "Hazırlanır",
+      "ready": "Hazırdır",
+      "failed": "Xəta",
+      "confirmed": "Təsdiqlənib",
+      "suggested": "Təsdiq gözləyir",
+      "unmatched": "Uyğunsuz",
+      "rejected": "Rədd edilib"
+    },
+    "summaryLine": "Təsdiqlənib: {{confirmed}} · təsdiq gözləyir: {{suggested}} · uyğunsuz: {{unmatched}}",
+    "empty": "Hələ uzlaşdırma yoxdur",
+    "emptyHint": "Yeni uzlaşdırma başladın, nəticə burada görünəcək.",
+    "new": "Yeni uzlaşdırma",
+    "file": "Fayl",
+    "chooseFile": "Fayl seçin",
+    "fileHint": "Yalnız emalı bitmiş cədvəl və ya XML faylları göstərilir.",
+    "start": "Başla",
+    "created": "Uzlaşdırma başladı",
+    "createFailed": "Uzlaşdırma başlamadı",
+    "decideFailed": "Qərar saxlanmadı",
+    "back": "Uzlaşdırmalara qayıt",
+    "notFound": "Uzlaşdırma tapılmadı",
+    "notFoundHint": "Uzlaşdırma silinmiş və ya əlçatan olmaya bilər.",
+    "running": "Uzlaşdırma hazırlanır. Hazır olanda bu səhifə özü yenilənəcək.",
+    "differenceTotal": "Qalan fərq",
+    "filter": "Sətirlərin statusu",
+    "rows": "Uzlaşdırma sətirləri",
+    "side": {
+      "bank_ledger": {
+        "left": "Bank çıxarışı",
+        "right": "Uçot"
+      },
+      "invoices_etaxes": {
+        "left": "Qaimələr (uçot)",
+        "right": "e-taxes reyestri"
+      }
+    },
+    "rowColumns": {
+      "difference": "Fərq",
+      "status": "Status"
+    },
+    "confidence": "etibar {{percent}}%",
+    "confirm": "Təsdiq et",
+    "reject": "Rədd et"
+  },
+  "integrations": {
+    "columns": {
+      "file": "Fayl",
+      "source": "Mənbə",
+      "status": "Status",
+      "result": "Nəticə",
+      "created": "Yüklənib"
+    },
+    "source": {
+      "onec": "1C",
+      "etaxes": "e-taxes qaimə reyestri",
+      "bank": "Bank çıxarışı"
+    },
+    "sourceHint": {
+      "onec": "1C-dən Excel və ya XML ixracı. Sütun adları rus və ya Azərbaycan dilində ola bilər.",
+      "etaxes": "e-taxes.gov.az portalından endirilmiş qaimə reyestri.",
+      "bank": "Bankın verdiyi Excel və ya CSV çıxarışı."
+    },
+    "status": {
+      "analysing": "Təhlil edilir",
+      "needs_mapping": "Xəritələmə tələb edir",
+      "ready": "İdxala hazırdır",
+      "importing": "İdxal olunur",
+      "done": "Tamamlanıb",
+      "failed": "Xəta"
+    },
+    "resultLine": "Uğurlu: {{rowsOk}} · xəta: {{rowsFailed}} · təkrar: {{duplicates}}",
+    "newImport": "Yeni idxal",
+    "empty": "Hələ idxal yoxdur",
+    "emptyHint": "Yüklənən fayllar burada görünəcək.",
+    "back": "İdxallara qayıt",
+    "notFound": "İdxal tapılmadı",
+    "notFoundHint": "İdxal silinmiş və ya əlçatan olmaya bilər.",
+    "analysing": "Fayl təhlil edilir. Hazır olanda bu səhifə özü yenilənəcək.",
+    "importing": "Sətirlər yazılır. Hazır olanda nəticə burada görünəcək.",
+    "mappingSaved": "Xəritələmə saxlanıldı",
+    "mappingFailed": "Xəritələmə saxlanmadı",
+    "commitFailed": "İdxal başlamadı",
+    "summary": {
+      "rowsTotal": "Cəmi sətir",
+      "rowsOk": "Uğurlu",
+      "rowsFailed": "Xətalı",
+      "duplicates": "Təkrar"
+    },
+    "mapping": {
+      "title": "Sütunların xəritələnməsi",
+      "hint": "Hər sahə üçün faylın hansı sütunundan götürüləcəyini seçin. Təklif sistemdəndir, yoxlayın.",
+      "required": "məcburi",
+      "none": "— seçilməyib —",
+      "save": "Xəritələməni saxla"
+    },
+    "field": {
+      "date": "Tarix",
+      "number": "Nömrə",
+      "counterparty": "Kontragent",
+      "voen": "VÖEN",
+      "amount": "Məbləğ",
+      "currency": "Valyuta",
+      "net": "ƏDV-siz",
+      "vat": "ƏDV",
+      "gross": "Cəmi",
+      "description": "Təsvir",
+      "reference": "Arayış"
+    },
+    "error": {
+      "REQUIRED_UNMAPPED": "Məcburi «{{field}}» sahəsi üçün sütun seçilməyib.",
+      "INVALID_DATE": "tarix düzgün deyil",
+      "INVALID_AMOUNT": "məbləğ düzgün deyil",
+      "INVALID_TAX_ID": "VÖEN düzgün deyil",
+      "DUPLICATE_ROW": "təkrar sətir"
+    },
+    "preview": {
+      "title": "İlk sətirlərin önbaxışı",
+      "row": "Sətir",
+      "invalid": "düzgün deyil",
+      "rowError": "Sətir {{row}}, «{{field}}»: {{message}}"
+    },
+    "commit": {
+      "button": "İdxal et",
+      "saveFirst": "Əvvəlcə xəritələməni saxlayın.",
+      "cannot": "Məcburi sahələri xəritələyin. Bütün sətirlər xətalıdırsa, xəritələmə yanlışdır.",
+      "confirmTitle": "İdxal başlasın?",
+      "confirmDescription": "{{count}} sətir idxal olunacaq. Xətalı sətirlər keçiləcək və nəticədə göstəriləcək. Bu əməliyyatı sonradan geri qaytarmaq mümkün deyil."
+    },
+    "export": {
+      "title": "1C-yə ixrac",
+      "hint": "Seçilən dövrün təsdiqlənmiş jurnal yazılışlarını 1C-nin idxal edə biləcəyi fayla çevirir. Fayl «Fayllar» bölməsində də görünür.",
+      "submit": "Fayl yarat",
+      "ready": "Fayl hazırdır:",
+      "failed": "Fayl yaradılmadı"
     }
   }
 }

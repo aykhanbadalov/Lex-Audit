@@ -4,6 +4,7 @@ import { invoicesHandlers } from "./invoices";
 import { legislationHandlers } from "./legislation";
 import { newsHandlers } from "./news";
 import { vatHandlers } from "./vat";
+import { workHandlers } from "./work";
 
 // Order matters: "/news/sources" must be matched before "/news/:id".
 export const handlers = [
@@ -13,4 +14,5 @@ export const handlers = [
   ...filesHandlers,
   ...invoicesHandlers,
   ...vatHandlers,
+  ...workHandlers,
 ];
