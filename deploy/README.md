@@ -42,3 +42,10 @@ budget. A production image therefore cannot carry fake data by accident. `pnpm b
   `HttpOnly; Secure; SameSite=Strict` on `/api/v1/auth`, which only works when the browser sees one origin: keep the frontend
   and `/api` on the same host name.
 - Upload `assets/` before `index.html` when you publish by hand, so users with the old page open can still fetch their files.
+
+## Vercel (demo)
+
+`vercel.json` builds the demo (`pnpm build:demo`), serves `dist/`, falls back to `index.html` for every screen and sets the same
+security headers. Import the repository in Vercel with the **repository root as the project root** (when only the frontend is in the
+repository) or set *Root Directory* to `frontend` (when it is the whole monorepo). No environment variables are needed.
+A real backend cannot sit behind Vercel's static hosting; for production use the Docker image above.
