@@ -3,7 +3,6 @@ import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { signOut } from "@/api/session";
 import { NAV_GROUPS, visibleNavItems } from "@/app/navigation";
-import { Logo } from "@/shared/components/Logo";
 import { DemoBanner } from "@/shared/components/DemoBanner";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
@@ -43,10 +42,7 @@ function AppLayout() {
 
       <aside className="min-w-0 border-b border-sidebar-border bg-sidebar text-sidebar-foreground md:border-r md:border-b-0">
         <div className="flex flex-col gap-4 p-4 md:sticky md:top-0 md:h-dvh md:overflow-y-auto">
-          <p className="flex items-center gap-2 text-lg font-semibold">
-            <Logo />
-            {t("app.name")}
-          </p>
+          <p className="text-lg font-semibold">{t("app.name")}</p>
           <nav aria-label={t("nav.main")} className="flex gap-4 overflow-x-auto md:flex-col md:gap-5">
             {NAV_GROUPS.map((group) => {
               const groupItems = items.filter((item) => item.group === group);

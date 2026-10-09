@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { ApiError } from "@/api/errors";
 import { isMfaRequired, login } from "@/api/session";
-import { Logo } from "@/shared/components/Logo";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
 import { isAuthenticated } from "@/shared/stores/authStore";
 import { Button } from "@/shared/ui/button";
@@ -89,7 +88,6 @@ function LoginPage() {
       <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="flex items-start justify-between">
           <div>
-            <Logo className="mb-3 size-10" />
             <h1 className="text-xl font-semibold">{t("auth.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
           </div>
