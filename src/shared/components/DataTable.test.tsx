@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ColumnDef } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
 import "@/app/i18n";
-import { DataTable } from "./DataTable";
+import { DataTable, VIRTUALIZE_AFTER_ROWS } from "./DataTable";
 
 interface Row {
   id: string;
@@ -65,5 +65,21 @@ describe("DataTable", () => {
     row.closest("tr")?.focus();
     await userEvent.keyboard("{Enter}");
     expect(onRowClick).toHaveBeenCalledWith({ id: "1", name: "Beta" });
+  });
+
+  it("renders every row of a short list, so nothing is hidden from find-in-page", () => {
+    renderTable();
+    expect(screen.getByText("Beta")).toBeInTheDocument();
+    expect(screen.getByText("Alfa")).toBeInTheDocument();
+  });
+
+  it("renders only a window of rows for a very long list", async () => {
+    const many = Array.from({ length: VIRTUALIZE_AFTER_ROWS * 10 }, (_, index) => ({
+      id: String(index),
+      name: `Sətir ${index}`,
+    }));
+    renderTable({ data: many });
+    await screen.findByText("Sətir 0");
+    expect(screen.getAllByRole("row").length).toBeLessThan(many.length / 4);
   });
 });

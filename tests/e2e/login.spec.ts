@@ -38,10 +38,23 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
   await expect(page).toHaveURL(/\/dashboard/);
 }
 
-test("an accountant cannot open the admin page", async ({ page }) => {
+test("an accountant who opens the admin page by URL sees a permission-denied state", async ({ page }) => {
   await signIn(page, "muhasib@lexaudit.test");
-  await page.goto("/admin");
-  // A full reload drops the in-memory session, so the guard sends the user back to login.
+  await page.goto("/admin"); // full reload: the session is restored from the refresh cookie
+  await expect(page.getByText("Bu bölməyə giriş icazəniz yoxdur")).toBeVisible();
+});
+
+test("a page reload keeps the user signed in", async ({ page }) => {
+  await signIn(page, "muhasib@lexaudit.test");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Bu gün", level: 1 })).toBeVisible();
+});
+
+test("after signing out, a reload does not bring the session back", async ({ page }) => {
+  await signIn(page, "muhasib@lexaudit.test");
+  await page.getByRole("button", { name: "Çıxış" }).click();
+  await expect(page).toHaveURL(/\/login/);
+  await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login/);
 });
 

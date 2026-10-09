@@ -7,6 +7,7 @@ export const PERMISSIONS = [
   "ledger:read",
   "excel:read",
   "news:read",
+  "legislation:read",
   "assistant:use",
   "approvals:read",
   "approvals:decide",

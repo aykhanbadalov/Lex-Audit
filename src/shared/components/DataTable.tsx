@@ -34,6 +34,12 @@ interface DataTableProps<TData> {
 
 const ROW_HEIGHT = 44;
 
+/**
+ * Virtualizing hides rows from browser find-in-page and adds complexity, so it is only worth it for long lists.
+ * Below this size every row is rendered.
+ */
+export const VIRTUALIZE_AFTER_ROWS = 100;
+
 export function DataTable<TData>({
   columns,
   data,
@@ -64,8 +70,9 @@ export function DataTable<TData>({
   });
 
   const rows = table.getRowModel().rows;
+  const virtualize = rows.length > VIRTUALIZE_AFTER_ROWS;
   const virtualizer = useVirtualizer({
-    count: rows.length,
+    count: virtualize ? rows.length : 0,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 8,
@@ -81,10 +88,11 @@ export function DataTable<TData>({
     );
   }
 
-  const virtualRows = virtualizer.getVirtualItems();
-  const totalSize = virtualizer.getTotalSize();
+  const virtualRows = virtualize ? virtualizer.getVirtualItems() : [];
+  const visibleRows = virtualize ? virtualRows.flatMap((item) => rows[item.index] ?? []) : rows;
   const paddingTop = virtualRows.length > 0 ? (virtualRows[0]?.start ?? 0) : 0;
-  const paddingBottom = virtualRows.length > 0 ? totalSize - (virtualRows[virtualRows.length - 1]?.end ?? 0) : 0;
+  const paddingBottom =
+    virtualRows.length > 0 ? virtualizer.getTotalSize() - (virtualRows[virtualRows.length - 1]?.end ?? 0) : 0;
 
   return (
     <div ref={scrollRef} className="overflow-auto rounded-lg border" style={{ maxHeight: height }}>
@@ -132,9 +140,7 @@ export function DataTable<TData>({
               <td style={{ height: paddingTop }} />
             </tr>
           ) : null}
-          {virtualRows.map((virtualRow) => {
-            const row = rows[virtualRow.index];
-            if (!row) return null;
+          {visibleRows.map((row) => {
             return (
               <tr
                 key={row.id}

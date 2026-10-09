@@ -15,8 +15,8 @@ export class ApiError extends Error {
   readonly status: number;
   readonly requestId: string | undefined;
 
-  constructor(code: ApiErrorCode, message: string, status: number, requestId?: string) {
-    super(message);
+  constructor(code: ApiErrorCode, message: string, status: number, requestId?: string, cause?: unknown) {
+    super(message, { cause });
     this.name = "ApiError";
     this.code = code;
     this.status = status;

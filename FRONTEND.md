@@ -245,6 +245,9 @@ features/invoices/
 - Bütün tiplər backend-in OpenAPI sxemindən generasiya olunur: `npm run api:gen`.
 - Pul məbləğləri **string** kimi gəlir (`"12500.00"`) — JS `number` ilə hesablama **edilmir**; yalnız formatlanır.
 - Xəta formatı: `{ error: { code, message, requestId, details? } }` → `ApiError` → i18n mesajı.
+- Tiplər `backend/openapi.yaml`-dan gəlir (`pnpm api:gen`). Hazırda o, frontend tərəfindən yazılmış **qaralamadır** (auth, xəbərlər, qanunvericilik); sahibi backend developerdir.
+- `401` → bir dəfə səssiz yenilə (`/auth/refresh`, paralel sorğular üçün tək sorğu) və sorğunu təkrarla; alınmazsa login-ə yönləndir.
+- Səhifə açılanda sessiya refresh cookie ilə bərpa olunur (`bootstrapSession`), token heç yerdə saxlanmır.
 - `404` → "tapılmadı" ekranı; heç vaxt başqa qeyd göstərilmir (audit A-05).
 - Yazma əməliyyatları `Idempotency-Key` başlığı ilə göndərilir.
 - SSE bağlantısı kəsiləndə `Last-Event-ID` ilə bərpa.
@@ -272,7 +275,8 @@ features/invoices/
 
 - Bütün mətnlər, o cümlədən route başlıqları və səhv mesajları, `locales/*.json`-dan gəlir (audit A-14)
 - Default dil: `az`; `ru`, `en` dəstəyi
-- Pul/tarix formatı locale-a görə (`Intl.NumberFormat`, `Intl.DateTimeFormat`); valyuta: AZN (əsas), USD, EUR, RUB, TRY
+- Pul/tarix formatı locale-a görə; valyuta: AZN (əsas), USD, EUR, RUB, TRY
+- **Azərbaycan dili üçün `Intl`-ə etibar edilmir.** Real Chrome-da `az` üçün ay adları yoxdur (`M10`) və pul "AZN 1,234,567.80" çıxır. Buna görə `shared/lib/date.ts` ay adlarını, `shared/lib/money.ts` isə məbləği (nöqtə qrup, vergül onluq, `₼` sonda: `1.234.567,80 ₼`) özü formatlayır. Rus və ingilis dilləri üçün `Intl` işləyir. **Ayırıcı qaydası (nöqtə və ya boşluq) yerli mühasiblə təsdiqlənməlidir.**
 - CI-da yoxlama: bütün dillərdə açarlar eynidir
 
 ---
@@ -317,3 +321,19 @@ features/invoices/
 - Bütün mətnlər i18n-dədir
 - Pul məbləğləri `number` ilə hesablanmır
 - Təsdiq düymələri yalnız icazəli istifadəçiyə görünür
+
+---
+
+## 13. Vəziyyət (2026-10-09)
+
+| Mərhələ | Vəziyyət |
+|---|---|
+| F1 Skelet | tamamlanıb |
+| F2 Dizayn sistemi + layout | tamamlanıb |
+| F3 API client, MSW | tamamlanıb (sessiya yenilənməsi, icazə yoxlayan mock-lar) |
+| F4 Auth | qismən: login, refresh, logout, guard-lar var; 2FA və "şifrəni unutdum" yoxdur |
+| F5 Xəbərlər + qanunvericilik | tamamlanıb (filtrlər URL-də, əlfəcin, AI bölməsi ayrıca, versiya müqayisəsi) |
+| F6–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
+
+**Səhifələr yenilənmir, "Ask AI" düyməsi yoxdur:** AI Assistent (F10) hazır olmadığı üçün xəbər detalında "AI-dan soruş" düyməsi qəsdən əlavə olunmayıb.
+

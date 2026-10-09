@@ -1,3 +1,6 @@
 import { authHandlers } from "./auth";
+import { legislationHandlers } from "./legislation";
+import { newsHandlers } from "./news";
 
-export const handlers = [...authHandlers];
+// Order matters: "/news/sources" must be matched before "/news/:id".
+export const handlers = [...authHandlers, ...newsHandlers, ...legislationHandlers];

@@ -19,7 +19,8 @@
       "work": "İş",
       "knowledge": "Bilik",
       "governance": "İdarəetmə"
-    }
+    },
+    "legislation": "Qanunvericilik"
   },
   "auth": {
     "title": "Daxil ol",
@@ -57,7 +58,9 @@
     "cancel": "Ləğv et",
     "confirm": "Təsdiq et",
     "save": "Yadda saxla",
-    "close": "Bağla"
+    "close": "Bağla",
+    "all": "Hamısı",
+    "loadMore": "Daha çox yüklə"
   },
   "table": {
     "noResults": "Nəticə tapılmadı",
@@ -75,6 +78,125 @@
     "news": "Qanunvericilik xəbərləri və dəyişikliklərin şirkətə təsiri",
     "assistant": "Mənbə göstərən AI köməkçi",
     "approvals": "Təsdiq gözləyən əməliyyatlar",
-    "admin": "İstifadəçilər, rollar, mənbələr və model idarəetməsi"
+    "admin": "İstifadəçilər, rollar, mənbələr və model idarəetməsi",
+    "legislation": "Qanunlar, məcəllələr, qərarlar və standartlar; versiyalar və dəyişikliklər"
+  },
+  "risk": {
+    "low": "Aşağı risk",
+    "medium": "Orta risk",
+    "high": "Yüksək risk",
+    "critical": "Kritik risk"
+  },
+  "category": {
+    "tax": "Vergi",
+    "vat": "ƏDV",
+    "accounting": "Mühasibat uçotu",
+    "banking": "Bank",
+    "customs": "Gömrük",
+    "labor": "Əmək və sosial",
+    "other": "Digər"
+  },
+  "ai": {
+    "label": "Süni intellekt tərəfindən yaradılıb",
+    "disclaimer": "Bu məzmun məsləhət xarakterlidir və səhv ola bilər. Qərarı səlahiyyətli mütəxəssis verir."
+  },
+  "demo": {
+    "banner": "Demo rejimi: göstərilən xəbərlər, qanun mətnləri və məlumatlar uydurmadır və real deyil."
+  },
+  "news": {
+    "empty": "Hələ xəbər yoxdur",
+    "emptyHint": "Mənbələrdən yeni xəbərlər gələndə burada görünəcək.",
+    "shown": "Göstərilən nəticə: {{count}}",
+    "unread": "Oxunmayıb",
+    "addBookmark": "Əlfəcinə əlavə et",
+    "removeBookmark": "Əlfəcindən çıxar",
+    "updateFailed": "Dəyişiklik saxlanmadı. Yenidən cəhd edin.",
+    "back": "Xəbərlərə qayıt",
+    "notFound": "Xəbər tapılmadı",
+    "notFoundHint": "Xəbər silinmiş və ya əlçatan olmaya bilər.",
+    "source": "Mənbə",
+    "published": "Dərc olunub",
+    "fetched": "Əldə edilib",
+    "lastChecked": "Son yoxlama",
+    "aiSummary": "Qısa xülasə",
+    "aiRisk": "Risk izahı",
+    "sourceText": "Mənbə mətni",
+    "openOriginal": "Orijinal mənbəni aç",
+    "relatedLegislation": "Əlaqəli qanunvericilik",
+    "impact": "Şirkətinizə təsiri",
+    "noImpact": "Bu xəbərin şirkətinizin sənədlərinə təsiri aşkarlanmayıb.",
+    "relevance": "uyğunluq {{percent}}%",
+    "impactType": {
+      "file": "Fayl",
+      "invoice": "Qaimə",
+      "audit_finding": "Audit tapıntısı",
+      "record": "Qeyd"
+    },
+    "filters": {
+      "label": "Xəbər filtrləri",
+      "search": "Axtarış",
+      "searchPlaceholder": "Başlıq, xülasə və ya teq",
+      "source": "Mənbə",
+      "category": "Kateqoriya",
+      "risk": "Risk səviyyəsi",
+      "readState": "Oxunma",
+      "read": {
+        "all": "Hamısı",
+        "unread": "Oxunmayıb",
+        "read": "Oxunub"
+      },
+      "from": "Tarixdən",
+      "to": "Tarixədək",
+      "bookmarked": "Yalnız əlfəcinlər",
+      "reset": "Filtrləri sıfırla"
+    }
+  },
+  "legislation": {
+    "columns": {
+      "title": "Ad",
+      "type": "Növ",
+      "status": "Status",
+      "adopted": "Qəbul tarixi",
+      "version": "Versiya"
+    },
+    "type": {
+      "code": "Məcəllə",
+      "law": "Qanun",
+      "decree": "Fərman",
+      "cabinet_decision": "Nazirlər Kabinetinin qərarı",
+      "standard": "Standart"
+    },
+    "status": {
+      "in_force": "Qüvvədədir",
+      "repealed": "Ləğv edilib"
+    },
+    "searchPlaceholder": "Sənədin adı",
+    "empty": "Qanunvericilik bazası boşdur",
+    "emptyHint": "Sənədlər əlavə olunduqda burada görünəcək.",
+    "count": "Tapılan sənəd: {{count}}",
+    "back": "Qanunvericiliyə qayıt",
+    "notFound": "Sənəd tapılmadı",
+    "notFoundHint": "Sənəd silinmiş və ya əlçatan olmaya bilər.",
+    "article": "Maddə {{ref}}",
+    "adopted": "Qəbul tarixi: {{date}}",
+    "inForce": "hazırda",
+    "viewLabel": "Görünüş",
+    "tab": {
+      "text": "Mətn",
+      "diff": "Versiyaları müqayisə et"
+    },
+    "version": "Versiya",
+    "openSource": "Rəsmi mənbəni aç",
+    "compareFrom": "Köhnə versiya",
+    "compareTo": "Yeni versiya",
+    "showUnchanged": "Dəyişməyən maddələri göstər",
+    "noDifferences": "Seçilən versiyalar arasında fərq yoxdur.",
+    "sameVersion": "Müqayisə üçün fərqli versiyalar seçin.",
+    "diffStatus": {
+      "unchanged": "Dəyişməyib",
+      "changed": "Dəyişib",
+      "added": "Əlavə olunub",
+      "removed": "Çıxarılıb"
+    }
   }
 }

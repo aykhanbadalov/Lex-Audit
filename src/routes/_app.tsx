@@ -1,7 +1,9 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { signOut } from "@/api/session";
 import { NAV_GROUPS, visibleNavItems } from "@/app/navigation";
+import { DemoBanner } from "@/shared/components/DemoBanner";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
 import { isAuthenticated, useAuthStore } from "@/shared/stores/authStore";
@@ -25,7 +27,7 @@ function AppLayout() {
   const items = visibleNavItems(user?.permissions ?? []);
 
   async function logout() {
-    useAuthStore.getState().clear();
+    await signOut();
     await navigate({ to: "/login", search: {} });
   }
 
@@ -67,6 +69,7 @@ function AppLayout() {
       </aside>
 
       <div className="flex min-w-0 flex-col">
+        <DemoBanner />
         <header className="flex flex-wrap items-center justify-end gap-3 border-b px-4 py-3 md:px-6">
           <LanguageSwitcher />
           <ThemeToggle />
