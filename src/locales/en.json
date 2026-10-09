@@ -47,8 +47,13 @@
   "dashboard": {
     "title": "Today",
     "welcome": "Welcome, {{name}}",
-    "placeholder": "The dashboard will be filled in during phases F5–F8.",
-    "overview": "Overview"
+    "notifications": "Notifications",
+    "unread": "{{count}} unread",
+    "markAllRead": "Mark all as read",
+    "markRead": "Read",
+    "noNotifications": "No new notifications.",
+    "deadlines": "Upcoming deadlines",
+    "noDeadlines": "No deadlines coming up."
   },
   "errors": {
     "notFound": "Page not found",
@@ -474,7 +479,8 @@
     "revalidated": "Invoice validated again",
     "actionFailed": "The action failed. Please try again.",
     "vatFilter": "VAT: {{period}} · {{bucket}}",
-    "vatFilterRemove": "Remove filter"
+    "vatFilterRemove": "Remove filter",
+    "noNumber": "(no number)"
   },
   "ledger": {
     "navLabel": "Ledger sections",
@@ -658,233 +664,154 @@
     "invoicesCount": "{{count}} invoices"
   },
   "excel": {
-    "columns": {
-      "file": "File",
-      "status": "Status",
-      "rows": "Rows",
-      "created": "Uploaded"
-    },
+    "failed": "The job was not started",
+    "originalUntouched": "The original file is not changed: the result is saved as a new file.",
+    "back": "Back to Excel",
+    "notFound": "Job not found",
+    "notFoundHint": "The job does not exist or is not available to you.",
+    "working": "The job is running…",
+    "failedTitle": "The job failed",
+    "resultFile": "The result file is ready.",
+    "openFile": "Open the file",
+    "cleanResult": "Cleaning: {{after}} of {{before}} rows kept",
     "status": {
-      "uploaded": "Queued",
-      "profiling": "Being analysed",
-      "ready": "Ready",
+      "pending": "Queued",
+      "running": "Running",
+      "done": "Done",
       "failed": "Failed"
     },
-    "empty": "No spreadsheets yet",
-    "emptyHint": "Uploaded spreadsheets will appear here.",
-    "emptyHintWrite": "Upload your first Excel or CSV file using the area above.",
-    "back": "Back to spreadsheets",
-    "notFound": "Spreadsheet not found",
-    "notFoundHint": "It may have been removed or is not available to you.",
-    "originalSafe": "The original file is never changed: every operation creates a new file.",
-    "failedTitle": "The file could not be read",
-    "profiling": "The file is being analysed. This page updates by itself when it is ready.",
-    "sheet": "Sheet \"{{name}}\" · {{rows}} rows",
-    "profile": "Column analysis",
-    "profileColumns": {
-      "column": "Column",
-      "type": "Type",
-      "meaning": "Meaning",
-      "filled": "Filled",
-      "empty": "Empty",
-      "duplicates": "Duplicates",
-      "samples": "Samples"
-    },
-    "type": {
-      "text": "Text",
-      "number": "Number",
-      "money": "Amount",
-      "date": "Date",
-      "taxId": "Tax ID",
-      "empty": "Empty"
-    },
-    "checkMeaning": "Check · {{percent}}%",
-    "jobs": "Operations",
-    "noJobs": "No operations have been run yet.",
     "operation": {
-      "trim_spaces": "Remove extra spaces",
-      "remove_duplicates": "Remove duplicate rows",
-      "normalize_dates": "Put dates in one format"
+      "profile": "Spreadsheet analysis",
+      "clean": "Spreadsheet cleaning",
+      "reconcile": "Reconciliation",
+      "report": "Report"
     },
-    "operationHint": {
-      "trim_spaces": "Removes spaces at the start and end of text in every column.",
-      "remove_duplicates": "Removes duplicate rows by the chosen columns and keeps the first one.",
-      "normalize_dates": "Puts the dates in the chosen column into DD.MM.YYYY."
+    "file": {
+      "title": "Analyse or clean a spreadsheet",
+      "pick": "Spreadsheet file",
+      "dedupe": "Remove duplicate rows",
+      "profile": "Analyse",
+      "clean": "Clean"
     },
-    "run": {
-      "title": "Run an operation",
-      "operation": "Operation",
-      "keyColumns": "Key columns",
-      "dateColumn": "Date column",
-      "needColumn": "Choose at least one column.",
-      "needOneColumn": "Choose exactly one column.",
-      "submit": "Run"
+    "report": {
+      "title": "Create a report",
+      "template": "Report",
+      "invoices": "Invoices",
+      "journal": "Journal",
+      "create": "Create report"
     },
-    "job": {
-      "started": "The operation has started",
-      "failed": "The operation could not be started",
-      "status": {
-        "queued": "Queued",
-        "running": "Running",
-        "done": "Done",
-        "failed": "Failed"
+    "profile": {
+      "title": "Column analysis",
+      "summary": "Rows: {{rows}}, empty: {{empty}}, duplicates: {{duplicates}}",
+      "truncated": "Only the first part of a large spreadsheet was analysed.",
+      "unparsable": "unreadable: {{count}}",
+      "col": {
+        "column": "Column",
+        "type": "Type",
+        "filled": "Filled",
+        "distinct": "Distinct",
+        "sum": "Sum",
+        "samples": "Samples"
       },
-      "result": "Read: {{read}} · changed: {{changed}} · removed: {{removed}}",
-      "changes": "Sample of the changes",
-      "row": "Row",
-      "column": "Column",
-      "before": "Before",
-      "after": "After",
-      "output": "Result (a new file):"
+      "type": {
+        "number": "Number",
+        "date": "Date",
+        "text": "Text",
+        "empty": "Empty"
+      }
     }
   },
   "reconciliation": {
-    "columns": {
-      "file": "File",
-      "kind": "Type",
-      "period": "Period",
-      "status": "Status",
-      "summary": "Result"
-    },
-    "kind": {
-      "bank_ledger": "Bank statement ↔ books",
-      "invoices_etaxes": "Invoices ↔ e-taxes register"
-    },
-    "status": {
-      "running": "Being prepared",
-      "ready": "Ready",
-      "failed": "Failed",
-      "confirmed": "Confirmed",
-      "suggested": "Awaiting confirmation",
-      "unmatched": "Not matched",
-      "rejected": "Rejected"
-    },
-    "summaryLine": "Confirmed: {{confirmed}} · awaiting confirmation: {{suggested}} · not matched: {{unmatched}}",
-    "empty": "No reconciliations yet",
-    "emptyHint": "Start a new reconciliation and the result will appear here.",
-    "new": "New reconciliation",
-    "file": "File",
-    "chooseFile": "Choose a file",
-    "fileHint": "Only spreadsheets and XML files that have finished processing are shown.",
-    "start": "Start",
-    "created": "The reconciliation has started",
-    "createFailed": "The reconciliation could not be started",
-    "decideFailed": "The decision was not saved",
-    "back": "Back to reconciliations",
+    "failed": "The reconciliation failed",
+    "confirmed": "Match confirmed",
+    "confirmFailed": "Could not confirm",
+    "suggestionsOnly": "The results are suggestions: you confirm each match yourself.",
+    "left": "Left side",
+    "right": "Right side",
+    "run": "Reconcile",
+    "back": "Back to reconciliation",
     "notFound": "Reconciliation not found",
-    "notFoundHint": "It may have been removed or is not available to you.",
-    "running": "The reconciliation is being prepared. This page updates by itself when it is ready.",
-    "differenceTotal": "Remaining difference",
-    "filter": "Row status",
-    "rows": "Reconciliation rows",
-    "side": {
-      "bank_ledger": {
-        "left": "Bank statement",
-        "right": "Books"
-      },
-      "invoices_etaxes": {
-        "left": "Invoices (books)",
-        "right": "e-taxes register"
-      }
+    "notFoundHint": "The result does not exist or is not available to you.",
+    "resultTitle": "Reconciliation result",
+    "confirm": "Confirm",
+    "source": {
+      "type": "Source",
+      "file": "File",
+      "invoices": "Invoices",
+      "bank": "Bank",
+      "pick": "Spreadsheet file",
+      "keyColumn": "Key column (number)",
+      "amountColumn": "Amount column",
+      "dateColumn": "Date column (optional)"
     },
-    "rowColumns": {
+    "summary": {
+      "exact": "Exact",
+      "amountMismatch": "Amount differs",
+      "amountDate": "Amount and date match",
+      "unmatchedLeft": "Left over on the left",
+      "unmatchedRight": "Left over on the right",
+      "skipped": "Rows skipped",
+      "leftTotal": "Left total",
+      "rightTotal": "Right total"
+    },
+    "columns": {
+      "type": "Type",
+      "left": "Left",
+      "right": "Right",
       "difference": "Difference",
+      "explanation": "Explanation",
       "status": "Status"
     },
-    "confidence": "confidence {{percent}}%",
-    "confirm": "Confirm",
-    "reject": "Reject"
-  },
-  "integrations": {
-    "columns": {
-      "file": "File",
-      "source": "Source",
-      "status": "Status",
-      "result": "Result",
-      "created": "Uploaded"
-    },
-    "source": {
-      "onec": "1C",
-      "etaxes": "e-taxes invoice register",
-      "bank": "Bank statement"
-    },
-    "sourceHint": {
-      "onec": "An Excel or XML export from 1C. Column names may be in Russian or Azerbaijani.",
-      "etaxes": "The invoice register downloaded from the e-taxes.gov.az portal.",
-      "bank": "The Excel or CSV statement your bank provides."
+    "matchType": {
+      "exact": "Exact",
+      "amount_mismatch": "Amount differs",
+      "amount_date": "Amount and date",
+      "unmatched_left": "Only on the left",
+      "unmatched_right": "Only on the right"
     },
     "status": {
-      "analysing": "Being analysed",
-      "needs_mapping": "Needs column mapping",
-      "ready": "Ready to import",
-      "importing": "Importing",
-      "done": "Completed",
-      "failed": "Failed"
-    },
-    "resultLine": "Succeeded: {{rowsOk}} · failed: {{rowsFailed}} · duplicates: {{duplicates}}",
-    "newImport": "New import",
-    "empty": "No imports yet",
-    "emptyHint": "Uploaded files will appear here.",
-    "back": "Back to imports",
+      "confirmed": "Confirmed",
+      "unmatched": "No pair"
+    }
+  },
+  "integrations": {
+    "previewFailed": "Could not get the preview",
+    "commitFailed": "The import request was not sent",
+    "exportFailed": "The export failed",
+    "sentForApproval": "The import was sent for approval. Nothing is written until somebody else approves it.",
+    "waiting": "The import is waiting for somebody else to approve it.",
+    "openImport": "See the import",
+    "commit": "Send for import",
+    "back": "Back to integrations",
     "notFound": "Import not found",
-    "notFoundHint": "It may have been removed or is not available to you.",
-    "analysing": "The file is being analysed. This page updates by itself when it is ready.",
-    "importing": "The rows are being written. The result will appear here when it is done.",
-    "mappingSaved": "Mapping saved",
-    "mappingFailed": "The mapping could not be saved",
-    "commitFailed": "The import could not be started",
-    "summary": {
-      "rowsTotal": "Total rows",
-      "rowsOk": "Succeeded",
-      "rowsFailed": "Failed",
-      "duplicates": "Duplicates"
+    "notFoundHint": "The import does not exist or is not available to you.",
+    "source": {
+      "1c": "1C",
+      "etaxes": "e-taxes",
+      "bank": "Bank statement"
     },
-    "mapping": {
-      "title": "Column mapping",
-      "hint": "For each field, choose the column of the file it should come from. The system made a proposal; check it.",
-      "required": "required",
-      "none": "— not chosen —",
-      "save": "Save mapping"
-    },
-    "field": {
-      "date": "Date",
-      "number": "Number",
-      "counterparty": "Counterparty",
-      "voen": "Tax ID (VÖEN)",
-      "amount": "Amount",
-      "currency": "Currency",
-      "net": "Excl. VAT",
-      "vat": "VAT",
-      "gross": "Total",
-      "description": "Description",
-      "reference": "Reference"
-    },
-    "error": {
-      "REQUIRED_UNMAPPED": "No column is chosen for the required \"{{field}}\" field.",
-      "INVALID_DATE": "invalid date",
-      "INVALID_AMOUNT": "invalid amount",
-      "INVALID_TAX_ID": "invalid tax ID",
-      "DUPLICATE_ROW": "duplicate row"
+    "import": {
+      "title": "Import",
+      "hint": "A preview comes first and nothing is written. Somebody else has to approve the import.",
+      "source": "Source",
+      "file": "File",
+      "direction": "Direction of the invoices",
+      "preview": "Preview"
     },
     "preview": {
-      "title": "Preview of the first rows",
-      "row": "Row",
-      "invalid": "invalid",
-      "rowError": "Row {{row}}, \"{{field}}\": {{message}}"
-    },
-    "commit": {
-      "button": "Import",
-      "saveFirst": "Save the mapping first.",
-      "cannot": "Map the required fields. If every row is invalid, the mapping is wrong.",
-      "confirmTitle": "Start the import?",
-      "confirmDescription": "{{count}} rows will be imported. Rows with errors will be skipped and shown in the result. This cannot be undone later."
+      "title": "Preview",
+      "ok": "Valid rows: {{count}}",
+      "failed": "Rows with errors: {{count}}",
+      "truncated": "Only the start of a large file is shown.",
+      "nothingWritten": "Nothing has been written yet.",
+      "row": "Row {{row}}",
+      "sample": "Sample rows"
     },
     "export": {
       "title": "Export to 1C",
-      "hint": "Turns the approved journal entries of the chosen period into a file 1C can import. The file also appears under Files.",
-      "submit": "Create file",
-      "ready": "The file is ready:",
-      "failed": "The file could not be created"
+      "hint": "Posted entries are turned into a new file that 1C can read.",
+      "submit": "Create the file",
+      "ready": "The file is ready: {{count}} entries."
     }
   },
   "assistant": {
@@ -980,6 +907,10 @@
       "CONFLICT": "The assistant is still answering the previous question.",
       "NETWORK": "The connection was lost.",
       "INTERNAL": "The answer was cut short."
+    },
+    "toolSummary": {
+      "none": "Nothing found",
+      "results": "{{count}} results found"
     }
   },
   "approvals": {
@@ -1117,6 +1048,7 @@
     "tabsLabel": "Administration sections",
     "tab": {
       "users": "Users",
+      "roles": "Roles",
       "sources": "Sources",
       "rates": "Tax rates",
       "models": "Models"
@@ -1125,89 +1057,96 @@
     "failed": "The operation failed",
     "saved": "Saved",
     "sentForApproval": "Sent for approval. Nothing changes until someone else approves.",
-    "reason": "Reason (required, at least 3 characters)",
-    "sendForApproval": "Send for approval",
-    "roles": {
-      "viewer": "Viewer",
-      "accountant": "Accountant",
-      "chief_accountant": "Chief accountant",
-      "auditor": "Auditor",
-      "admin": "Administrator"
-    },
     "users": {
-      "hint": "A role change is not applied at once: it creates an approval request. You cannot change your own access.",
+      "hint": "Changing a role changes the person's permissions at once. You cannot change your own access.",
       "user": "User",
-      "role": "Role",
+      "roles": "Roles",
       "status": "Status",
-      "lastLogin": "Last sign-in",
-      "roleOf": "Role for {{name}}",
-      "pendingRole": "Waiting: {{role}}",
-      "active": "Active",
-      "inactive": "Inactive",
+      "created": "Created",
       "you": "You",
-      "deactivate": "Deactivate",
+      "create": "Create a user",
+      "createHint": "The temporary password needs at least {{count}} characters and must not contain the name part of the e-mail.",
+      "temporaryPassword": "Temporary password",
+      "changeRoles": "Change roles",
+      "rolesOf": "{{name}}: roles",
+      "rolesHint": "The user gets every permission of the chosen roles.",
+      "suspend": "Suspend",
       "activate": "Activate",
-      "deactivateTitle": "Deactivate {{name}}?",
-      "deactivateDescription": "They will not be able to sign in. Their data is kept and they can be activated again."
+      "suspendTitle": "Suspend {{name}}?",
+      "suspendDescription": "They will not be able to sign in. Their data is kept and they can be activated again.",
+      "statuses": {
+        "active": "Active",
+        "pending": "Pending",
+        "suspended": "Suspended"
+      },
+      "createdOk": "User created"
+    },
+    "roles": {
+      "hint": "A role can only contain permissions you hold yourself. System roles cannot be changed.",
+      "create": "Create a role",
+      "edit": "Change permissions",
+      "editTitle": "{{name}}: permissions",
+      "subset": "You can only grant permissions you hold.",
+      "name": "Name",
+      "description": "Description",
+      "permissions": "Permissions",
+      "system": "System",
+      "createdOk": "Role created"
     },
     "sources": {
       "hint": "A disabled source collects nothing new. Items already collected stay.",
-      "kind": {
-        "official": "Official",
-        "news": "News"
-      },
-      "failing": "{{count}} failures in a row",
-      "lastFetched": "Last updated: {{date}}",
-      "neverFetched": "Not updated yet",
+      "alerts": "Warnings",
+      "schedule": "schedule",
       "enabledFor": "Source {{name}}",
       "on": "On",
       "off": "Off"
     },
     "rates": {
-      "hint": "Rates are not changed directly: a change creates an approval request.",
-      "label": "Rate",
-      "rate": "Current",
-      "validFrom": "In force since",
-      "change": "Propose a change",
-      "dialogTitle": "{{label}}: new rate",
-      "dialogDescription": "Once approved it applies to new calculations. Existing documents do not change.",
-      "newRate": "New rate (%)",
+      "hint": "A new rate starts as a proposal; putting it in force needs somebody else's approval.",
+      "tax": "Tax",
+      "code": "Code",
+      "rate": "Rate",
+      "validFrom": "In force from",
+      "status": "Status",
+      "propose": "Propose a rate",
+      "requestActivation": "Send activation for approval",
+      "dialogDescription": "Until it is approved the rate is not used in calculations.",
+      "newRate": "Rate (%)",
       "invalid": "Between 0 and 100, with at most two decimals",
-      "validFromNew": "In force from"
+      "proposedOk": "Rate proposed"
     },
     "models": {
-      "hint": "A new version or a rollback always needs approval. The active model does not change until then.",
-      "task": {
-        "invoice_extractor": "Invoice extraction",
-        "classifier": "Classification",
-        "assistant": "AI Assistant",
-        "embeddings": "Search (embeddings)"
+      "hint": "The status of a model version changes at once. A wrong release (production) affects every user.",
+      "servingUp": "The model service is running",
+      "servingDown": "The model service is not available",
+      "register": "Register a model",
+      "registerHint": "Add a version, the result of training, to the registry. A new version starts as a candidate.",
+      "name": "Name",
+      "version": "Version",
+      "artifact": "Artifact address",
+      "kindLabel": "Kind",
+      "kind": {
+        "llm": "Language model",
+        "embedding": "Search (embeddings)",
+        "classifier": "Classification"
       },
       "status": {
-        "active": "Active",
-        "canary": "Canary",
         "candidate": "Candidate",
+        "canary": "Canary",
+        "production": "In production",
         "retired": "Retired"
       },
-      "canary": "{{percent}}% of traffic",
-      "eval": "Accuracy: {{score}}",
-      "was": "was {{score}}",
-      "pending": {
-        "release": "Release waiting for approval",
-        "rollback": "Rollback waiting for approval"
-      },
-      "action": {
-        "release": "Send for release",
-        "rollback": "Roll back"
-      },
-      "dialog": {
-        "release": "Release {{task}} {{version}}?",
-        "rollback": "Go back to {{task}} {{version}}?"
-      },
-      "dialogDescription": "The request goes to the approval queue. You cannot approve it yourself."
+      "changeStatus": "Status of {{name}}",
+      "confirmTitle": "{{name}} → {{status}}?",
+      "confirmDescription": "The change applies at once and is written to the audit log.",
+      "registeredOk": "Model registered"
     }
   },
   "impact": {
     "failed": "The change was not saved"
+  },
+  "filePicker": {
+    "choose": "Choose a file",
+    "none": "No suitable file. Upload one in Files first."
   }
 }

@@ -30,6 +30,8 @@ function useStaleToken(): void {
       name: "A",
       email: "muhasib@lexaudit.test",
       role: "accountant",
+      roles: ["accountant"],
+      companyName: null,
       permissions: ["news:read"],
     },
   });

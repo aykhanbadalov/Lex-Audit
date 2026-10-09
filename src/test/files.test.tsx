@@ -224,6 +224,8 @@ describe("uploading", () => {
         name: "A",
         email: "muhasib@lexaudit.test",
         role: "accountant",
+        roles: ["accountant"],
+        companyName: null,
         permissions: ["files:read", "files:write"],
       },
     });

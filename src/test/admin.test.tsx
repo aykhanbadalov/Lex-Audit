@@ -13,211 +13,205 @@ const rowOf = async (text: string) =>
   within(await screen.findByRole("table"))
     .getByText(text)
     .closest("tr")!;
-const approve = (id: string) =>
-  api.POST("/approvals/{id}/decide", { params: { path: { id } }, body: { decision: "approved", comment: "yoxlandı" } });
-
-async function lastApprovalId() {
-  const list = (await api.GET("/approvals", { params: { query: { status: "pending" } } })).data!.items;
-  return list.find((item) => item.requestedBy.name === "Nigar Quliyeva" && !item.id.startsWith("appr-seed"))!.id;
-}
 
 describe("users", () => {
-  it("cannot change its own access, and offers every other user a role and a switch", async () => {
+  it("lists the people with their roles, and offers no action on yourself", async () => {
     signInAs(ADMIN);
     renderApp("/admin");
-    const own = await rowOf("Nigar Quliyeva");
-    expect(within(own).getByRole("combobox")).toBeDisabled();
-    expect(within(own).queryByRole("button", { name: "Deaktiv et" })).not.toBeInTheDocument();
-    const other = await rowOf("Aygün Məmmədova");
-    expect(within(other).getByRole("combobox")).toBeEnabled();
+    const own = await rowOf("admin@lexaudit.test");
+    expect(within(own).getByText("Siz")).toBeInTheDocument();
+    expect(within(own).queryByRole("button")).not.toBeInTheDocument();
+    const other = await rowOf("muhasib@lexaudit.test");
+    expect(within(other).getByText("accountant")).toBeInTheDocument();
+    expect(within(other).getByRole("button", { name: "Rolları dəyiş" })).toBeInTheDocument();
   });
 
-  it("sends a role change for approval: the role stays until someone else approves", async () => {
+  it("creates a user only with a long enough password and at least one role", async () => {
     signInAs(ADMIN);
     renderApp("/admin");
-    const row = await rowOf("Aygün Məmmədova");
-    await userEvent.selectOptions(within(row).getByRole("combobox"), "chief_accountant");
-
-    expect(await within(await rowOf("Aygün Məmmədova")).findByText("Gözləyir: Baş mühasib")).toBeInTheDocument();
-    expect(within(await rowOf("Aygün Məmmədova")).getByRole("combobox")).toHaveValue("accountant");
-
-    signInAs(CHIEF);
-    await approve(await lastApprovalId());
-    signInAs(ADMIN);
-    const users = (await api.GET("/admin/users")).data!;
-    expect(users.find((user) => user.name === "Aygün Məmmədova")).toMatchObject({
-      role: "chief_accountant",
-      pendingRole: null,
-    });
+    await userEvent.click(await screen.findByRole("button", { name: "İstifadəçi yarat" }));
+    const dialog = await screen.findByRole("dialog");
+    const create = within(dialog).getByRole("button", { name: "İstifadəçi yarat" });
+    await userEvent.type(within(dialog).getByLabelText("E-poçt"), "yeni@lexaudit.test");
+    await userEvent.type(within(dialog).getByLabelText("Müvəqqəti parol"), "qisa");
+    expect(create).toBeDisabled();
+    await userEvent.clear(within(dialog).getByLabelText("Müvəqqəti parol"));
+    await userEvent.type(within(dialog).getByLabelText("Müvəqqəti parol"), "Uzun-Parol-2026!");
+    expect(create).toBeDisabled(); // no role chosen yet
+    await userEvent.click(within(dialog).getByRole("checkbox", { name: /viewer/ }));
+    await userEvent.click(create);
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(await rowOf("yeni@lexaudit.test")).toBeInTheDocument();
   });
 
-  it("asks before deactivating, and the person stays active if the dialog is cancelled", async () => {
+  it("suspends a person only after confirmation", async () => {
     signInAs(ADMIN);
     renderApp("/admin");
-    const row = await rowOf("Rəşad Əliyev");
-    await userEvent.click(within(row).getByRole("button", { name: "Deaktiv et" }));
+    const row = await rowOf("viewer@lexaudit.test");
+    await userEvent.click(within(row).getByRole("button", { name: "Dayandır" }));
     await userEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Ləğv et" }));
-    expect(within(await rowOf("Rəşad Əliyev")).getByText("Aktiv")).toBeInTheDocument();
+    expect(within(await rowOf("viewer@lexaudit.test")).getByText("Aktiv")).toBeInTheDocument();
 
-    await userEvent.click(within(row).getByRole("button", { name: "Deaktiv et" }));
-    await userEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Deaktiv et" }));
-    await waitFor(async () => expect(within(await rowOf("Rəşad Əliyev")).getByText("Deaktiv")).toBeInTheDocument());
+    await userEvent.click(within(row).getByRole("button", { name: "Dayandır" }));
+    await userEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Dayandır" }));
+    await waitFor(async () =>
+      expect(within(await rowOf("viewer@lexaudit.test")).getByText("Dayandırılıb")).toBeInTheDocument(),
+    );
   });
 
-  it("is refused by the server when someone changes their own access, and that attempt is logged", async () => {
+  it("is refused by the server when someone changes their own status or roles, and that is logged", async () => {
     signInAs(ADMIN);
     await expect(
-      api.PATCH("/admin/users/{id}", { params: { path: { id: "user-admin" } }, body: { role: "viewer" } }),
+      api.PATCH("/admin/users/{id}", { params: { path: { id: "user-admin" } }, body: { status: "suspended" } }),
     ).rejects.toMatchObject({ status: 403 });
     await expect(
-      api.PATCH("/admin/users/{id}", { params: { path: { id: "user-admin" } }, body: { active: false } }),
+      api.PUT("/admin/users/{id}/roles", {
+        params: { path: { id: "user-admin" } },
+        body: { roleIds: ["role-viewer"] },
+      }),
     ).rejects.toMatchObject({ status: 403 });
-    const events = (await api.GET("/audit-events", { params: { query: { q: "user.update" } } })).data!.items;
-    expect(events[0]).toMatchObject({ outcome: "denied", actor: { id: "user-admin" } });
+    const events = (await api.GET("/audit-events", { params: { query: { limit: 10 } } })).data!;
+    expect(events.some((event) => event.action === "user.status")).toBe(true);
+  });
+
+  it("will not hand out a role with permissions the giver does not hold", async () => {
+    signInAs(CHIEF); // may not manage users at all
+    await expect(api.GET("/admin/users")).rejects.toMatchObject({ status: 403 });
+    signInAs(ADMIN);
+    const created = (await api.POST("/admin/roles", { body: { name: "kiçik", permissions: ["invoices:read"] } })).data!;
+    expect(created.system).toBe(false);
   });
 });
 
-describe("sources", () => {
-  it("shows which sources are failing and turns one off", async () => {
+describe("roles", () => {
+  it("shows system roles without an edit button and lets a custom role be created from the permissions you hold", async () => {
+    signInAs(ADMIN);
+    renderApp("/admin?tab=roles");
+    const system = (await screen.findByText("viewer")).closest("li")!;
+    expect(within(system).queryByRole("button", { name: "İcazələri dəyiş" })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rol yarat" }));
+    const dialog = await screen.findByRole("dialog");
+    await userEvent.type(within(dialog).getByLabelText("Ad"), "mühasib köməkçisi");
+    await userEvent.click(within(dialog).getByRole("checkbox", { name: "invoices:read" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Yadda saxla" }));
+    expect(await screen.findByText("mühasib köməkçisi")).toBeInTheDocument();
+  });
+
+  it("refuses a role that contains a permission the caller does not hold, and a change to a system role", async () => {
+    signInAs(ADMIN);
+    await expect(
+      api.PUT("/admin/roles/{id}/permissions", {
+        params: { path: { id: "role-viewer" } },
+        body: { permissions: ["invoices:read"] },
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(api.POST("/admin/roles", { body: { name: "x1", permissions: ["not:real"] } })).rejects.toMatchObject({
+      status: 422,
+    });
+  });
+});
+
+describe("tax rates", () => {
+  it("proposes a rate that is not in force until somebody else approves its activation", async () => {
+    signInAs(ADMIN);
+    renderApp("/admin?tab=rates");
+    await userEvent.click(await screen.findByRole("button", { name: "Dərəcə təklif et" }));
+    const dialog = await screen.findByRole("dialog");
+    const submit = within(dialog).getByRole("button", { name: "Dərəcə təklif et" });
+    await userEvent.type(within(dialog).getByLabelText("Kod"), "AZ_VAT_REDUCED");
+    await userEvent.type(within(dialog).getByLabelText("Dərəcə (%)"), "150");
+    expect(within(dialog).getByRole("alert")).toHaveTextContent("0-dan 100-ə qədər");
+    expect(submit).toBeDisabled();
+    await userEvent.clear(within(dialog).getByLabelText("Dərəcə (%)"));
+    await userEvent.type(within(dialog).getByLabelText("Dərəcə (%)"), "8,5");
+    await userEvent.type(within(dialog).getByLabelText("Qüvvəyə minir"), "2027-01-01");
+    await userEvent.click(submit);
+
+    const row = await rowOf("AZ_VAT_REDUCED");
+    expect(within(row).getByText("Təsdiq gözləyir")).toBeInTheDocument();
+    expect(
+      (await api.GET("/tax-rates", { params: { query: { taxType: "VAT", status: "active" } } })).data!.some(
+        (rate) => rate.code === "AZ_VAT_REDUCED",
+      ),
+    ).toBe(false);
+
+    await userEvent.click(within(row).getByRole("button", { name: "Aktivləşməni təsdiqə göndər" }));
+    await waitFor(async () =>
+      expect(
+        (await api.GET("/approvals")).data!.some(
+          (item) => item.kind === "tax_rate_proposal" && item.status === "pending",
+        ),
+      ).toBe(true),
+    );
+
+    // The administrator who asked cannot approve; another approver can, and then the rate is in force.
+    const request = (await api.GET("/approvals")).data!.find(
+      (item) => item.kind === "tax_rate_proposal" && item.status === "pending",
+    )!;
+    await expect(
+      api.POST("/approvals/{id}/decide", {
+        params: { path: { id: request.id } },
+        body: { decision: "approve", comment: "ok" },
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    signInAs(CHIEF);
+    await api.POST("/approvals/{id}/decide", {
+      params: { path: { id: request.id } },
+      body: { decision: "approve", comment: "yoxlandı" },
+    });
+    expect(
+      (await api.GET("/tax-rates", { params: { query: { taxType: "VAT", status: "active" } } })).data!.some(
+        (rate) => rate.code === "AZ_VAT_REDUCED",
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("models and sources", () => {
+  it("changes a model's status only after confirmation, and a new production version retires the old one", async () => {
+    signInAs(ADMIN);
+    renderApp("/admin?tab=models");
+    const candidate = (await screen.findByText("v13")).closest("li")!;
+    await userEvent.selectOptions(within(candidate).getByRole("combobox"), "production");
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("lexaudit-llm v13 → Buraxılışda?");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Təsdiq et" }));
+
+    await waitFor(async () => {
+      const { versions } = (await api.GET("/admin/models")).data!;
+      expect(versions.find((model) => model.version === "v13")!.status).toBe("production");
+      expect(versions.find((model) => model.version === "v12")!.status).toBe("retired");
+    });
+  });
+
+  it("turns a news source off", async () => {
     signInAs(ADMIN);
     renderApp("/admin?tab=sources");
-    const failing = (await screen.findByText("DSMF")).closest("li")!;
-    expect(failing).toHaveTextContent("Ardıcıl 3 xəta");
-    expect(failing).toHaveTextContent("HTTP 503");
-
-    await userEvent.click(within(failing).getByRole("checkbox"));
+    const source = (await screen.findByText("DSMF")).closest("li")!;
+    await userEvent.click(within(source).getByRole("checkbox"));
     await waitFor(() =>
       expect(within(screen.getByText("DSMF").closest("li")!).getByText("Söndürülüb")).toBeInTheDocument(),
     );
   });
 });
 
-describe("tax rates", () => {
-  async function openChange() {
-    signInAs(ADMIN);
-    renderApp("/admin?tab=rates");
-    const row = await rowOf("ƏDV 18%");
-    await userEvent.click(within(row).getByRole("button", { name: "Dəyişiklik təklif et" }));
-    return screen.findByRole("dialog");
-  }
-
-  it("will not send an invalid rate, a missing date or a missing reason", async () => {
-    const dialog = await openChange();
-    const send = within(dialog).getByRole("button", { name: "Təsdiqə göndər" });
-    expect(send).toBeDisabled();
-
-    await userEvent.type(within(dialog).getByLabelText("Yeni dərəcə (%)"), "150");
-    expect(within(dialog).getByRole("alert")).toHaveTextContent("0-dan 100-ə qədər");
-    await userEvent.clear(within(dialog).getByLabelText("Yeni dərəcə (%)"));
-    await userEvent.type(within(dialog).getByLabelText("Yeni dərəcə (%)"), "20");
-    await userEvent.type(within(dialog).getByLabelText("Qüvvəyə minib"), "2027-01-01");
-    expect(send).toBeDisabled(); // no reason yet
-    await userEvent.type(within(dialog).getByLabelText(/Səbəb/), "Qanun dəyişdi");
-    expect(send).toBeEnabled();
-  });
-
-  it("changes nothing until a different person approves, then shows the new rate", async () => {
-    const dialog = await openChange();
-    await userEvent.type(within(dialog).getByLabelText("Yeni dərəcə (%)"), "20");
-    await userEvent.type(within(dialog).getByLabelText("Qüvvəyə minib"), "2027-01-01");
-    await userEvent.type(within(dialog).getByLabelText(/Səbəb/), "Qanun dəyişdi");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Təsdiqə göndər" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-
-    const before = (await api.GET("/tax-rates", { params: { query: { type: "VAT" } } })).data!;
-    expect(before.find((rate) => rate.code === "AZ_VAT_STANDARD")!.rate).toBe("0.18");
-
-    // The admin who asked cannot approve it; the chief accountant can.
-    const id = await lastApprovalId();
-    await expect(approve(id)).rejects.toMatchObject({ status: 403 });
-    signInAs(CHIEF);
-    await approve(id);
-    const after = (await api.GET("/tax-rates", { params: { query: { type: "VAT" } } })).data!;
-    expect(after.find((rate) => rate.code === "AZ_VAT_STANDARD")!.rate).toBe("0.2");
-  });
-
-  it("is validated by the server too", async () => {
-    signInAs(ADMIN);
-    const propose = (body: { code: string; rate: string; validFrom: string; reason: string }) =>
-      api.POST("/admin/tax-rates/changes", { body });
-    const ok = { code: "AZ_VAT_STANDARD", rate: "0.2", validFrom: "2027-01-01", reason: "Qanun" };
-    await expect(propose({ ...ok, rate: "1.5" })).rejects.toMatchObject({ status: 422 });
-    await expect(propose({ ...ok, reason: " " })).rejects.toMatchObject({ status: 422 });
-    await expect(propose({ ...ok, code: "NOPE" })).rejects.toMatchObject({ status: 404 });
-  });
-});
-
-describe("models", () => {
-  it("keeps the active model until the release is approved by someone else", async () => {
-    signInAs(ADMIN);
-    renderApp("/admin?tab=models");
-    const v7 = (await screen.findAllByText("v7"))[0]!.closest("li")!;
-    expect(v7).toHaveTextContent("Canary");
-    expect(v7).toHaveTextContent("Dəqiqlik: 93,4% (əvvəl 91,2%)");
-    await userEvent.click(within(v7).getByRole("button", { name: "Buraxılışa göndər" }));
-    const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByRole("button", { name: "Təsdiqə göndər" })).toBeDisabled();
-    await userEvent.type(within(dialog).getByLabelText(/Səbəb/), "Eval yaxşılaşıb");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Təsdiqə göndər" }));
-
-    expect(await screen.findByText("Buraxılış təsdiq gözləyir")).toBeInTheDocument();
-    let models = (await api.GET("/admin/models")).data!;
-    expect(models.find((model) => model.id === "mdl-ext-6")!.status).toBe("active");
-
-    signInAs(CHIEF);
-    await approve(await lastApprovalId());
-    signInAs(ADMIN);
-    models = (await api.GET("/admin/models")).data!;
-    expect(models.find((model) => model.id === "mdl-ext-7")).toMatchObject({ status: "active", pendingChange: null });
-    expect(models.find((model) => model.id === "mdl-ext-6")!.status).toBe("retired");
-  });
-
-  it("allows only one change at a time and only sensible ones", async () => {
-    signInAs(ADMIN);
-    const change = (id: string, action: "release" | "rollback") =>
-      api.POST("/admin/models/{id}/change", { params: { path: { id } }, body: { action, reason: "sebeb" } });
-    await change("mdl-ext-7", "release");
-    await expect(change("mdl-ext-7", "release")).rejects.toMatchObject({ status: 409 });
-    await expect(change("mdl-cls-3", "release")).rejects.toMatchObject({ status: 422 }); // already active
-    await expect(change("mdl-ext-7", "rollback")).rejects.toMatchObject({ status: 409 });
-    await expect(change("nope", "release")).rejects.toMatchObject({ status: 404 });
-  });
-
-  it("a denied release leaves the model as it was and frees it for a new request", async () => {
-    signInAs(ADMIN);
-    await api.POST("/admin/models/{id}/change", {
-      params: { path: { id: "mdl-ast-13" } },
-      body: { action: "release", reason: "sebeb" },
-    });
-    const id = await lastApprovalId();
-    signInAs(CHIEF);
-    await api.POST("/approvals/{id}/decide", {
-      params: { path: { id } },
-      body: { decision: "denied", comment: "zəifdir" },
-    });
-    signInAs(ADMIN);
-    signInAs(ADMIN);
-    const model = (await api.GET("/admin/models")).data!.find((item) => item.id === "mdl-ast-13")!;
-    expect(model).toMatchObject({ status: "candidate", pendingChange: null });
-  });
-});
-
 describe("access", () => {
-  it("shows permission-denied, and never calls the API, to everyone but an administrator", async () => {
+  it("shows permission-denied, and never calls the API, to everyone without an admin permission", async () => {
     signInAs(CHIEF);
     const urls: string[] = [];
     server.events.on("request:start", ({ request }) => void urls.push(request.url));
     renderApp("/admin");
     expect(await screen.findByText("Bu bölməyə giriş icazəniz yoxdur")).toBeInTheDocument();
     expect(urls.some((url) => url.includes("/admin/"))).toBe(false);
+    server.events.removeAllListeners();
   });
 
   it("is closed to everyone else in the API too", async () => {
     signInAs(CHIEF);
-    await expect(api.GET("/admin/users")).rejects.toMatchObject({ status: 403 });
     await expect(api.GET("/admin/models")).rejects.toMatchObject({ status: 403 });
     await expect(
-      api.PATCH("/admin/news-sources/{id}", { params: { path: { id: "src-dsmf" } }, body: { enabled: false } }),
+      api.PUT("/admin/sources/{id}", { params: { path: { id: "src-dsmf" } }, body: { enabled: false } }),
     ).rejects.toMatchObject({ status: 403 });
   });
 });

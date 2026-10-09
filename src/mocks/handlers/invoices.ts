@@ -8,7 +8,6 @@ import {
   wireInvoiceDetail,
   wireJournalDetail,
   wireJournalSummary,
-  wireTaxRates,
 } from "../wire";
 import {
   allInvoices,
@@ -23,6 +22,7 @@ import {
 import { ensureJournalApproval } from "../fixtures/approvals";
 import { demoPdf } from "../fixtures/pdf";
 import { parseMultipart } from "../multipart";
+import { publicRates } from "./admin";
 import { apiError, authorize, authorizeAny } from "./auth";
 import { apiPath } from "./base";
 
@@ -271,6 +271,6 @@ export const invoicesHandlers = [
   http.get(apiPath("/tax-rates"), ({ request }) => {
     const auth = authorize(request, "invoices:read");
     if ("response" in auth) return auth.response;
-    return HttpResponse.json(wireTaxRates());
+    return HttpResponse.json(publicRates(new URL(request.url).searchParams));
   }),
 ];

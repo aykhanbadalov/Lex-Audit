@@ -11,7 +11,7 @@ async function signIn(page: Page) {
 test("the VAT screen survives a reload, and keeps its period and tab in the URL", async ({ page }) => {
   await signIn(page);
   await page.goto("/vat?period=2026-09&tab=deposit");
-  await expect(page.getByText(/Qaimə ilə əlaqələndirilməmiş hərəkətlər/)).toBeVisible();
+  await expect(page.getByText("Depozit hesabı qalığı")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Dövr")).toHaveValue("2026-09");
   await expect(page.getByRole("tab", { name: "Depozit hesabı" })).toHaveAttribute("aria-selected", "true");
@@ -34,10 +34,14 @@ test("the chart of accounts is its own page, not mistaken for a journal entry", 
   await expect(page.getByText("Ofis icarəsi — oktyabr")).toBeVisible();
 });
 
-test("drilling down from the VAT summary lands on exactly those invoices", async ({ page }) => {
+test("drilling down from the VAT summary lands on that period's invoices of that direction", async ({ page }) => {
   await signIn(page);
   await page.goto("/vat?period=2026-09");
-  await page.getByRole("link", { name: "Qaimələr: 2" }).click();
-  await expect(page).toHaveURL(/vatBucket=input/);
-  await expect(page.getByRole("row")).toHaveCount(3); // header + 2 invoices
+  await page
+    .getByRole("link", { name: /Qaimələr: \d+/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/from=2026-09-01/);
+  await expect(page).toHaveURL(/direction=/);
+  await expect(page.getByRole("row").nth(1)).toBeVisible();
 });

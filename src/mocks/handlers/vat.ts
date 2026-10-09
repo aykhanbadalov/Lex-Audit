@@ -36,8 +36,13 @@ function wireSummary(period: string) {
       const row = rows.get(line.vatRateCode) ?? { sn: 0n, sv: 0n, pn: 0n, pv: 0n };
       const net = parseDec(toBase(line.net, invoice.currency));
       const vat = parseDec(toBase(line.vat, invoice.currency));
-      if (invoice.direction === "sales") ((row.sn += net), (row.sv += vat));
-      else ((row.pn += net), (row.pv += vat));
+      if (invoice.direction === "sales") {
+        row.sn += net;
+        row.sv += vat;
+      } else {
+        row.pn += net;
+        row.pv += vat;
+      }
       rows.set(line.vatRateCode, row);
     }
   }

@@ -1,31 +1,41 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Body, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import { polling } from "@/shared/api/polling";
 
-export type ImportJob = components["schemas"]["ImportJob"];
-export type ImportDetail = components["schemas"]["ImportDetail"];
-export type ImportSource = components["schemas"]["ImportSource"];
-export type Mapping = Record<string, string | null>;
+export type ImportPreview = Json<"/imports/preview", "post">;
+export type ImportDetail = Json<"/imports/{id}">;
+export type ImportSource = Body<"/imports/preview">["source"];
+export type OneCExport = Json<"/journal/export-1c", "post">;
 
-export const IMPORT_SOURCES = ["onec", "etaxes", "bank"] as const satisfies readonly ImportSource[];
+export const IMPORT_SOURCES: ImportSource[] = ["1c", "etaxes", "bank"];
 
-export const importKeys = {
-  all: ["imports"] as const,
-  list: ["imports", "list"] as const,
-  detail: (id: string) => ["imports", "detail", id] as const,
-};
+export const importKeys = { detail: (id: string) => ["imports", id] as const };
 
-const busy = (status: ImportJob["status"]) => status === "analysing" || status === "importing";
+/** Reads the file and reports what would be imported. Nothing is written. */
+export function usePreviewImport() {
+  return useMutation({
+    mutationFn: async (body: Body<"/imports/preview">) => unwrap(await api.POST("/imports/preview", { body })),
+    onError: () => {
+      toast.error(i18n.t("integrations.previewFailed"));
+    },
+  });
+}
 
-export function useImports() {
-  return useQuery({
-    queryKey: importKeys.list,
-    queryFn: async ({ signal }) => unwrap(await api.GET("/imports", { signal })),
-    refetchInterval: (query) => (query.state.data?.some((job) => busy(job.status)) ? polling.intervalMs : false),
+/** Importing writes records, so the backend asks for approval from somebody else first. */
+export function useCommitImport() {
+  return useMutation({
+    mutationFn: async (importId: string) =>
+      unwrap(await api.POST("/imports/{id}/commit", { params: { path: { id: importId } } })),
+    onSuccess: () => {
+      toast.success(i18n.t("integrations.sentForApproval"));
+    },
+    onError: () => {
+      toast.error(i18n.t("integrations.commitFailed"));
+    },
   });
 }
 
@@ -34,59 +44,43 @@ export function useImport(id: string) {
     queryKey: importKeys.detail(id),
     queryFn: async ({ signal }) => unwrap(await api.GET("/imports/{id}", { signal, params: { path: { id } } })),
     retry: false,
-    refetchInterval: (query) => (query.state.data && busy(query.state.data.status) ? polling.intervalMs : false),
-  });
-}
-
-export function useSaveMapping(id: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (mapping: Mapping) =>
-      unwrap(await api.PUT("/imports/{id}/mapping", { params: { path: { id } }, body: { mapping } })),
-    onSuccess: (detail) => {
-      queryClient.setQueryData(importKeys.detail(id), detail);
-      toast.success(i18n.t("integrations.mappingSaved"));
-    },
-    onError: () => {
-      toast.error(i18n.t("integrations.mappingFailed"));
-    },
-  });
-}
-
-export function useCommitImport(id: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => unwrap(await api.POST("/imports/{id}/commit", { params: { path: { id } } })),
-    onSuccess: (detail) => {
-      queryClient.setQueryData(importKeys.detail(id), detail);
-      void queryClient.invalidateQueries({ queryKey: importKeys.list });
-    },
-    onError: () => {
-      toast.error(i18n.t("integrations.commitFailed"));
-    },
+    // After approval the import runs in the background.
+    refetchInterval: (query) => (query.state.data?.status === "importing" ? polling.intervalMs : false),
   });
 }
 
 export function useExportToOneC() {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (periodId: string) => unwrap(await api.POST("/exports/onec", { body: { periodId } })),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["files"] }),
+    mutationFn: async (range: { from: string; to: string }) =>
+      unwrap(await api.POST("/journal/export-1c", { body: range })),
     onError: () => {
-      toast.error(i18n.t("integrations.export.failed"));
+      toast.error(i18n.t("integrations.exportFailed"));
     },
   });
 }
 
-/** Same column twice would feed two fields from one source column; the server refuses it, the UI just does not offer it. */
-export function availableColumns(columns: readonly string[], mapping: Mapping, field: string): string[] {
-  const usedElsewhere = new Set(
-    Object.entries(mapping).flatMap(([key, column]) => (key !== field && column ? [column] : [])),
-  );
-  return columns.filter((column) => !usedElsewhere.has(column));
+export interface SampleRow {
+  kind: "invoice" | "bank";
+  columns: string[];
 }
 
-export function mappingsEqual(a: Mapping, b: Mapping): boolean {
-  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-  return [...keys].every((key) => (a[key] ?? null) === (b[key] ?? null));
+/** One sample row from the preview, reduced to the few values worth showing. Anything unexpected is skipped. */
+export function readSample(value: unknown): SampleRow | null {
+  if (typeof value !== "object" || value === null) return null;
+  const row = value as Record<string, unknown>;
+  const data = typeof row.data === "object" && row.data !== null ? (row.data as Record<string, unknown>) : row;
+  const text = (x: unknown) => (typeof x === "string" || typeof x === "number" ? String(x) : "");
+  if (data.kind === "invoice") {
+    return {
+      kind: "invoice",
+      columns: [text(data.number), text(data.issueDate), text(data.counterpartyName), text(data.gross)],
+    };
+  }
+  if (data.kind === "bank") {
+    return {
+      kind: "bank",
+      columns: [text(data.date), text(data.amount), text(data.description), text(data.reference)],
+    };
+  }
+  return null;
 }

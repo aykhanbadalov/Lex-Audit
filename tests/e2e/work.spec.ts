@@ -22,29 +22,32 @@ test("the three new sections load directly and after a reload", async ({ page })
   }
 });
 
-test("run an Excel operation and find the result as a new file", async ({ page }) => {
+test("analyse a spreadsheet and read what each column holds", async ({ page }) => {
   await signIn(page);
-  await page.goto("/excel/wb-sales");
-  await page.getByRole("button", { name: "İcra et" }).click();
-  await expect(page.getByRole("link", { name: "Satış reyestri (təmizlənmiş).xlsx" })).toBeVisible({ timeout: 15_000 });
+  await page.goto("/excel");
+  await page.locator("#excel-file-pick").selectOption("file-bank-sep");
+  await page.getByRole("button", { name: "Təhlil et" }).click();
+  await expect(page.getByRole("rowheader", { name: "Məbləğ" })).toBeVisible({ timeout: 15_000 });
 });
 
-test("confirm a suggested match in a reconciliation", async ({ page }) => {
+test("run a reconciliation and confirm a suggested match", async ({ page }) => {
   await signIn(page);
-  await page.goto("/reconciliation/rec-1?status=suggested");
+  await page.goto("/reconciliation");
+  await page.locator("#left-type").selectOption("bank");
+  await page.locator("#right-type").selectOption("bank");
+  await page.getByRole("button", { name: "Uzlaşdır" }).click();
   await page.getByRole("button", { name: "Təsdiq et" }).first().click();
-  await expect(page.getByRole("row")).toHaveCount(2); // header + the one suggestion left
+  await expect(page.getByText("Təsdiqlənib").first()).toBeVisible();
 });
 
-test("map a bank statement and import it, with a confirmation before anything is written", async ({ page }) => {
+test("preview an import, then send it for approval: nothing is written before somebody else agrees", async ({
+  page,
+}) => {
   await signIn(page);
-  await page.goto("/integrations/imp-2");
-  await expect(page.getByRole("button", { name: "İdxal et" })).toBeDisabled();
-  await page.getByLabel(/Məbləğ/).selectOption("Debet");
-  await page.getByRole("button", { name: "Xəritələməni saxla" }).click();
-  await expect(page.getByRole("button", { name: "İdxal et" })).toBeEnabled();
-  await page.getByRole("button", { name: "İdxal et" }).click();
-  await expect(page.getByRole("dialog")).toContainText("geri qaytarmaq mümkün deyil");
-  await page.getByRole("dialog").getByRole("button", { name: "İdxal et" }).click();
-  await expect(page.getByText("Tamamlanıb")).toBeVisible({ timeout: 15_000 });
+  await page.goto("/integrations");
+  await page.locator("#import-file").selectOption("file-bank-sep");
+  await page.getByRole("button", { name: "Önbaxış" }).click();
+  await expect(page.getByText("Hələ heç nə yazılmayıb.")).toBeVisible();
+  await page.getByRole("button", { name: "İdxala göndər" }).click();
+  await expect(page.getByText(/başqa şəxsin təsdiqini gözləyir/)).toBeVisible();
 });

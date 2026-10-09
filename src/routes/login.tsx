@@ -11,8 +11,20 @@ import { isAuthenticated } from "@/shared/stores/authStore";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
-// Sample sign-in details are shown only in the demo build, whose data is fake. A production bundle never contains them.
-const DEMO = import.meta.env.VITE_ENABLE_MSW === "true";
+/**
+ * Sample sign-in details under the inputs, for a demo. The built-in demo (fake data in the browser) always has them;
+ * a build against a real backend shows them only when VITE_DEMO_EMAIL / VITE_DEMO_PASSWORD were set for that build,
+ * for example for a public demo company. A production bundle without those variables contains no credentials.
+ */
+const DEMO =
+  import.meta.env.VITE_ENABLE_MSW === "true"
+    ? { email: "muhasib@lexaudit.test", password: "demo1234" }
+    : import.meta.env.VITE_DEMO_EMAIL
+      ? {
+          email: import.meta.env.VITE_DEMO_EMAIL as string,
+          password: (import.meta.env.VITE_DEMO_PASSWORD as string | undefined) ?? "",
+        }
+      : null;
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -97,7 +109,7 @@ function LoginPage() {
             {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
             {DEMO ? (
               <p className="text-xs text-muted-foreground">
-                {t("auth.demoEmail")}: <code className="font-mono">muhasib@lexaudit.test</code>
+                {t("auth.demoEmail")}: <code className="font-mono">{DEMO.email}</code>
               </p>
             ) : null}
           </div>
@@ -113,9 +125,9 @@ function LoginPage() {
               {...register("password")}
             />
             {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
-            {DEMO ? (
+            {DEMO?.password ? (
               <p className="text-xs text-muted-foreground">
-                {t("auth.demoPassword")}: <code className="font-mono">demo1234</code>
+                {t("auth.demoPassword")}: <code className="font-mono">{DEMO.password}</code>
               </p>
             ) : null}
           </div>

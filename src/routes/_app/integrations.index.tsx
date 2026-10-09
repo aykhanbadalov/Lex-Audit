@@ -1,25 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import type { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { uploadMultipart } from "@/api/upload";
 import {
   IMPORT_SOURCES,
-  importKeys,
+  readSample,
+  useCommitImport,
   useExportToOneC,
-  useImports,
-  type ImportJob,
+  usePreviewImport,
   type ImportSource,
 } from "@/features/integrations/api";
-import { DataTable } from "@/shared/components/DataTable";
+import { FilePicker } from "@/shared/components/FilePicker";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import { usePermission } from "@/shared/hooks/usePermission";
-import { formatDate } from "@/shared/lib/date";
-import { localeTag } from "@/shared/lib/locale";
-import { UploadDropzone } from "@/shared/upload/UploadDropzone";
-import type { BadgeTone } from "@/shared/ui/badge";
+import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -27,79 +21,41 @@ import { Select } from "@/shared/ui/select";
 
 export const Route = createFileRoute("/_app/integrations/")({ component: IntegrationsPage });
 
-const TONE: Record<ImportJob["status"], BadgeTone> = {
-  analysing: "info",
-  needs_mapping: "warning",
-  ready: "info",
-  importing: "info",
-  done: "success",
-  failed: "danger",
-};
-
 function IntegrationsPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="files:read">
+    <RequirePermission permission="excel:use">
       <IntegrationsContent />
     </RequirePermission>
   );
 }
 
 function IntegrationsContent() {
-  const { t, i18n } = useTranslation();
-  const canWrite = usePermission("imports:commit");
-  const list = useImports();
-  const [source, setSource] = useState<ImportSource>("onec");
-  const tag = localeTag(i18n.language);
-
-  const columns = useMemo<ColumnDef<ImportJob, unknown>[]>(
-    () => [
-      {
-        accessorKey: "fileName",
-        header: t("integrations.columns.file"),
-        cell: ({ row }) => (
-          <Link to="/integrations/$id" params={{ id: row.original.id }} className="font-medium hover:underline">
-            {row.original.fileName}
-          </Link>
-        ),
-      },
-      {
-        accessorKey: "source",
-        header: t("integrations.columns.source"),
-        cell: ({ row }) => t(`integrations.source.${row.original.source}`),
-      },
-      {
-        accessorKey: "status",
-        header: t("integrations.columns.status"),
-        cell: ({ row }) => (
-          <StatusBadge tone={TONE[row.original.status]} label={t(`integrations.status.${row.original.status}`)} />
-        ),
-      },
-      {
-        id: "result",
-        header: t("integrations.columns.result"),
-        enableSorting: false,
-        cell: ({ row }) => (row.original.summary ? t("integrations.resultLine", row.original.summary) : "—"),
-      },
-      {
-        accessorKey: "createdAt",
-        header: t("integrations.columns.created"),
-        cell: ({ row }) => formatDate(row.original.createdAt, tag),
-      },
-    ],
-    [t, tag],
-  );
+  const { t } = useTranslation();
+  const canCommit = usePermission("imports:commit");
+  const canExport = usePermission("journal:read");
+  const preview = usePreviewImport();
+  const commit = useCommitImport();
+  const exportOneC = useExportToOneC();
+  const [source, setSource] = useState<ImportSource>("1c");
+  const [fileId, setFileId] = useState("");
+  const [direction, setDirection] = useState<"sales" | "purchase">("purchase");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const result = preview.data;
+  const approval = commit.data;
 
   return (
     <>
       <PageHeader title={t("nav.integrations")} description={t("modules.integrations")} />
-      {canWrite ? (
-        <section aria-labelledby="new-import" className="mb-8 space-y-3">
-          <h2 id="new-import" className="text-lg font-semibold">
-            {t("integrations.newImport")}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="import-heading" className="space-y-3 rounded-lg border bg-card p-4">
+          <h2 id="import-heading" className="text-lg font-semibold">
+            {t("integrations.import.title")}
           </h2>
-          <div className="max-w-xs space-y-1.5">
-            <Label htmlFor="import-source">{t("integrations.columns.source")}</Label>
+          <p className="text-xs text-muted-foreground">{t("integrations.import.hint")}</p>
+          <div className="space-y-1.5">
+            <Label htmlFor="import-source">{t("integrations.import.source")}</Label>
             <Select
               id="import-source"
               value={source}
@@ -111,68 +67,165 @@ function IntegrationsContent() {
                 </option>
               ))}
             </Select>
-            <p className="text-xs text-muted-foreground">{t(`integrations.sourceHint.${source}`)}</p>
           </div>
-          <UploadDropzone
-            upload={(file, options) => uploadMultipart("/imports", file, { source }, options)}
-            queryKey={importKeys.all}
+          <FilePicker
+            id="import-file"
+            label={t("integrations.import.file")}
+            value={fileId}
+            onChange={setFileId}
+            extensions={["xlsx", "xls", "csv", "xml"]}
           />
+          {source !== "bank" ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="import-direction">{t("integrations.import.direction")}</Label>
+              <Select
+                id="import-direction"
+                value={direction}
+                onChange={(event) => setDirection(event.target.value as typeof direction)}
+              >
+                <option value="purchase">{t("invoices.direction.purchase")}</option>
+                <option value="sales">{t("invoices.direction.sales")}</option>
+              </Select>
+            </div>
+          ) : null}
+          <Button
+            type="button"
+            disabled={!fileId || preview.isPending}
+            onClick={() => {
+              commit.reset();
+              preview.mutate({ source, fileId, defaultDirection: source === "bank" ? undefined : direction });
+            }}
+          >
+            {t("integrations.import.preview")}
+          </Button>
+        </section>
+
+        {canExport ? (
+          <section aria-labelledby="export-heading" className="space-y-3 rounded-lg border bg-card p-4">
+            <h2 id="export-heading" className="text-lg font-semibold">
+              {t("integrations.export.title")}
+            </h2>
+            <p className="text-xs text-muted-foreground">{t("integrations.export.hint")}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="export-from">{t("news.filters.from")}</Label>
+                <Input
+                  id="export-from"
+                  type="date"
+                  value={from}
+                  max={to || undefined}
+                  onChange={(event) => setFrom(event.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="export-to">{t("news.filters.to")}</Label>
+                <Input
+                  id="export-to"
+                  type="date"
+                  value={to}
+                  min={from || undefined}
+                  onChange={(event) => setTo(event.target.value)}
+                />
+              </div>
+            </div>
+            <Button
+              type="button"
+              disabled={!from || !to || exportOneC.isPending}
+              onClick={() => exportOneC.mutate({ from, to })}
+            >
+              {t("integrations.export.submit")}
+            </Button>
+            {exportOneC.data ? (
+              <p role="status" className="text-sm">
+                {t("integrations.export.ready", { count: exportOneC.data.entries })}{" "}
+                <Link
+                  to="/files/$id"
+                  params={{ id: exportOneC.data.fileId }}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {t("excel.openFile")}
+                </Link>
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+      </div>
+
+      {result ? (
+        <section aria-labelledby="preview-heading" className="mt-8 space-y-4">
+          <h2 id="preview-heading" className="text-lg font-semibold">
+            {t("integrations.preview.title")}
+          </h2>
+          <p className="flex flex-wrap items-center gap-2 text-sm">
+            <Badge tone="outline">{result.template}</Badge>
+            <Badge tone="success">{t("integrations.preview.ok", { count: result.rowsOk })}</Badge>
+            {result.rowsFailed > 0 ? (
+              <Badge tone="danger">{t("integrations.preview.failed", { count: result.rowsFailed })}</Badge>
+            ) : null}
+            {result.truncated ? (
+              <span className="text-xs text-muted-foreground">{t("integrations.preview.truncated")}</span>
+            ) : null}
+          </p>
+          <p className="text-sm text-muted-foreground">{t("integrations.preview.nothingWritten")}</p>
+
+          {result.errors.length > 0 ? (
+            <ul className="space-y-1 text-sm">
+              {result.errors.map((entry) => (
+                <li key={entry.row}>
+                  <span className="font-medium">{t("integrations.preview.row", { row: entry.row })}:</span>{" "}
+                  {entry.errors.join("; ")}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full text-sm">
+              <caption className="sr-only">{t("integrations.preview.sample")}</caption>
+              <tbody>
+                {result.sample.map(readSample).flatMap((row, index) =>
+                  row ? (
+                    <tr key={index} className="border-t first:border-t-0">
+                      {row.columns.map((value, column) => (
+                        <td key={column} className="px-3 py-2">
+                          {value}
+                        </td>
+                      ))}
+                    </tr>
+                  ) : (
+                    []
+                  ),
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {approval ? (
+            <p role="status" className="text-sm">
+              {t("integrations.waiting")}{" "}
+              <Link to="/approvals" search={{ status: "pending" }} className="font-medium text-primary hover:underline">
+                {t("assistant.openApprovals")}
+              </Link>{" "}
+              ·{" "}
+              <Link
+                to="/integrations/$id"
+                params={{ id: result.importId }}
+                className="font-medium text-primary hover:underline"
+              >
+                {t("integrations.openImport")}
+              </Link>
+            </p>
+          ) : canCommit ? (
+            <Button
+              type="button"
+              disabled={result.rowsOk === 0 || commit.isPending}
+              onClick={() => commit.mutate(result.importId)}
+            >
+              {t("integrations.commit")}
+            </Button>
+          ) : null}
         </section>
       ) : null}
-
-      <DataTable
-        columns={columns}
-        data={list.data ?? []}
-        getRowId={(row) => row.id}
-        isLoading={list.isPending}
-        error={list.error}
-        onRetry={() => void list.refetch()}
-        emptyTitle={t("integrations.empty")}
-        emptyDescription={t("integrations.emptyHint")}
-      />
-      {canWrite ? <OneCExport /> : null}
     </>
-  );
-}
-
-function OneCExport() {
-  const { t } = useTranslation();
-  const exportFile = useExportToOneC();
-  const [period, setPeriod] = useState("");
-  const valid = /^\d{4}-\d{2}$/.test(period);
-  return (
-    <section aria-labelledby="export-heading" className="mt-10 max-w-xl space-y-3">
-      <h2 id="export-heading" className="text-lg font-semibold">
-        {t("integrations.export.title")}
-      </h2>
-      <p className="text-sm text-muted-foreground">{t("integrations.export.hint")}</p>
-      <form
-        className="flex flex-wrap items-end gap-3"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (valid) exportFile.mutate(period);
-        }}
-      >
-        <div className="space-y-1.5">
-          <Label htmlFor="export-period">{t("reconciliation.columns.period")}</Label>
-          <Input id="export-period" type="month" value={period} onChange={(event) => setPeriod(event.target.value)} />
-        </div>
-        <Button type="submit" disabled={!valid || exportFile.isPending}>
-          {t("integrations.export.submit")}
-        </Button>
-      </form>
-      {exportFile.data ? (
-        <p role="status" className="text-sm">
-          {t("integrations.export.ready")}{" "}
-          <Link
-            to="/files/$id"
-            params={{ id: exportFile.data.id }}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            {exportFile.data.name}
-          </Link>
-        </p>
-      ) : null}
-    </section>
   );
 }

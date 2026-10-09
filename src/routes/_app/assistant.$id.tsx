@@ -7,7 +7,7 @@ import { useConversation, type StoredMessage } from "@/features/assistant/api";
 import { Composer } from "@/features/assistant/components/Composer";
 import { MessageView, type DisplayMessage } from "@/features/assistant/components/MessageView";
 import { assistantSearchSchema, contextFromSearch, draftFor } from "@/features/assistant/context";
-import { fromLive, fromStored } from "@/features/assistant/display";
+import { fromLive, fromStoredList } from "@/features/assistant/display";
 import { useChat } from "@/features/assistant/useChat";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
@@ -55,7 +55,7 @@ function Chat({ id, title, stored }: { id: string; title: string | null; stored:
   }, [pendingChat, chat, navigate, id]);
 
   const messages = useMemo<DisplayMessage[]>(() => {
-    const list = stored.map((message) => fromStored(message, chat.toolsByMessage[message.id]));
+    const list = fromStoredList(stored, chat.toolsByMessage);
     // While the answer is being written the backend has already stored the question; show it once, from the store.
     const alreadyStored = list.some((message) => message.role === "user" && message.content === chat.pending);
     if (chat.pending && !alreadyStored) {

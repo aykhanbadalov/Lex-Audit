@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-const email = process.env.REAL_ADMIN_EMAIL ?? "admin@lexaudit.local";
-const password = process.env.REAL_ADMIN_PASSWORD ?? "Dev-Password-12345";
+const email = process.env.REAL_ADMIN_EMAIL ?? "admin@demo.lexaudit.local";
+const password = process.env.REAL_ADMIN_PASSWORD ?? "Demo-Passw0rd-2026";
 
 test("signs in against the real backend, survives a reload, and signs out", async ({ page }) => {
   await page.goto("/login");

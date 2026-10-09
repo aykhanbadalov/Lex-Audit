@@ -188,7 +188,7 @@ export function answer(conversation: StoredConversation, content: string, user: 
         callId: `call-${n}`,
         tool: "legislation.search",
         status: "succeeded",
-        summary: "2 nəticə tapıldı",
+        summary: '{"results":[{"id":1},{"id":2}]}',
         toolRunId: `run-${n}`,
       },
     });

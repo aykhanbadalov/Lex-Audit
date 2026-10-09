@@ -18,18 +18,16 @@ test("the original document is rendered next to the fields by the real PDF engin
   expect(await canvas.evaluate((element) => (element as HTMLCanvasElement).width)).toBeGreaterThan(100);
 });
 
-test("fix a wrong total, save, and let the server recalculate", async ({ page }) => {
+test("fix a wrong total, save, and see the backend's verdict on what was saved", async ({ page }) => {
   await signIn(page);
   await page.goto("/invoices/inv-1002");
-  await expect(page.getByText(/hesablanmış məbləğdən/)).toBeVisible();
+  await expect(page.getByText("Yekun məbləğlər sətirlərin cəminə uyğun gəlmir")).toBeVisible();
 
   await page.getByLabel("Vahidin qiyməti").fill("1483,05");
   await page.getByRole("button", { name: "Yadda saxla" }).click();
 
   await expect(page.getByText("Problem tapılmadı.")).toBeVisible();
   await expect(page.getByText("Yoxlanılıb", { exact: true }).first()).toBeVisible();
-  const totals = page.getByRole("heading", { name: "Yekun məbləğlər" }).locator("xpath=ancestor::section");
-  await expect(totals).toContainText("1.750,00");
 });
 
 test("leaving with unsaved changes asks first", async ({ page }) => {
@@ -48,17 +46,15 @@ test("suggest a journal entry for a valid invoice and send it for approval", asy
   await page.getByRole("button", { name: "Jurnal yazılışı təklif et" }).click();
   await expect(page.getByText("Balanslıdır")).toBeVisible();
   await page.getByRole("button", { name: "Təsdiqə göndər" }).click();
-  await expect(page.getByText("Təsdiq gözləyir")).toBeVisible();
+  await expect(page.getByText(/təsdiqini gözləyir/)).toBeVisible();
 });
 
-test("upload an invoice and watch it get read", async ({ page }) => {
+test("upload an invoice and see it appear in the list without a reload", async ({ page }) => {
   await signIn(page);
   await page.goto("/invoices");
   await page
     .getByLabel("Fayl seçin")
     .setInputFiles({ name: "yeni.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4") });
   await expect(page.getByText("Yükləndi")).toBeVisible();
-  const row = page.getByRole("row", { name: /UP-\d+/ });
-  await expect(row).toBeVisible();
-  await expect(row.getByText(/Yoxlanılıb|Yoxlama tələb edir/)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("link", { name: /UP-\d+/ })).toBeVisible({ timeout: 15_000 });
 });

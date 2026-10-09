@@ -66,7 +66,7 @@ function InvoicesPageContent() {
               state={{ fromInvoicesSearch: search }}
               className="font-medium hover:underline"
             >
-              {row.original.number}
+              {row.original.number || t("invoices.noNumber")}
             </Link>
             <p className="truncate text-xs text-muted-foreground">
               {t(`invoices.direction.${row.original.direction}`)}

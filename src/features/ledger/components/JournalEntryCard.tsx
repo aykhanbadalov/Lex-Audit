@@ -6,20 +6,14 @@ import { sameAmount, sumDecimals } from "@/shared/lib/decimal";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { useSubmitJournal, type JournalView } from "../api";
+import { journalState, type JournalShown } from "../journalState";
 
-type Shown = JournalView["status"] | "pending_approval";
-
-const STATUS_TONE: Record<Shown, BadgeTone> = {
+const STATUS_TONE: Record<JournalShown, BadgeTone> = {
   proposed: "info",
   pending_approval: "warning",
   approved: "success",
   posted: "success",
 };
-
-/** An entry with an approval waiting is "proposed" on the backend; for a person it is "waiting for approval". */
-export function journalState(entry: Pick<JournalView, "status" | "approvalId">): Shown {
-  return entry.status === "proposed" && entry.approvalId ? "pending_approval" : entry.status;
-}
 
 export function JournalStatusBadge({ entry }: { entry: Pick<JournalView, "status" | "approvalId"> }) {
   const { t } = useTranslation();

@@ -26,8 +26,8 @@ describe("the sign-in protocol of the real backend", () => {
     const { user, csrfToken, accessToken } = useAuthStore.getState();
     expect(accessToken).toBeTruthy();
     expect(csrfToken).toBeTruthy();
-    expect(user).toMatchObject({ email: "bas.muhasib@lexaudit.test", role: "chief_accountant" });
-    // The backend's journal:write arrives as the name the screens use.
+    expect(user).toMatchObject({ email: "bas.muhasib@lexaudit.test", role: "approver" });
+    // The permission codes are the backend's own, unchanged.
     expect(user?.permissions).toEqual(expect.arrayContaining(["approvals:decide", "journal:write"]));
   });
 

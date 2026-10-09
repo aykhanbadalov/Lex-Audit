@@ -7,7 +7,7 @@ describe("navigation", () => {
     const accountant = mockUsers["muhasib@lexaudit.test"];
     const targets = visibleNavItems(accountant?.permissions ?? []).map((item) => item.to);
     expect(targets).toContain("/invoices");
-    expect(targets).not.toContain("/approvals");
+    expect(targets).not.toContain("/audit-log");
     expect(targets).not.toContain("/admin");
   });
 
@@ -16,7 +16,7 @@ describe("navigation", () => {
     expect(visibleNavItems(admin?.permissions ?? [])).toHaveLength(NAV_ITEMS.length);
   });
 
-  it("shows nothing to a user without permissions", () => {
-    expect(visibleNavItems([])).toEqual([]);
+  it("shows a user without permissions only the start page", () => {
+    expect(visibleNavItems([]).map((item) => item.to)).toEqual(["/dashboard"]);
   });
 });

@@ -95,7 +95,7 @@ function InvoiceView({ detail }: { detail: InvoiceDetail }) {
             <span className="text-xs text-muted-foreground">{t("invoices.confidence", { percent: confidence })}</span>
           ) : null}
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight break-words">{detail.number}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight break-words">{detail.number || t("invoices.noNumber")}</h1>
         <p className="text-sm text-muted-foreground">
           {detail.counterparty?.name}
           {detail.counterparty?.voen ? ` · VÖEN ${detail.counterparty.voen}` : ""}
@@ -103,7 +103,9 @@ function InvoiceView({ detail }: { detail: InvoiceDetail }) {
       </header>
 
       <div>
-        <AskAssistantLink resource={{ type: "invoice", id: detail.id, title: detail.number }} />
+        <AskAssistantLink
+          resource={{ type: "invoice", id: detail.id, title: detail.number || t("invoices.noNumber") }}
+        />
       </div>
 
       {detail.status === "posted" ? (

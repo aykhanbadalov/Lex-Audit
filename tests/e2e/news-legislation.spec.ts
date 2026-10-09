@@ -13,24 +13,22 @@ test("filter the news, open an item, and see it become read", async ({ page }) =
   await page.getByRole("navigation", { name: "Əsas naviqasiya" }).getByRole("link", { name: "Xəbərlər" }).click();
 
   await expect(page.getByRole("article")).toHaveCount(8);
-  await page.getByLabel("Risk səviyyəsi").selectOption("critical");
-  await expect(page).toHaveURL(/riskLevel=critical/);
-  await expect(page.getByRole("article")).toHaveCount(1);
+  await page.getByLabel("Oxunma").selectOption("unread");
+  await expect(page).toHaveURL(/read=unread/);
 
   await page.getByRole("link", { name: /Sadələşdirilmiş vergi/ }).click();
   await expect(page.getByRole("region", { name: "Süni intellekt tərəfindən yaradılıb" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Mənbə mətni" })).toBeVisible();
 
   await page.getByRole("link", { name: "Xəbərlərə qayıt" }).click();
-  // Back restores the filter, and the item we just read is no longer marked unread.
-  await expect(page).toHaveURL(/riskLevel=critical/);
-  await expect(page.getByRole("article")).toHaveCount(1);
-  await expect(page.getByRole("article").getByText("Oxunmayıb")).toHaveCount(0);
+  // Back restores the filter, and the item we just read is no longer in the unread list.
+  await expect(page).toHaveURL(/read=unread/);
+  await expect(page.getByRole("link", { name: /Sadələşdirilmiş vergi/ })).toHaveCount(0);
 });
 
 test("a filtered news URL can be opened directly and survives a reload", async ({ page }) => {
   await signIn(page);
-  await page.goto("/news?riskLevel=critical");
+  await page.goto("/news?q=Sad%C9%99l%C9%99%C5%9Fdirilmi%C5%9F");
   await expect(page.getByRole("article")).toHaveCount(1);
   await page.reload();
   await expect(page.getByRole("article")).toHaveCount(1);

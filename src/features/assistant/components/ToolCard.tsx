@@ -3,6 +3,7 @@ import { Check, Loader2, ShieldAlert, Wrench, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import type { ToolStatus } from "../chatReducer";
+import { describeSummary } from "../toolSummary";
 
 const TONE: Record<ToolStatus, BadgeTone> = {
   running: "info",
@@ -43,7 +44,7 @@ export function ToolCard({ tool, status, summary, approvalId }: ToolCardProps) {
         <span className="font-medium">{t(`assistant.tool.${tool.replaceAll(".", "_")}`, { defaultValue: tool })}</span>
         {status ? <Badge tone={TONE[status]}>{t(`assistant.toolStatus.${status}`)}</Badge> : null}
       </div>
-      {summary ? <p className="text-xs text-muted-foreground">{summary}</p> : null}
+      {summary ? <p className="text-xs text-muted-foreground">{describeSummary(summary, t)}</p> : null}
       {status === "approval_required" ? (
         <p className="flex flex-wrap items-center gap-2 text-xs">
           {t("assistant.approvalNote")}

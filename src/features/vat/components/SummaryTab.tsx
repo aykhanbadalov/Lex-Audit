@@ -34,7 +34,7 @@ export function SummaryTab({ period }: { period: string }) {
                 {data.blockers.map((blocker) => (
                   <li key={blocker.invoiceId}>
                     <Link to="/invoices/$id" params={{ id: blocker.invoiceId }} className="font-medium underline">
-                      {blocker.number}
+                      {blocker.number || t("invoices.noNumber")}
                     </Link>
                     : {blocker.reason}
                   </li>
@@ -57,7 +57,8 @@ export function SummaryTab({ period }: { period: string }) {
                   params={{ id: invoice.id }}
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  {invoice.number} ({t(`invoices.status.${invoice.status}`, { defaultValue: invoice.status })})
+                  {invoice.number || t("invoices.noNumber")} (
+                  {t(`invoices.status.${invoice.status}`, { defaultValue: invoice.status })})
                 </Link>
               </li>
             ))}

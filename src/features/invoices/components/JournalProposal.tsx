@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { useJournalEntry } from "@/features/ledger/api";
 import { JournalEntryCard } from "@/features/ledger/components/JournalEntryCard";
 import { usePermission } from "@/shared/hooks/usePermission";
 import { Button } from "@/shared/ui/button";
@@ -13,7 +14,10 @@ export function JournalProposal({ detail, canWrite }: { detail: InvoiceDetail; c
   const { t } = useTranslation();
   const propose = useProposeEntries(detail.id);
   const canSubmit = usePermission("journal:write");
-  const entry = propose.data;
+  const proposal = propose.data;
+  // Once it exists the entry is read from the journal, so sending it for approval shows up right here.
+  const stored = useJournalEntry(proposal?.id ?? null);
+  const entry = proposal ? { ...proposal, ...stored.data, explanation: proposal.explanation } : undefined;
 
   return (
     <section aria-labelledby="journal-heading" className="space-y-3">

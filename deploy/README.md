@@ -43,9 +43,15 @@ budget. A production image therefore cannot carry fake data by accident. `pnpm b
   and `/api` on the same host name.
 - Upload `assets/` before `index.html` when you publish by hand, so users with the old page open can still fetch their files.
 
-## Vercel (demo)
+## Vercel (real backend)
 
-`vercel.json` builds the demo (`pnpm build:demo`), serves `dist/`, falls back to `index.html` for every screen and sets the same
-security headers. Import the repository in Vercel with the **repository root as the project root** (when only the frontend is in the
-repository) or set *Root Directory* to `frontend` (when it is the whole monorepo). No environment variables are needed.
-A real backend cannot sit behind Vercel's static hosting; for production use the Docker image above.
+`vercel.json` builds the production bundle (`pnpm build:prod`), serves `dist/`, proxies `/api/*` to the backend and falls back to
+`index.html` for every screen. Before the first deploy:
+
+1. Put the backend's public address in `vercel.json` (`REPLACE-WITH-BACKEND-HOST`). The browser only ever talks to the Vercel host:
+   the refresh cookie is `HttpOnly; Secure; SameSite=Strict`, which works only when the page and `/api` share one origin.
+2. Import the repository in Vercel with the repository root as the project root. Node 24, no framework override needed.
+3. Optional, for a public demo company: set `VITE_DEMO_EMAIL` and `VITE_DEMO_PASSWORD` in the Vercel project. They are shown under
+   the login inputs (and end up in the built files, so use them only for a demo company).
+
+To publish the fake-data demo instead (no backend), change `buildCommand` to `build:demo` and delete the `/api` rewrite.

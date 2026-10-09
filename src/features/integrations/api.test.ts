@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { availableColumns, mappingsEqual } from "./api";
+import { readSample } from "./api";
 
-describe("availableColumns", () => {
-  const columns = ["Tarix", "Debet", "Kredit"];
-
-  it("hides a column that already feeds another field, but keeps the field's own choice", () => {
-    const mapping = { date: "Tarix", amount: "Debet" };
-    expect(availableColumns(columns, mapping, "amount")).toEqual(["Debet", "Kredit"]);
-    expect(availableColumns(columns, mapping, "description")).toEqual(["Kredit"]);
+describe("readSample", () => {
+  it("reduces an invoice row and a bank row to their few key values", () => {
+    expect(
+      readSample({
+        row: 2,
+        ok: true,
+        errors: [],
+        data: { kind: "invoice", number: "AF-1", issueDate: "2026-09-01", counterpartyName: "Alfa", gross: "118.00" },
+      })?.columns,
+    ).toEqual(["AF-1", "2026-09-01", "Alfa", "118.00"]);
+    expect(
+      readSample({ kind: "bank", date: "2026-09-02", amount: "-50.00", description: "ödəniş", reference: null })
+        ?.columns,
+    ).toEqual(["2026-09-02", "-50.00", "ödəniş", ""]);
   });
 
-  it("offers everything when nothing is mapped", () => {
-    expect(availableColumns(columns, { date: null }, "date")).toEqual(columns);
-  });
-});
-
-describe("mappingsEqual", () => {
-  it("treats a missing key and null as the same, and detects a real change", () => {
-    expect(mappingsEqual({ a: "X", b: null }, { a: "X" })).toBe(true);
-    expect(mappingsEqual({ a: "X" }, { a: "Y" })).toBe(false);
-    expect(mappingsEqual({ a: "X" }, { a: "X", b: "Z" })).toBe(false);
+  it("skips anything it does not recognise", () => {
+    expect(readSample(null)).toBeNull();
+    expect(readSample({ kind: "other" })).toBeNull();
   });
 });

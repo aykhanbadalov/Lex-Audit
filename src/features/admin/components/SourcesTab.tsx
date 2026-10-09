@@ -1,16 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
-import { formatDateTime } from "@/shared/lib/date";
-import { localeTag } from "@/shared/lib/locale";
 import { Badge } from "@/shared/ui/badge";
-import { useAdminSources, useUpdateSource } from "../api";
+import { useAdminAlerts, useAdminSources, useUpdateSource } from "../api";
 
 export function SourcesTab() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const sources = useAdminSources();
+  const alerts = useAdminAlerts();
   const update = useUpdateSource();
-  const tag = localeTag(i18n.language);
 
   if (sources.isPending) return <LoadingState />;
   if (sources.error) return <ErrorState message={sources.error.message} onRetry={() => void sources.refetch()} />;
@@ -18,22 +16,27 @@ export function SourcesTab() {
   return (
     <>
       <p className="mb-3 text-sm text-muted-foreground">{t("admin.sources.hint")}</p>
+      {alerts.data && alerts.data.length > 0 ? (
+        <ul
+          aria-label={t("admin.sources.alerts")}
+          className="mb-4 space-y-1 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+        >
+          {alerts.data.map((alert) => (
+            <li key={alert.id}>{alert.message}</li>
+          ))}
+        </ul>
+      ) : null}
       <ul className="divide-y rounded-lg border">
         {sources.data.map((source) => (
           <li key={source.id} className="flex flex-wrap items-center gap-3 p-3">
             <div className="min-w-48 flex-1 space-y-0.5">
               <p className="flex flex-wrap items-center gap-2 font-medium">
                 {source.name}
-                <Badge tone="outline">{t(`admin.sources.kind.${source.kind}`)}</Badge>
-                {source.failedFetches > 0 ? (
-                  <Badge tone="danger">{t("admin.sources.failing", { count: source.failedFetches })}</Badge>
-                ) : null}
+                <Badge tone="outline">{source.kind}</Badge>
+                <Badge tone="neutral">{source.adapter}</Badge>
               </p>
-              <p className="text-xs text-muted-foreground">
-                {source.lastFetchedAt
-                  ? t("admin.sources.lastFetched", { date: formatDateTime(source.lastFetchedAt, tag) })
-                  : t("admin.sources.neverFetched")}
-                {source.lastError ? ` · ${source.lastError}` : ""}
+              <p className="text-xs break-all text-muted-foreground">
+                {source.url} · {t("admin.sources.schedule")}: <span className="font-mono">{source.fetchCron}</span>
               </p>
             </div>
             <label className="flex items-center gap-2 text-sm">

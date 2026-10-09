@@ -76,7 +76,9 @@ function NewsDetailPageContent() {
       );
   } else {
     const item = detail.data;
-    const findings = (impact.data ?? []).filter((finding) => finding.sourceKind === "news" && finding.sourceId === item.id);
+    const findings = (impact.data ?? []).filter(
+      (finding) => finding.sourceKind === "news" && finding.sourceId === item.id,
+    );
     const originalUrl = safeExternalUrl(item.originalUrl);
     content = (
       <article className="space-y-6">
@@ -108,7 +110,9 @@ function NewsDetailPageContent() {
           <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
             <div className="flex gap-1.5">
               <dt>{t("news.source")}:</dt>
-              <dd className="text-foreground">{sources.data?.find((source) => source.id === item.sourceId)?.name ?? "—"}</dd>
+              <dd className="text-foreground">
+                {sources.data?.find((source) => source.id === item.sourceId)?.name ?? "—"}
+              </dd>
             </div>
             <div className="flex gap-1.5">
               <dt>{t("news.published")}:</dt>

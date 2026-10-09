@@ -1,27 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import type { ColumnDef } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { uploadMultipart } from "@/api/upload";
-import { excelKeys, useWorkbooks, type Workbook } from "@/features/excel/api";
-import { DataTable } from "@/shared/components/DataTable";
+import { useStartExcelJob } from "@/features/excel/api";
+import { FilePicker } from "@/shared/components/FilePicker";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { StatusBadge } from "@/shared/components/StatusBadge";
-import { usePermission } from "@/shared/hooks/usePermission";
-import { formatDate } from "@/shared/lib/date";
-import { localeTag } from "@/shared/lib/locale";
-import { UploadDropzone } from "@/shared/upload/UploadDropzone";
-import type { BadgeTone } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Select } from "@/shared/ui/select";
 
 export const Route = createFileRoute("/_app/excel/")({ component: ExcelPage });
 
-const TONE: Record<Workbook["status"], BadgeTone> = {
-  uploaded: "neutral",
-  profiling: "info",
-  ready: "success",
-  failed: "danger",
-};
+const SPREADSHEETS = ["xlsx", "xls", "csv"] as const;
 
 function ExcelPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
@@ -33,64 +24,120 @@ function ExcelPage() {
 }
 
 function ExcelPageContent() {
-  const { t, i18n } = useTranslation();
-  const canWrite = usePermission("excel:use");
-  const list = useWorkbooks();
-  const tag = localeTag(i18n.language);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const start = useStartExcelJob();
+  const [fileId, setFileId] = useState("");
+  const [dedupe, setDedupe] = useState(true);
+  const [template, setTemplate] = useState<"invoices" | "journal">("invoices");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
-  const columns = useMemo<ColumnDef<Workbook, unknown>[]>(
-    () => [
-      {
-        accessorKey: "fileName",
-        header: t("excel.columns.file"),
-        cell: ({ row }) => (
-          <Link to="/excel/$id" params={{ id: row.original.id }} className="font-medium hover:underline">
-            {row.original.fileName}
-          </Link>
-        ),
-      },
-      {
-        accessorKey: "status",
-        header: t("excel.columns.status"),
-        cell: ({ row }) => (
-          <StatusBadge tone={TONE[row.original.status]} label={t(`excel.status.${row.original.status}`)} />
-        ),
-      },
-      {
-        accessorKey: "rowCount",
-        header: t("excel.columns.rows"),
-        cell: ({ row }) => (row.original.status === "ready" ? row.original.rowCount : "—"),
-      },
-      {
-        accessorKey: "createdAt",
-        header: t("excel.columns.created"),
-        cell: ({ row }) => formatDate(row.original.createdAt, tag),
-      },
-    ],
-    [t, tag],
-  );
+  const open = (id: string) => void navigate({ to: "/excel/$id", params: { id } });
 
   return (
     <>
       <PageHeader title={t("nav.excel")} description={t("modules.excel")} />
-      {canWrite ? (
-        <div className="mb-6">
-          <UploadDropzone
-            upload={(file, options) => uploadMultipart("/excel/workbooks", file, {}, options)}
-            queryKey={excelKeys.all}
+      <p className="mb-6 text-sm text-muted-foreground">{t("excel.originalUntouched")}</p>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="excel-file" className="space-y-3 rounded-lg border bg-card p-4">
+          <h2 id="excel-file" className="text-lg font-semibold">
+            {t("excel.file.title")}
+          </h2>
+          <FilePicker
+            id="excel-file-pick"
+            label={t("excel.file.pick")}
+            value={fileId}
+            onChange={setFileId}
+            extensions={SPREADSHEETS}
           />
-        </div>
-      ) : null}
-      <DataTable
-        columns={columns}
-        data={list.data ?? []}
-        getRowId={(row) => row.id}
-        isLoading={list.isPending}
-        error={list.error}
-        onRetry={() => void list.refetch()}
-        emptyTitle={t("excel.empty")}
-        emptyDescription={canWrite ? t("excel.emptyHintWrite") : t("excel.emptyHint")}
-      />
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="size-4"
+              checked={dedupe}
+              onChange={(event) => setDedupe(event.target.checked)}
+            />
+            {t("excel.file.dedupe")}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              disabled={!fileId || start.isPending}
+              onClick={() =>
+                start.mutate({ operation: "profile", inputFileId: fileId }, { onSuccess: (job) => open(job.id) })
+              }
+            >
+              {t("excel.file.profile")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!fileId || start.isPending}
+              onClick={() =>
+                start.mutate(
+                  { operation: "clean", inputFileId: fileId, params: { dedupe } },
+                  { onSuccess: (job) => open(job.id) },
+                )
+              }
+            >
+              {t("excel.file.clean")}
+            </Button>
+          </div>
+        </section>
+
+        <section aria-labelledby="excel-report" className="space-y-3 rounded-lg border bg-card p-4">
+          <h2 id="excel-report" className="text-lg font-semibold">
+            {t("excel.report.title")}
+          </h2>
+          <div className="space-y-1.5">
+            <Label htmlFor="report-template">{t("excel.report.template")}</Label>
+            <Select
+              id="report-template"
+              value={template}
+              onChange={(event) => setTemplate(event.target.value as typeof template)}
+            >
+              <option value="invoices">{t("excel.report.invoices")}</option>
+              <option value="journal">{t("excel.report.journal")}</option>
+            </Select>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="report-from">{t("news.filters.from")}</Label>
+              <Input
+                id="report-from"
+                type="date"
+                value={from}
+                max={to || undefined}
+                onChange={(event) => setFrom(event.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="report-to">{t("news.filters.to")}</Label>
+              <Input
+                id="report-to"
+                type="date"
+                value={to}
+                min={from || undefined}
+                onChange={(event) => setTo(event.target.value)}
+              />
+            </div>
+          </div>
+          <Button
+            type="button"
+            disabled={!from || !to || start.isPending}
+            onClick={() =>
+              start.mutate(
+                { operation: "report", params: { template, from, to } },
+                { onSuccess: (job) => open(job.id) },
+              )
+            }
+          >
+            {t("excel.report.create")}
+          </Button>
+        </section>
+      </div>
     </>
   );
 }

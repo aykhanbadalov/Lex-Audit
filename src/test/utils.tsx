@@ -37,7 +37,16 @@ export function signInAs(email: MockEmail = "muhasib@lexaudit.test"): void {
   useAuthStore.getState().setSession({
     accessToken: `mock-token-${user.id}`,
     expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-    user,
+    user: {
+      id: user.id,
+      companyId: user.companyId,
+      companyName: "Demo MMC",
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      roles: [user.role],
+      permissions: user.permissions as never,
+    },
   });
 }
 

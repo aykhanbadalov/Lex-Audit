@@ -50,6 +50,7 @@ describe("a grounded answer", () => {
     expect(within(sources).getByText("Vergi Məcəlləsi, maddə 2")).toBeInTheDocument();
     expect(within(sources).getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByText("Qanunvericilikdə axtarış")).toBeInTheDocument();
+    expect(screen.getByText("2 nəticə tapıldı")).toBeInTheDocument();
 
     // After the stream ends the stored messages take over: still one question and one answer, with feedback offered.
     await waitFor(() => expect(screen.getByRole("button", { name: "Cavab faydalı oldu" })).toBeInTheDocument());
@@ -271,7 +272,8 @@ describe("changes need a second person", () => {
     renderApp("/assistant/conv-2");
     await ask("yazılışı təsdiqə göndər");
 
-    expect(await screen.findByText("Dəyişiklik başqa şəxsin təsdiqini gözləyir.")).toBeInTheDocument();
+    // The live answer is replaced by the stored one when it ends; wait for the dust to settle before looking.
+    await waitFor(() => expect(screen.getByText("Dəyişiklik başqa şəxsin təsdiqini gözləyir.")).toBeInTheDocument());
     expect(screen.getByRole("link", { name: "Təsdiqlərə bax" })).toHaveAttribute(
       "href",
       expect.stringContaining("/approvals"),

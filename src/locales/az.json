@@ -47,8 +47,13 @@
   "dashboard": {
     "title": "Bu gün",
     "welcome": "Xoş gəldiniz, {{name}}",
-    "placeholder": "Dashboard F5–F8 mərhələlərində doldurulacaq.",
-    "overview": "İcmal"
+    "notifications": "Bildirişlər",
+    "unread": "{{count}} oxunmamış",
+    "markAllRead": "Hamısını oxunmuş et",
+    "markRead": "Oxundu",
+    "noNotifications": "Yeni bildiriş yoxdur.",
+    "deadlines": "Yaxınlaşan son tarixlər",
+    "noDeadlines": "Yaxın vaxtda son tarix yoxdur."
   },
   "errors": {
     "notFound": "Səhifə tapılmadı",
@@ -474,7 +479,8 @@
     "revalidated": "Qaimə yenidən yoxlanıldı",
     "actionFailed": "Əməliyyat alınmadı. Yenidən cəhd edin.",
     "vatFilter": "ƏDV: {{period}} · {{bucket}}",
-    "vatFilterRemove": "Süzgəci götür"
+    "vatFilterRemove": "Süzgəci götür",
+    "noNumber": "(nömrəsiz)"
   },
   "ledger": {
     "navLabel": "Jurnal bölmələri",
@@ -658,233 +664,154 @@
     "invoicesCount": "{{count}} qaimə"
   },
   "excel": {
-    "columns": {
-      "file": "Fayl",
-      "status": "Status",
-      "rows": "Sətir",
-      "created": "Yüklənib"
-    },
+    "failed": "İş başladılmadı",
+    "originalUntouched": "Orijinal fayl dəyişmir: nəticə yeni fayl kimi saxlanır.",
+    "back": "Excel-ə qayıt",
+    "notFound": "İş tapılmadı",
+    "notFoundHint": "İş mövcud deyil və ya əlçatan deyil.",
+    "working": "İş icra olunur…",
+    "failedTitle": "İş alınmadı",
+    "resultFile": "Nəticə faylı hazırdır.",
+    "openFile": "Faylı aç",
+    "cleanResult": "Təmizləmə: {{before}} sətirdən {{after}} sətir qaldı",
     "status": {
-      "uploaded": "Növbədə",
-      "profiling": "Təhlil edilir",
-      "ready": "Hazırdır",
+      "pending": "Növbədə",
+      "running": "İcra olunur",
+      "done": "Hazırdır",
       "failed": "Xəta"
     },
-    "empty": "Hələ cədvəl yoxdur",
-    "emptyHint": "Yüklənmiş cədvəllər burada görünəcək.",
-    "emptyHintWrite": "Yuxarıdakı sahədən ilk Excel və ya CSV faylını yükləyin.",
-    "back": "Cədvəllərə qayıt",
-    "notFound": "Cədvəl tapılmadı",
-    "notFoundHint": "Cədvəl silinmiş və ya əlçatan olmaya bilər.",
-    "originalSafe": "Orijinal fayl heç vaxt dəyişdirilmir: hər əməliyyat yeni fayl yaradır.",
-    "failedTitle": "Fayl oxuna bilmədi",
-    "profiling": "Fayl təhlil edilir. Hazır olanda bu səhifə özü yenilənəcək.",
-    "sheet": "Vərəq «{{name}}» · {{rows}} sətir",
-    "profile": "Sütunların təhlili",
-    "profileColumns": {
-      "column": "Sütun",
-      "type": "Növ",
-      "meaning": "Məna",
-      "filled": "Dolu",
-      "empty": "Boş",
-      "duplicates": "Təkrar",
-      "samples": "Nümunələr"
-    },
-    "type": {
-      "text": "Mətn",
-      "number": "Rəqəm",
-      "money": "Məbləğ",
-      "date": "Tarix",
-      "taxId": "VÖEN",
-      "empty": "Boş"
-    },
-    "checkMeaning": "Yoxlayın · {{percent}}%",
-    "jobs": "Əməliyyatlar",
-    "noJobs": "Hələ əməliyyat icra olunmayıb.",
     "operation": {
-      "trim_spaces": "Artıq boşluqları təmizlə",
-      "remove_duplicates": "Təkrar sətirləri sil",
-      "normalize_dates": "Tarixləri vahid formata sal"
+      "profile": "Cədvəlin təhlili",
+      "clean": "Cədvəlin təmizlənməsi",
+      "reconcile": "Uzlaşdırma",
+      "report": "Hesabat"
     },
-    "operationHint": {
-      "trim_spaces": "Bütün sütunlarda mətnin əvvəlindəki və sonundakı boşluqları silir.",
-      "remove_duplicates": "Seçilən sütunlar üzrə təkrar sətirləri silir, birincisini saxlayır.",
-      "normalize_dates": "Seçilən sütundakı tarixləri GG.AA.İİİİ formatına salır."
+    "file": {
+      "title": "Cədvəli təhlil et və ya təmizlə",
+      "pick": "Cədvəl faylı",
+      "dedupe": "Təkrarlanan sətirləri sil",
+      "profile": "Təhlil et",
+      "clean": "Təmizlə"
     },
-    "run": {
-      "title": "Əməliyyat icra et",
-      "operation": "Əməliyyat",
-      "keyColumns": "Açar sütunlar",
-      "dateColumn": "Tarix sütunu",
-      "needColumn": "Ən azı bir sütun seçin.",
-      "needOneColumn": "Tam bir sütun seçin.",
-      "submit": "İcra et"
+    "report": {
+      "title": "Hesabat yarat",
+      "template": "Hesabat növü",
+      "invoices": "Qaimələr",
+      "journal": "Jurnal",
+      "create": "Hesabat yarat"
     },
-    "job": {
-      "started": "Əməliyyat başladı",
-      "failed": "Əməliyyat başlamadı",
-      "status": {
-        "queued": "Növbədə",
-        "running": "İcra olunur",
-        "done": "Hazırdır",
-        "failed": "Xəta"
+    "profile": {
+      "title": "Sütunların təhlili",
+      "summary": "Sətir: {{rows}}, boş: {{empty}}, təkrar: {{duplicates}}",
+      "truncated": "Böyük cədvəlin yalnız əvvəlki hissəsi təhlil olunub.",
+      "unparsable": "oxunmayan: {{count}}",
+      "col": {
+        "column": "Sütun",
+        "type": "Növ",
+        "filled": "Dolu",
+        "distinct": "Fərqli",
+        "sum": "Cəm",
+        "samples": "Nümunələr"
       },
-      "result": "Oxunub: {{read}} · dəyişdirilib: {{changed}} · silinib: {{removed}}",
-      "changes": "Dəyişikliklərin nümunəsi",
-      "row": "Sətir",
-      "column": "Sütun",
-      "before": "Əvvəl",
-      "after": "Sonra",
-      "output": "Nəticə (yeni fayl):"
+      "type": {
+        "number": "Rəqəm",
+        "date": "Tarix",
+        "text": "Mətn",
+        "empty": "Boş"
+      }
     }
   },
   "reconciliation": {
-    "columns": {
+    "failed": "Uzlaşdırma alınmadı",
+    "confirmed": "Uyğunluq təsdiqləndi",
+    "confirmFailed": "Təsdiq alınmadı",
+    "suggestionsOnly": "Nəticələr təkliflərdir: hər uyğunluğu özünüz təsdiqləyirsiniz.",
+    "left": "Sol tərəf",
+    "right": "Sağ tərəf",
+    "run": "Uzlaşdır",
+    "back": "Uzlaşdırmaya qayıt",
+    "notFound": "Uzlaşdırma tapılmadı",
+    "notFoundHint": "Nəticə mövcud deyil və ya əlçatan deyil.",
+    "resultTitle": "Uzlaşdırma nəticəsi",
+    "confirm": "Təsdiq et",
+    "source": {
+      "type": "Mənbə",
       "file": "Fayl",
-      "kind": "Növ",
-      "period": "Dövr",
-      "status": "Status",
-      "summary": "Nəticə"
+      "invoices": "Qaimələr",
+      "bank": "Bank",
+      "pick": "Cədvəl faylı",
+      "keyColumn": "Açar sütun (nömrə)",
+      "amountColumn": "Məbləğ sütunu",
+      "dateColumn": "Tarix sütunu (istəyə bağlı)"
     },
-    "kind": {
-      "bank_ledger": "Bank çıxarışı ↔ uçot",
-      "invoices_etaxes": "Qaimələr ↔ e-taxes reyestri"
+    "summary": {
+      "exact": "Tam uyğun",
+      "amountMismatch": "Məbləğ fərqli",
+      "amountDate": "Məbləğ və tarix uyğun",
+      "unmatchedLeft": "Solda qalan",
+      "unmatchedRight": "Sağda qalan",
+      "skipped": "Keçilən sətir",
+      "leftTotal": "Sol tərəfin cəmi",
+      "rightTotal": "Sağ tərəfin cəmi"
+    },
+    "columns": {
+      "type": "Növ",
+      "left": "Sol",
+      "right": "Sağ",
+      "difference": "Fərq",
+      "explanation": "İzah",
+      "status": "Vəziyyət"
+    },
+    "matchType": {
+      "exact": "Tam uyğun",
+      "amount_mismatch": "Məbləğ fərqli",
+      "amount_date": "Məbləğ və tarix",
+      "unmatched_left": "Yalnız solda",
+      "unmatched_right": "Yalnız sağda"
     },
     "status": {
-      "running": "Hazırlanır",
-      "ready": "Hazırdır",
-      "failed": "Xəta",
       "confirmed": "Təsdiqlənib",
-      "suggested": "Təsdiq gözləyir",
-      "unmatched": "Uyğunsuz",
-      "rejected": "Rədd edilib"
-    },
-    "summaryLine": "Təsdiqlənib: {{confirmed}} · təsdiq gözləyir: {{suggested}} · uyğunsuz: {{unmatched}}",
-    "empty": "Hələ uzlaşdırma yoxdur",
-    "emptyHint": "Yeni uzlaşdırma başladın, nəticə burada görünəcək.",
-    "new": "Yeni uzlaşdırma",
-    "file": "Fayl",
-    "chooseFile": "Fayl seçin",
-    "fileHint": "Yalnız emalı bitmiş cədvəl və ya XML faylları göstərilir.",
-    "start": "Başla",
-    "created": "Uzlaşdırma başladı",
-    "createFailed": "Uzlaşdırma başlamadı",
-    "decideFailed": "Qərar saxlanmadı",
-    "back": "Uzlaşdırmalara qayıt",
-    "notFound": "Uzlaşdırma tapılmadı",
-    "notFoundHint": "Uzlaşdırma silinmiş və ya əlçatan olmaya bilər.",
-    "running": "Uzlaşdırma hazırlanır. Hazır olanda bu səhifə özü yenilənəcək.",
-    "differenceTotal": "Qalan fərq",
-    "filter": "Sətirlərin statusu",
-    "rows": "Uzlaşdırma sətirləri",
-    "side": {
-      "bank_ledger": {
-        "left": "Bank çıxarışı",
-        "right": "Uçot"
-      },
-      "invoices_etaxes": {
-        "left": "Qaimələr (uçot)",
-        "right": "e-taxes reyestri"
-      }
-    },
-    "rowColumns": {
-      "difference": "Fərq",
-      "status": "Status"
-    },
-    "confidence": "etibar {{percent}}%",
-    "confirm": "Təsdiq et",
-    "reject": "Rədd et"
+      "unmatched": "Uyğunluq yoxdur"
+    }
   },
   "integrations": {
-    "columns": {
-      "file": "Fayl",
-      "source": "Mənbə",
-      "status": "Status",
-      "result": "Nəticə",
-      "created": "Yüklənib"
-    },
+    "previewFailed": "Önbaxış alınmadı",
+    "commitFailed": "İdxal sorğusu göndərilmədi",
+    "exportFailed": "İxrac alınmadı",
+    "sentForApproval": "İdxal təsdiqə göndərildi. Başqa şəxs təsdiq edənə qədər heç nə yazılmır.",
+    "waiting": "İdxal başqa şəxsin təsdiqini gözləyir.",
+    "openImport": "İdxala bax",
+    "commit": "İdxala göndər",
+    "back": "İnteqrasiyalara qayıt",
+    "notFound": "İdxal tapılmadı",
+    "notFoundHint": "İdxal mövcud deyil və ya əlçatan deyil.",
     "source": {
-      "onec": "1C",
-      "etaxes": "e-taxes qaimə reyestri",
+      "1c": "1C",
+      "etaxes": "e-taxes",
       "bank": "Bank çıxarışı"
     },
-    "sourceHint": {
-      "onec": "1C-dən Excel və ya XML ixracı. Sütun adları rus və ya Azərbaycan dilində ola bilər.",
-      "etaxes": "e-taxes.gov.az portalından endirilmiş qaimə reyestri.",
-      "bank": "Bankın verdiyi Excel və ya CSV çıxarışı."
-    },
-    "status": {
-      "analysing": "Təhlil edilir",
-      "needs_mapping": "Xəritələmə tələb edir",
-      "ready": "İdxala hazırdır",
-      "importing": "İdxal olunur",
-      "done": "Tamamlanıb",
-      "failed": "Xəta"
-    },
-    "resultLine": "Uğurlu: {{rowsOk}} · xəta: {{rowsFailed}} · təkrar: {{duplicates}}",
-    "newImport": "Yeni idxal",
-    "empty": "Hələ idxal yoxdur",
-    "emptyHint": "Yüklənən fayllar burada görünəcək.",
-    "back": "İdxallara qayıt",
-    "notFound": "İdxal tapılmadı",
-    "notFoundHint": "İdxal silinmiş və ya əlçatan olmaya bilər.",
-    "analysing": "Fayl təhlil edilir. Hazır olanda bu səhifə özü yenilənəcək.",
-    "importing": "Sətirlər yazılır. Hazır olanda nəticə burada görünəcək.",
-    "mappingSaved": "Xəritələmə saxlanıldı",
-    "mappingFailed": "Xəritələmə saxlanmadı",
-    "commitFailed": "İdxal başlamadı",
-    "summary": {
-      "rowsTotal": "Cəmi sətir",
-      "rowsOk": "Uğurlu",
-      "rowsFailed": "Xətalı",
-      "duplicates": "Təkrar"
-    },
-    "mapping": {
-      "title": "Sütunların xəritələnməsi",
-      "hint": "Hər sahə üçün faylın hansı sütunundan götürüləcəyini seçin. Təklif sistemdəndir, yoxlayın.",
-      "required": "məcburi",
-      "none": "— seçilməyib —",
-      "save": "Xəritələməni saxla"
-    },
-    "field": {
-      "date": "Tarix",
-      "number": "Nömrə",
-      "counterparty": "Kontragent",
-      "voen": "VÖEN",
-      "amount": "Məbləğ",
-      "currency": "Valyuta",
-      "net": "ƏDV-siz",
-      "vat": "ƏDV",
-      "gross": "Cəmi",
-      "description": "Təsvir",
-      "reference": "Arayış"
-    },
-    "error": {
-      "REQUIRED_UNMAPPED": "Məcburi «{{field}}» sahəsi üçün sütun seçilməyib.",
-      "INVALID_DATE": "tarix düzgün deyil",
-      "INVALID_AMOUNT": "məbləğ düzgün deyil",
-      "INVALID_TAX_ID": "VÖEN düzgün deyil",
-      "DUPLICATE_ROW": "təkrar sətir"
+    "import": {
+      "title": "İdxal",
+      "hint": "Əvvəlcə önbaxış göstərilir, heç nə yazılmır. İdxalı başqa şəxs təsdiq etməlidir.",
+      "source": "Mənbə",
+      "file": "Fayl",
+      "direction": "Qaimələrin istiqaməti",
+      "preview": "Önbaxış"
     },
     "preview": {
-      "title": "İlk sətirlərin önbaxışı",
-      "row": "Sətir",
-      "invalid": "düzgün deyil",
-      "rowError": "Sətir {{row}}, «{{field}}»: {{message}}"
-    },
-    "commit": {
-      "button": "İdxal et",
-      "saveFirst": "Əvvəlcə xəritələməni saxlayın.",
-      "cannot": "Məcburi sahələri xəritələyin. Bütün sətirlər xətalıdırsa, xəritələmə yanlışdır.",
-      "confirmTitle": "İdxal başlasın?",
-      "confirmDescription": "{{count}} sətir idxal olunacaq. Xətalı sətirlər keçiləcək və nəticədə göstəriləcək. Bu əməliyyatı sonradan geri qaytarmaq mümkün deyil."
+      "title": "Önbaxış",
+      "ok": "Düzgün sətir: {{count}}",
+      "failed": "Səhv sətir: {{count}}",
+      "truncated": "Böyük faylın yalnız əvvəli göstərilir.",
+      "nothingWritten": "Hələ heç nə yazılmayıb.",
+      "row": "Sətir {{row}}",
+      "sample": "Nümunə sətirlər"
     },
     "export": {
       "title": "1C-yə ixrac",
-      "hint": "Seçilən dövrün təsdiqlənmiş jurnal yazılışlarını 1C-nin idxal edə biləcəyi fayla çevirir. Fayl «Fayllar» bölməsində də görünür.",
+      "hint": "Uçota alınmış yazılışlar 1C-nin oxuya biləcəyi yeni fayla çevrilir.",
       "submit": "Fayl yarat",
-      "ready": "Fayl hazırdır:",
-      "failed": "Fayl yaradılmadı"
+      "ready": "Fayl hazırdır: {{count}} yazılış."
     }
   },
   "assistant": {
@@ -980,6 +907,10 @@
       "CONFLICT": "Assistent hələ əvvəlki suala cavab verir.",
       "NETWORK": "Bağlantı kəsildi.",
       "INTERNAL": "Cavab yarımçıq qaldı."
+    },
+    "toolSummary": {
+      "none": "Heç nə tapılmadı",
+      "results": "{{count}} nəticə tapıldı"
     }
   },
   "approvals": {
@@ -1117,6 +1048,7 @@
     "tabsLabel": "İdarəetmə bölmələri",
     "tab": {
       "users": "İstifadəçilər",
+      "roles": "Rollar",
       "sources": "Mənbələr",
       "rates": "Vergi dərəcələri",
       "models": "Modellər"
@@ -1125,89 +1057,96 @@
     "failed": "Əməliyyat alınmadı",
     "saved": "Saxlanıldı",
     "sentForApproval": "Təsdiqə göndərildi. Başqa şəxs təsdiq edənə qədər heç nə dəyişmir.",
-    "reason": "Səbəb (məcburi, ən azı 3 simvol)",
-    "sendForApproval": "Təsdiqə göndər",
-    "roles": {
-      "viewer": "Baxıcı",
-      "accountant": "Mühasib",
-      "chief_accountant": "Baş mühasib",
-      "auditor": "Auditor",
-      "admin": "Administrator"
-    },
     "users": {
-      "hint": "Rol dəyişikliyi dərhal tətbiq olunmur: təsdiq sorğusu yaranır. Öz girişinizi dəyişə bilməzsiniz.",
+      "hint": "Rolun dəyişdirilməsi istifadəçinin icazələrini dərhal dəyişir. Öz girişinizi dəyişə bilməzsiniz.",
       "user": "İstifadəçi",
-      "role": "Rol",
+      "roles": "Rollar",
       "status": "Vəziyyət",
-      "lastLogin": "Son giriş",
-      "roleOf": "{{name}} üçün rol",
-      "pendingRole": "Gözləyir: {{role}}",
-      "active": "Aktiv",
-      "inactive": "Deaktiv",
+      "created": "Yaradılıb",
       "you": "Siz",
-      "deactivate": "Deaktiv et",
+      "create": "İstifadəçi yarat",
+      "createHint": "Müvəqqəti parol ən azı {{count}} simvol olmalıdır və e-poçtun ad hissəsini ehtiva etməməlidir.",
+      "temporaryPassword": "Müvəqqəti parol",
+      "changeRoles": "Rolları dəyiş",
+      "rolesOf": "{{name}}: rollar",
+      "rolesHint": "İstifadəçi seçilən rolların bütün icazələrini alır.",
+      "suspend": "Dayandır",
       "activate": "Aktiv et",
-      "deactivateTitle": "{{name}} deaktiv edilsin?",
-      "deactivateDescription": "İstifadəçi sistemə daxil ola bilməyəcək. Məlumatları silinmir və sonradan aktiv etmək olar."
+      "suspendTitle": "{{name}} dayandırılsın?",
+      "suspendDescription": "İstifadəçi sistemə daxil ola bilməyəcək. Məlumatları silinmir və sonradan aktiv etmək olar.",
+      "statuses": {
+        "active": "Aktiv",
+        "pending": "Gözləyir",
+        "suspended": "Dayandırılıb"
+      },
+      "createdOk": "İstifadəçi yaradıldı"
+    },
+    "roles": {
+      "hint": "Rol yalnız sizdə olan icazələrdən ibarət ola bilər. Sistem rolları dəyişdirilmir.",
+      "create": "Rol yarat",
+      "edit": "İcazələri dəyiş",
+      "editTitle": "{{name}}: icazələr",
+      "subset": "Yalnız özünüzdə olan icazələri vermək olar.",
+      "name": "Ad",
+      "description": "Təsvir",
+      "permissions": "İcazələr",
+      "system": "Sistem",
+      "createdOk": "Rol yaradıldı"
     },
     "sources": {
-      "hint": "Söndürülən mənbədən yeni xəbər toplanmır. Əvvəl toplanmış xəbərlər qalır.",
-      "kind": {
-        "official": "Rəsmi",
-        "news": "Xəbər"
-      },
-      "failing": "Ardıcıl {{count}} xəta",
-      "lastFetched": "Son yenilənmə: {{date}}",
-      "neverFetched": "Hələ yenilənməyib",
+      "hint": "Söndürülən mənbədən yeni xəbər toplanmır. Əvvəl toplananlar qalır.",
+      "alerts": "Xəbərdarlıqlar",
+      "schedule": "cədvəl",
       "enabledFor": "{{name}} mənbəyi",
       "on": "Aktiv",
       "off": "Söndürülüb"
     },
     "rates": {
-      "hint": "Dərəcələr birbaşa dəyişmir: dəyişiklik təsdiq sorğusu yaradır.",
-      "label": "Dərəcə",
-      "rate": "Hazırkı",
-      "validFrom": "Qüvvəyə minib",
-      "change": "Dəyişiklik təklif et",
-      "dialogTitle": "{{label}}: yeni dərəcə",
-      "dialogDescription": "Təsdiqdən sonra yeni hesablamalara tətbiq olunur. Mövcud sənədlər dəyişmir.",
-      "newRate": "Yeni dərəcə (%)",
+      "hint": "Yeni dərəcə əvvəlcə təklif kimi yaranır; qüvvəyə minməsi başqa şəxsin təsdiqini tələb edir.",
+      "tax": "Vergi",
+      "code": "Kod",
+      "rate": "Dərəcə",
+      "validFrom": "Qüvvəyə minir",
+      "status": "Vəziyyət",
+      "propose": "Dərəcə təklif et",
+      "requestActivation": "Aktivləşməni təsdiqə göndər",
+      "dialogDescription": "Dərəcə təsdiqlənənə qədər hesablamalarda istifadə olunmur.",
+      "newRate": "Dərəcə (%)",
       "invalid": "0-dan 100-ə qədər, ən çox iki onluq ilə yazın",
-      "validFromNew": "Qüvvəyə minmə"
+      "proposedOk": "Dərəcə təklif olundu"
     },
     "models": {
-      "hint": "Yeni versiya və ya geri qaytarma həmişə təsdiq tələb edir. Aktiv model təsdiqə qədər dəyişmir.",
-      "task": {
-        "invoice_extractor": "Qaimə çıxarışı",
-        "classifier": "Təsnifat",
-        "assistant": "AI Assistent",
-        "embeddings": "Axtarış (embedding)"
+      "hint": "Model versiyalarının vəziyyəti dərhal dəyişir. Buraxılış (production) səhv olarsa bütün istifadəçilərə təsir edir.",
+      "servingUp": "Model xidməti işləyir",
+      "servingDown": "Model xidməti əlçatmazdır",
+      "register": "Model qeydə al",
+      "registerHint": "Təlim nəticəsi olan versiyanı reyestrə əlavə edin. Yeni versiya namizəd olaraq başlayır.",
+      "name": "Ad",
+      "version": "Versiya",
+      "artifact": "Artefakt ünvanı",
+      "kindLabel": "Növ",
+      "kind": {
+        "llm": "Dil modeli",
+        "embedding": "Axtarış (embedding)",
+        "classifier": "Təsnifat"
       },
       "status": {
-        "active": "Aktiv",
-        "canary": "Canary",
         "candidate": "Namizəd",
+        "canary": "Canary",
+        "production": "Buraxılışda",
         "retired": "Köhnəlib"
       },
-      "canary": "{{percent}}% trafik",
-      "eval": "Dəqiqlik: {{score}}",
-      "was": "əvvəl {{score}}",
-      "pending": {
-        "release": "Buraxılış təsdiq gözləyir",
-        "rollback": "Geri qaytarma təsdiq gözləyir"
-      },
-      "action": {
-        "release": "Buraxılışa göndər",
-        "rollback": "Geri qaytar"
-      },
-      "dialog": {
-        "release": "{{task}} {{version}} buraxılsın?",
-        "rollback": "{{task}} {{version}} versiyasına qayıdılsın?"
-      },
-      "dialogDescription": "Sorğu təsdiq növbəsinə düşür. Sorğunu siz təsdiq edə bilməzsiniz."
+      "changeStatus": "{{name}} vəziyyəti",
+      "confirmTitle": "{{name}} → {{status}}?",
+      "confirmDescription": "Dəyişiklik dərhal tətbiq olunur və audit jurnalına yazılır.",
+      "registeredOk": "Model qeydə alındı"
     }
   },
   "impact": {
     "failed": "Dəyişiklik saxlanmadı"
+  },
+  "filePicker": {
+    "choose": "Fayl seçin",
+    "none": "Uyğun fayl yoxdur. Əvvəlcə «Fayllar» bölməsindən yükləyin."
   }
 }

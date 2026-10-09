@@ -55,7 +55,7 @@ export const NAV_ITEMS: NavItem[] = [
     permission: "excel:use",
     group: "work",
   },
-  { to: "/integrations", labelKey: "nav.integrations", icon: PlugZap, permission: "files:read", group: "work" },
+  { to: "/integrations", labelKey: "nav.integrations", icon: PlugZap, permission: "excel:use", group: "work" },
   { to: "/news", labelKey: "nav.news", icon: Newspaper, permission: "news:read", group: "knowledge" },
   { to: "/legislation", labelKey: "nav.legislation", icon: Scale, permission: "legislation:read", group: "knowledge" },
   { to: "/assistant", labelKey: "nav.assistant", icon: Bot, permission: "assistant:use", group: "knowledge" },

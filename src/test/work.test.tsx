@@ -1,372 +1,198 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
 import { api } from "@/api/client";
-import { findWorkbook } from "@/mocks/fixtures/excel";
-import { allFiles, processingMs } from "@/mocks/fixtures/files";
+import { useAuthStore } from "@/shared/stores/authStore";
+import { polling } from "@/shared/api/polling";
 import { apiPath } from "@/mocks/handlers/base";
 import { server } from "@/mocks/server";
-import { polling } from "@/shared/api/polling";
 import { renderApp, setupMockApi, signInAs } from "./utils";
 
 setupMockApi();
 
 beforeEach(() => {
   polling.intervalMs = 40;
-  processingMs.value = 150;
 });
 
-const choose = (files: File[]) => userEvent.upload(screen.getByLabelText("Fayl seçin"), files);
-const rows = () => screen.findAllByRole("row").then((all) => all.slice(1));
+/** Chooses the sample bank statement in the file list with the given id. */
+const pickBank = (id: string) =>
+  userEvent.selectOptions(document.getElementById(id) as HTMLSelectElement, "file-bank-sep");
 
-async function expectNoApiCalls(path: string, urlPart: string) {
-  signInAs("viewer@lexaudit.test");
-  let called = false;
-  server.events.on("request:start", ({ request }) => {
-    if (request.url.includes(urlPart)) called = true;
-  });
-  renderApp(path);
-  expect(await screen.findByText("Bu bölməyə giriş icazəniz yoxdur")).toBeInTheDocument();
-  expect(called).toBe(false);
-}
-
-describe("permissions", () => {
-  it("Excel, reconciliation and integrations call no API for someone without read access", async () => {
-    await expectNoApiCalls("/excel", "/excel/");
-  });
-  it("reconciliation is closed to someone without read access", async () => {
-    await expectNoApiCalls("/reconciliation", "/reconciliations");
-  });
-  it("integrations are closed to someone without read access", async () => {
-    await expectNoApiCalls("/integrations", "/imports");
-  });
-});
-
-describe("Excel workbench", () => {
-  it("analyses every column and flags a meaning the model is unsure about", async () => {
-    signInAs();
-    renderApp("/excel/wb-sales");
-    expect(await screen.findByText(/Vərəq «Satışlar» · 240 sətir/)).toBeInTheDocument();
-    const vat = screen.getByText("C", { selector: "span.font-mono" }).closest("tr")!;
-    expect(vat).toHaveTextContent(/225\s*15\s*214/); // filled, empty, duplicates
-    expect(screen.getByText("Yoxlayın · 62%")).toBeInTheDocument(); // the "Qeyd" column
-  });
-
-  it("shows cell samples as plain text, because they come from a file the user uploaded", async () => {
-    signInAs();
-    server.use(
-      http.get(apiPath("/excel/workbooks/wb-sales"), () => {
-        return HttpResponse.json({
-          id: "wb-sales",
-          fileName: "x.xlsx",
-          status: "ready",
-          statusDetail: null,
-          sheetCount: 1,
-          rowCount: 1,
-          createdAt: "2026-10-01T00:00:00Z",
-          updatedAt: "2026-10-01T00:00:00Z",
-          jobs: [],
-          sheets: [
-            {
-              name: "S",
-              rowCount: 1,
-              columns: [
-                {
-                  letter: "A",
-                  name: "X",
-                  detectedType: "text",
-                  meaning: null,
-                  filled: 1,
-                  empty: 0,
-                  duplicates: 0,
-                  samples: ['<img src=x onerror="alert(1)">'],
-                },
-              ],
-            },
-          ],
-        });
-      }),
-    );
-    const { container } = renderApp("/excel/wb-sales");
-    await screen.findByText(/Vərəq «S»/);
-    expect(container.querySelector("img[src='x']")).toBeNull();
-    expect(screen.getByText(/<img src=x/)).toBeInTheDocument();
-  });
-
-  it("never touches the original: an operation produces a NEW file under Files", async () => {
-    signInAs();
-    renderApp("/excel/wb-sales");
-    await userEvent.click(await screen.findByRole("button", { name: "İcra et" }));
-
-    const link = await screen.findByRole("link", { name: "Satış reyestri (təmizlənmiş).xlsx" }, { timeout: 4000 });
-    expect(screen.getByText("Oxunub: 240 · dəyişdirilib: 15 · silinib: 0")).toBeInTheDocument();
-    expect(screen.getByText("«2345678912»", { selector: "ins" })).toBeInTheDocument();
-    expect(link.getAttribute("href")).toMatch(/^\/files\/file-up-/);
-    expect(findWorkbook("wb-sales")!.fileName).toBe("Satış reyestri.xlsx"); // the original is as it was
-    expect(allFiles().some((file) => file.name === "Satış reyestri (təmizlənmiş).xlsx")).toBe(true);
-  });
-
-  it("will not run 'remove duplicates' without a key column, and says why", async () => {
-    signInAs();
-    let posted = 0;
-    server.events.on("request:start", ({ request }) => {
-      if (request.method === "POST" && request.url.endsWith("/jobs")) posted++;
-    });
-    renderApp("/excel/wb-sales");
-    await userEvent.selectOptions(await screen.findByLabelText("Əməliyyat"), "remove_duplicates");
-
-    expect(screen.getByRole("button", { name: "İcra et" })).toBeDisabled();
-    expect(screen.getByText("Ən azı bir sütun seçin.")).toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText(/C · VÖEN/));
-    await userEvent.click(screen.getByRole("button", { name: "İcra et" }));
-    expect(await screen.findByText(/silinib: 12/, undefined, { timeout: 4000 })).toBeInTheDocument();
-    expect(posted).toBe(1);
-  });
-
-  it("offers a reader the analysis but no way to run anything", async () => {
-    signInAs("auditor@lexaudit.test");
-    renderApp("/excel/wb-sales");
-    await screen.findByText(/Vərəq «Satışlar»/);
-    expect(screen.queryByRole("button", { name: "İcra et" })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Fayl seçin")).not.toBeInTheDocument();
-  });
-
-  it("offers no operation while the workbook is still being analysed", async () => {
-    signInAs();
-    renderApp("/excel/wb-wait");
-    expect(await screen.findByText(/Fayl təhlil edilir/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "İcra et" })).not.toBeInTheDocument();
-  });
-
-  it("refuses a job on a workbook that is not ready (server says 409)", async () => {
-    signInAs();
-    await expect(
-      api.POST("/excel/workbooks/{id}/jobs", {
-        params: { path: { id: "wb-wait" } },
-        body: { operation: "trim_spaces", sheet: "Satışlar", columns: [] },
-      }),
-    ).rejects.toMatchObject({ status: 409 });
-  });
-
-  it("uploads a spreadsheet and shows it become ready", async () => {
+describe("Excel", () => {
+  it("analyses a spreadsheet: the job runs in the background, then shows what each column holds", async () => {
     signInAs();
     renderApp("/excel");
-    await rows();
-    await choose([new File(["a,b"], "yeni-cədvəl.csv", { type: "text/csv" })]);
-    const row = await screen.findByRole("link", { name: "yeni-cədvəl.csv" }).then((link) => link.closest("tr")!);
-    await waitFor(() => expect(within(row).getByText("Hazırdır")).toBeInTheDocument(), { timeout: 4000 });
+    await screen.findByRole("option", { name: /Bank çıxarışı sentyabr/ });
+    await pickBank("excel-file-pick");
+    await userEvent.click(screen.getByRole("button", { name: "Təhlil et" }));
+
+    expect(await screen.findByText("İş icra olunur…")).toBeInTheDocument();
+    const table = await screen.findByRole("table", {}, { timeout: 3000 });
+    expect(within(table).getByRole("rowheader", { name: "Məbləğ" })).toBeInTheDocument();
+    expect(screen.getByText(/Sətir: 120, boş: 2, təkrar: 6/)).toBeInTheDocument();
+    // The total of a number column is money: shown in the Azerbaijani format, not as a float.
+    expect(within(table).getByText("31.500,50 ₼")).toBeInTheDocument();
+  });
+
+  it("cleans a spreadsheet into a NEW file and says the original is untouched", async () => {
+    signInAs();
+    renderApp("/excel");
+    await screen.findByRole("option", { name: /Bank çıxarışı sentyabr/ });
+    await pickBank("excel-file-pick");
+    await userEvent.click(screen.getByRole("button", { name: "Təmizlə" }));
+
+    expect(
+      await screen.findByText(/Təmizləmə: 120 sətirdən 112 sətir qaldı/, {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Faylı aç" })).toHaveAttribute("href", expect.stringMatching(/^\/files\//));
+    expect(screen.getByText(/Orijinal fayl dəyişmir/)).toBeInTheDocument();
+  });
+
+  it("asks for both dates before it makes a report", async () => {
+    signInAs();
+    renderApp("/excel");
+    const create = await screen.findByRole("button", { name: "Hesabat yarat" });
+    expect(create).toBeDisabled();
+    await userEvent.type(screen.getByLabelText("Tarixdən", { selector: "#report-from" }), "2026-09-01");
+    expect(create).toBeDisabled();
+    await userEvent.type(screen.getByLabelText("Tarixədək", { selector: "#report-to" }), "2026-09-30");
+    expect(create).toBeEnabled();
+  });
+
+  it("is refused by the server for a file that does not exist, and an unknown job is 'not found'", async () => {
+    signInAs();
+    await expect(
+      api.POST("/excel/jobs", { body: { operation: "profile", inputFileId: "nope" } }),
+    ).rejects.toMatchObject({ status: 404 });
+    renderApp("/excel/job-404");
+    expect(await screen.findByText("İş tapılmadı")).toBeInTheDocument();
+  });
+
+  it("shows permission-denied, and never calls the API, to someone without excel:use", async () => {
+    signInAs("viewer@lexaudit.test");
+    const urls: string[] = [];
+    server.events.on("request:start", ({ request }) => void urls.push(request.url));
+    renderApp("/excel");
+    expect(await screen.findByText("Bu bölməyə giriş icazəniz yoxdur")).toBeInTheDocument();
+    expect(urls.some((url) => url.includes("/excel/") || url.includes("/files"))).toBe(false);
+    server.events.removeAllListeners();
   });
 });
 
 describe("reconciliation", () => {
-  it("lists reconciliations with their counts", async () => {
+  it("needs both sides to be complete before it runs", async () => {
     signInAs();
     renderApp("/reconciliation");
-    const [first] = await rows();
-    expect(first).toBeDefined();
-    expect(screen.getByText("Təsdiqlənib: 3 · təsdiq gözləyir: 2 · uyğunsuz: 3")).toBeInTheDocument();
+    const run = await screen.findByRole("button", { name: "Uzlaşdır" });
+    expect(run).toBeDisabled(); // the left side is a file with no columns named yet
   });
 
-  it("shows the server's remaining difference and filters rows by status", async () => {
+  it("shows the suggestions with the difference, and a person confirms a pair; a lone row cannot be confirmed", async () => {
     signInAs();
-    renderApp("/reconciliation/rec-1");
-    await screen.findByText("Qalan fərq");
-    // -20.00 (suggested) + 0 + 120 + 300 - 8500, worked out by hand
-    expect(screen.getByText("Qalan fərq").nextElementSibling).toHaveTextContent("-8.100,00 ₼");
-    expect((await rows()).length).toBe(8);
+    const created = (
+      await api.POST("/reconciliations", {
+        body: { left: { type: "bank" }, right: { type: "invoices", from: "2026-09-01", to: "2026-09-30" } },
+      })
+    ).data!;
+    renderApp(`/reconciliation/${created.id}`);
+
+    const table = await screen.findByRole("table");
+    const rows = within(table).getAllByRole("row").slice(1);
+    const mismatch = rows.find(
+      (row) =>
+        row.textContent?.includes("Məbləğ fərqli") && row.textContent.replaceAll("\u00a0", " ").includes("20,00 ₼"),
+    )!;
+    await userEvent.click(within(mismatch).getByRole("button", { name: "Təsdiq et" }));
+    await waitFor(() => expect(within(mismatch).getByText("Təsdiqlənib")).toBeInTheDocument());
+
+    const lone = rows.find((row) => row.textContent?.includes("Yalnız solda"))!;
+    expect(within(lone).queryByRole("button", { name: "Təsdiq et" })).not.toBeInTheDocument();
+    expect(within(lone).getByText("Uyğunluq yoxdur")).toBeInTheDocument();
   });
 
-  it("narrows to one status from the URL", async () => {
+  it("confirms a pair only once", async () => {
     signInAs();
-    renderApp("/reconciliation/rec-1?status=suggested");
-    expect(await rows()).toHaveLength(2);
-  });
-
-  it("lets a writer confirm a suggestion, and the server recomputes the counts and the difference", async () => {
-    signInAs();
-    renderApp("/reconciliation/rec-1?status=suggested");
-    const first = (await rows())[0]!; // BT-118: 1750.00 vs 1770.00
-    await userEvent.click(within(first).getByRole("button", { name: "Təsdiq et" }));
-
-    await waitFor(() => expect(screen.getAllByRole("row")).toHaveLength(1 + 1)); // it left the "suggested" filter
-    expect(screen.getByText("Təsdiq gözləyir", { selector: "dt" }).nextElementSibling).toHaveTextContent("1");
-    expect(screen.getByText("Təsdiqlənib", { selector: "dt" }).nextElementSibling).toHaveTextContent("4");
-    expect(screen.getByText("Qalan fərq").nextElementSibling).toHaveTextContent("-8.080,00 ₼"); // the -20.00 is settled
-  });
-
-  it("lets a writer reject a suggestion, which goes back to the unmatched ones", async () => {
-    signInAs();
-    renderApp("/reconciliation/rec-1?status=suggested");
-    const second = (await rows())[1]!;
-    await userEvent.click(within(second).getByRole("button", { name: "Rədd et" }));
-    await waitFor(() =>
-      expect(screen.getByText("Uyğunsuz", { selector: "dt" }).nextElementSibling).toHaveTextContent("4"),
-    );
-  });
-
-  it("decides a suggestion only once: deciding again is a conflict", async () => {
-    signInAs();
-    await api.POST("/reconciliations/{id}/rows/{rowId}/confirm", {
-      params: { path: { id: "rec-1", rowId: "rec-1-r4" } },
-    });
-    await expect(
-      api.POST("/reconciliations/{id}/rows/{rowId}/reject", { params: { path: { id: "rec-1", rowId: "rec-1-r4" } } }),
-    ).rejects.toMatchObject({ status: 409 });
-    await expect(
-      api.POST("/reconciliations/{id}/rows/{rowId}/confirm", { params: { path: { id: "rec-1", rowId: "rec-1-r6" } } }),
-    ).rejects.toMatchObject({ status: 409 }); // an unmatched row is not a suggestion
-  });
-
-  it("gives a reader the whole picture but no buttons", async () => {
-    signInAs("auditor@lexaudit.test");
-    renderApp("/reconciliation/rec-1");
-    await rows();
-    expect(screen.queryByRole("button", { name: "Təsdiq et" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Rədd et" })).not.toBeInTheDocument();
-  });
-
-  it("offers only files that have finished processing and are statements", async () => {
-    signInAs();
-    renderApp("/reconciliation");
-    const select = await screen.findByLabelText("Fayl");
-    await waitFor(() => expect(within(select).getAllByRole("option").length).toBeGreaterThan(1));
-    expect(within(select).getByRole("option", { name: "Bank çıxarışı sentyabr.csv" })).toBeInTheDocument();
-    expect(within(select).queryByRole("option", { name: "e-qaimə reyestri 2026-09.xml" })).not.toBeInTheDocument(); // still being read
-    expect(within(select).queryByRole("option", { name: "Skan - qaimə 0457.jpg" })).not.toBeInTheDocument();
-  });
-
-  it("is refused by the server for a file that is not ready, even if the UI were bypassed", async () => {
-    signInAs();
-    await expect(
-      api.POST("/reconciliations", {
-        body: { kind: "bank_ledger", fileId: "file-einvoice-registry", periodId: "2026-09" },
-      }),
-    ).rejects.toMatchObject({ status: 422 });
-  });
-
-  it("starts a reconciliation and shows it become ready", async () => {
-    signInAs();
-    renderApp("/reconciliation");
-    const select = await screen.findByLabelText("Fayl");
-    await waitFor(() => expect(within(select).getAllByRole("option").length).toBeGreaterThan(1));
-    expect(screen.getByRole("button", { name: "Başla" })).toBeDisabled();
-
-    await userEvent.selectOptions(select, "Bank çıxarışı sentyabr.csv");
-    fireEvent.change(screen.getByLabelText("Dövr"), { target: { value: "2026-09" } });
-    await userEvent.click(screen.getByRole("button", { name: "Başla" }));
-
-    await waitFor(() => expect(screen.getAllByText("Hazırlanır").length).toBeGreaterThan(0));
-    await waitFor(() => expect(screen.queryByText("Hazırlanır")).not.toBeInTheDocument(), { timeout: 4000 });
+    const created = (await api.POST("/reconciliations", { body: { left: { type: "bank" }, right: { type: "bank" } } }))
+      .data!;
+    const match = (await api.GET("/reconciliations/{id}", { params: { path: { id: created.id } } })).data!.matches[0]!;
+    const confirm = () =>
+      api.POST("/reconciliations/{id}/matches/{m}/confirm", { params: { path: { id: created.id, m: match.id } } });
+    await confirm();
+    await expect(confirm()).rejects.toMatchObject({ status: 409 });
   });
 });
 
-describe("integrations: imports", () => {
-  it("lists past imports with what happened to their rows", async () => {
-    signInAs();
+describe("imports", () => {
+  async function preview() {
     renderApp("/integrations");
-    await rows();
-    expect(screen.getByText("Uğurlu: 116 · xəta: 1 · təkrar: 3")).toBeInTheDocument(); // 120 - 1 bad row - 3 duplicates
-  });
+    await screen.findAllByRole("option", { name: /Bank çıxarışı sentyabr/ });
+    await pickBank("import-file");
+    await userEvent.click(screen.getByRole("button", { name: "Önbaxış" }));
+  }
 
-  it("tells the user a required field has no column yet, and blocks the import", async () => {
+  it("previews first and writes nothing; then asks for somebody else's approval", async () => {
     signInAs();
-    renderApp("/integrations/imp-2"); // a bank statement has Debit and Credit; the amount must be chosen by a person
-    expect(await screen.findByRole("alert")).toHaveTextContent("Məcburi «Məbləğ» sahəsi üçün sütun seçilməyib.");
-    expect(screen.getByRole("button", { name: "İdxal et" })).toBeDisabled();
+    await preview();
+    expect(await screen.findByText("Düzgün sətir: 3")).toBeInTheDocument();
+    expect(screen.getByText("Hələ heç nə yazılmayıb.")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "İdxala göndər" }));
+    expect(await screen.findByText(/başqa şəxsin təsdiqini gözləyir/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "İdxala göndər" })).not.toBeInTheDocument();
+    const queue = (await api.GET("/approvals")).data!;
+    expect(queue.some((item) => item.kind === "import_commit" && item.status === "pending")).toBe(true);
   });
 
-  it("walks through mapping: unsaved choices block the import, saving re-validates, and a good mapping unlocks it", async () => {
+  it("lists the rows that cannot be imported, with the reason, and imports nothing when none is valid", async () => {
     signInAs();
-    renderApp("/integrations/imp-2");
-    const amount = await screen.findByLabelText(/Məbləğ/);
-
-    await userEvent.selectOptions(amount, "Debet");
-    expect(screen.getByRole("button", { name: "İdxal et" })).toBeDisabled();
-    expect(screen.getByText("Əvvəlcə xəritələməni saxlayın.")).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Xəritələməni saxla" }));
-    expect(await screen.findByText(/Sətir 3, «Tarix»: tarix düzgün deyil/)).toBeInTheDocument(); // the server found a bad date
-    await waitFor(() => expect(screen.getByRole("button", { name: "İdxal et" })).toBeEnabled());
-  });
-
-  it("does not offer a column to a second field once another field uses it", async () => {
-    signInAs();
-    renderApp("/integrations/imp-2");
-    const description = await screen.findByLabelText(/Təsvir/);
-    // "Tarix" feeds the date field already
-    expect(within(description).queryByRole("option", { name: "Tarix" })).not.toBeInTheDocument();
-    expect(within(description).getByRole("option", { name: "Təsvir" })).toBeInTheDocument();
-  });
-
-  it("refuses a mapping where every row would fail, so a wrong column choice cannot be committed", async () => {
-    signInAs();
-    renderApp("/integrations/imp-2");
-    // Free the "Referans" column (the reference field is optional) and feed the amount from it: text where a number belongs.
-    await userEvent.selectOptions(await screen.findByLabelText(/Arayış/), "");
-    await userEvent.selectOptions(screen.getByLabelText(/Məbləğ/), "Referans");
-    await userEvent.click(screen.getByRole("button", { name: "Xəritələməni saxla" }));
-    await screen.findAllByText(/məbləğ düzgün deyil/);
-    expect(screen.getByRole("button", { name: "İdxal et" })).toBeDisabled();
-    expect(screen.getByText(/Bütün sətirlər xətalıdırsa, xəritələmə yanlışdır/)).toBeInTheDocument();
-  });
-
-  it("asks before importing because it cannot be undone, then reports the result", async () => {
-    signInAs();
-    renderApp("/integrations/imp-2");
-    await userEvent.selectOptions(await screen.findByLabelText(/Məbləğ/), "Debet");
-    await userEvent.click(screen.getByRole("button", { name: "Xəritələməni saxla" }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "İdxal et" })).toBeEnabled());
-
-    await userEvent.click(screen.getByRole("button", { name: "İdxal et" }));
-    const dialog = await screen.findByRole("dialog");
-    expect(dialog).toHaveTextContent("120 sətir idxal olunacaq");
-    expect(dialog).toHaveTextContent("geri qaytarmaq mümkün deyil");
-
-    await userEvent.click(within(dialog).getByRole("button", { name: "İdxal et" }));
-    expect(await screen.findByText("Tamamlanıb", undefined, { timeout: 4000 })).toBeInTheDocument();
-    expect(screen.getByText("Uğurlu").nextElementSibling).toHaveTextContent("114"); // 120 - 3 bad rows - 3 duplicates
-  });
-
-  it("refuses to commit when the server says no, even if a client skipped the checks", async () => {
-    signInAs();
-    await expect(api.POST("/imports/{id}/commit", { params: { path: { id: "imp-2" } } })).rejects.toMatchObject({
-      status: 409,
-    }); // amount is still unmapped
-  });
-
-  it("lets a reader see an import but not change or run it", async () => {
-    signInAs("auditor@lexaudit.test");
-    renderApp("/integrations/imp-2");
-    expect(await screen.findByLabelText(/Tarix/)).toBeDisabled();
-    expect(screen.queryByRole("button", { name: "İdxal et" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Xəritələməni saxla" })).not.toBeInTheDocument();
-  });
-
-  it("sends the chosen source with the upload, so a bank file is not mistaken for a 1C file", async () => {
-    signInAs();
-    renderApp("/integrations");
-    await rows();
-    await userEvent.selectOptions(screen.getByLabelText("Mənbə"), "bank");
-    await choose([new File(["Tarix;Təsvir"], "mənim-bank.csv", { type: "text/csv" })]);
-
-    const row = await screen.findByRole("link", { name: "mənim-bank.csv" }).then((link) => link.closest("tr")!);
-    expect(row).toHaveTextContent("Bank çıxarışı");
-    await waitFor(() => expect(within(row).getByText("Xəritələmə tələb edir")).toBeInTheDocument(), { timeout: 4000 });
-  });
-
-  it("builds a 1C export file for a period and links to it", async () => {
-    signInAs();
-    renderApp("/integrations");
-    await rows();
-    expect(screen.getByRole("button", { name: "Fayl yarat" })).toBeDisabled();
-
-    fireEvent.change(screen.getByLabelText("Dövr"), { target: { value: "2026-09" } });
-    await userEvent.click(screen.getByRole("button", { name: "Fayl yarat" }));
-
-    expect(await screen.findByRole("link", { name: "1c-export-2026-09.xml" })).toHaveAttribute(
-      "href",
-      expect.stringMatching(/^\/files\/file-up-/),
+    server.use(
+      http.post(apiPath("/imports/preview"), () =>
+        HttpResponse.json(
+          {
+            importId: "imp-x",
+            template: "onec-table-v1",
+            rowsOk: 0,
+            rowsFailed: 2,
+            truncated: false,
+            errors: [{ row: 3, errors: ["VÖEN 10 rəqəmdən ibarət olmalıdır"] }],
+            sample: [],
+          },
+          { status: 201 },
+        ),
+      ),
     );
+    await preview();
+    expect(await screen.findByText("Səhv sətir: 2")).toBeInTheDocument();
+    expect(screen.getByText(/Sətir 3:/).closest("li")).toHaveTextContent("VÖEN 10 rəqəmdən ibarət olmalıdır");
+    expect(screen.getByRole("button", { name: "İdxala göndər" })).toBeDisabled();
+  });
+
+  it("offers no import to someone without imports:commit", async () => {
+    signInAs();
+    const user = useAuthStore.getState().user!;
+    useAuthStore.setState({
+      user: { ...user, permissions: user.permissions.filter((code) => code !== "imports:commit") },
+    });
+    await preview();
+    await screen.findByText("Düzgün sətir: 3");
+    expect(screen.queryByRole("button", { name: "İdxala göndər" })).not.toBeInTheDocument();
+  });
+
+  it("exports posted entries to a new 1C file after both dates are given", async () => {
+    signInAs();
+    renderApp("/integrations");
+    const submit = await screen.findByRole("button", { name: "Fayl yarat" });
+    expect(submit).toBeDisabled();
+    await userEvent.type(screen.getByLabelText("Tarixdən", { selector: "#export-from" }), "2026-01-01");
+    await userEvent.type(screen.getByLabelText("Tarixədək", { selector: "#export-to" }), "2026-12-31");
+    await userEvent.click(submit);
+    expect(await screen.findByText(/Fayl hazırdır: \d+ yazılış/)).toBeInTheDocument();
+  });
+
+  it("shows 'not found' for an unknown import", async () => {
+    signInAs();
+    renderApp("/integrations/nope");
+    expect(await screen.findByText("İdxal tapılmadı")).toBeInTheDocument();
   });
 });

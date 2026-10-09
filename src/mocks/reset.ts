@@ -1,17 +1,14 @@
 import { setMockRefreshUser } from "./refreshCookie";
 import { resetFilesDb } from "./fixtures/files";
-import { resetAdmin } from "./fixtures/admin";
+import { resetAdmin } from "./handlers/admin";
 import { resetApprovals } from "./fixtures/approvals";
 import { resetAudit } from "./fixtures/audit";
 import { resetAssistant } from "./fixtures/assistant";
-import { resetExcel } from "./fixtures/excel";
-import { resetImports } from "./fixtures/imports";
 import { resetInvoicesDb } from "./fixtures/invoices";
-import { resetReconciliation } from "./fixtures/reconciliation";
 import { resetVat } from "./fixtures/vat";
 import { resetVatVersions } from "./handlers/vat";
 import { resetWorkUploadKeys } from "./handlers/work";
-import { resetImpact } from "./handlers/impact";
+import { resetImpact, resetNotifications } from "./handlers/impact";
 import { resetNewsDb } from "./fixtures/news";
 import { resetUploadKeys } from "./handlers/files";
 import { resetInvoiceUploadKeys } from "./handlers/invoices";
@@ -20,6 +17,7 @@ import { resetInvoiceUploadKeys } from "./handlers/invoices";
 export function resetMocks(): void {
   resetNewsDb();
   resetImpact();
+  resetNotifications();
   resetFilesDb();
   resetUploadKeys();
   resetInvoicesDb();
@@ -29,9 +27,6 @@ export function resetMocks(): void {
   resetApprovals();
   resetAdmin();
   resetAudit();
-  resetExcel();
-  resetReconciliation();
-  resetImports();
   resetWorkUploadKeys();
   resetInvoiceUploadKeys();
   setMockRefreshUser(null);

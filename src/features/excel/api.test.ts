@@ -1,17 +1,51 @@
 import { describe, expect, it } from "vitest";
-import { operationProblem } from "./api";
+import { readClean, readProfile } from "./api";
 
-describe("operationProblem", () => {
-  it("lets trimming run on all columns without picking any", () => {
-    expect(operationProblem("trim_spaces", [])).toBeNull();
+describe("readProfile", () => {
+  it("reads the columns the backend profiled, keeping amounts as strings", () => {
+    const profile = readProfile({
+      rows: 3,
+      emptyRows: 0,
+      duplicateRows: 1,
+      truncated: false,
+      columns: [
+        {
+          name: "Məbləğ",
+          type: "number",
+          nonEmpty: 3,
+          distinct: 2,
+          sum: "30.10",
+          min: "10.00",
+          max: "10.05",
+          samples: ["10.00"],
+          unparsable: 0,
+        },
+      ],
+    });
+    expect(profile?.columns[0]).toMatchObject({ name: "Məbləğ", type: "number", sum: "30.10" });
+    expect(profile?.duplicateRows).toBe(1);
   });
-  it("needs at least one key column to remove duplicates", () => {
-    expect(operationProblem("remove_duplicates", [])).toBe("needColumn");
-    expect(operationProblem("remove_duplicates", ["A", "C"])).toBeNull();
+
+  it("returns null for anything that is not a profile, instead of guessing", () => {
+    expect(readProfile(null)).toBeNull();
+    expect(readProfile({ rows: "3" })).toBeNull();
+    expect(readProfile({ rows: 3, columns: "x" })).toBeNull();
   });
-  it("needs exactly one column to normalize dates", () => {
-    expect(operationProblem("normalize_dates", [])).toBe("needOneColumn");
-    expect(operationProblem("normalize_dates", ["A", "B"])).toBe("needOneColumn");
-    expect(operationProblem("normalize_dates", ["A"])).toBeNull();
+
+  it("drops a malformed column and falls back to text for an unknown type", () => {
+    const profile = readProfile({ rows: 1, columns: [{ nope: true }, { name: "A", type: "weird" }] });
+    expect(profile?.columns).toHaveLength(1);
+    expect(profile?.columns[0]?.type).toBe("text");
+  });
+});
+
+describe("readClean", () => {
+  it("reads the row counts and the log", () => {
+    expect(readClean({ rowsIn: 10, rowsOut: 8, log: ["2 dublikat silindi"] })).toEqual({
+      rowsIn: 10,
+      rowsOut: 8,
+      log: ["2 dublikat silindi"],
+    });
+    expect(readClean({})).toBeNull();
   });
 });

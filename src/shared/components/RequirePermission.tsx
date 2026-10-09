@@ -10,7 +10,9 @@ export function RequirePermission({
   permission,
   anyOf,
   children,
-}: { children: ReactNode } & ({ permission: Permission; anyOf?: never } | { anyOf: Permission[]; permission?: never })) {
+}: { children: ReactNode } & (
+  { permission: Permission; anyOf?: never } | { anyOf: Permission[]; permission?: never }
+)) {
   const allowed = useAnyPermission(anyOf ?? [permission]);
   return allowed ? <>{children}</> : <PermissionDenied />;
 }
