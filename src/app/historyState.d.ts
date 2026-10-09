@@ -1,3 +1,4 @@
+import type { Attachment } from "@/features/assistant/api";
 import type { FilesSearch } from "@/features/files/filters";
 import type { InvoicesSearch } from "@/features/invoices/filters";
 import type { LegislationListSearch } from "@/features/legislation/filters";
@@ -11,5 +12,7 @@ declare module "@tanstack/history" {
     fromLegislationSearch?: LegislationListSearch;
     fromFilesSearch?: FilesSearch;
     fromInvoicesSearch?: InvoicesSearch;
+    /** The first message typed before the conversation existed; the chat page sends it once. */
+    pendingChat?: { content: string; attachments: Attachment[] };
   }
 }

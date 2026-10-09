@@ -2,6 +2,7 @@ import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react
 import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/errors";
+import { AskAssistantLink } from "@/features/assistant/components/AskAssistantLink";
 import { useLegislation, useVersionDiff, useVersionText, type LegislationVersion } from "@/features/legislation/api";
 import { DiffView } from "@/features/legislation/components/DiffView";
 import { legislationDetailSearchSchema } from "@/features/legislation/filters";
@@ -107,6 +108,10 @@ function LegislationDetailPageContent() {
           />
         }
       />
+
+      <div className="mb-4">
+        <AskAssistantLink resource={{ type: "legislation", id: data.id, title: data.title }} />
+      </div>
 
       <div role="tablist" aria-label={t("legislation.viewLabel")} className="mb-4 flex gap-1 border-b">
         {(["text", "diff"] as const).map((tab) => (

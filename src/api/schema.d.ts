@@ -814,6 +814,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in user's conversations, most recently active first */
+        get: operations["listConversations"];
+        put?: never;
+        post: operations["createConversation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conversations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getConversation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename or archive. Nothing is deleted. */
+        patch: operations["updateConversation"];
+        trace?: never;
+    };
+    "/conversations/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a message and stream the answer as Server-Sent Events
+         * @description The response is `text/event-stream`. Every event has an `id:` (a counter per message), an `event:` name and a JSON `data:` line. Events: `message.started` {messageId}; `message.delta` {text}; `citation.added` {citation}; `tool.requested` {toolRun}; `tool.approval_required` {toolRun, approval}; `tool.started` {toolRun}; `tool.completed` {toolRun}; `tool.failed` {toolRun}; `message.completed` {message}; `message.failed` {code, message}. If the connection drops before `message.completed` or `message.failed`, the client resumes with `GET /messages/{id}/events` and a `Last-Event-ID` header. Retrieved text is untrusted input and the model's output is never rendered as HTML.
+         */
+        post: operations["sendMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/messages/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Replay the events after `Last-Event-ID`, then continue live if the answer is still being written */
+        get: operations["resumeMessageStream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/messages/{id}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop generating. The tokens already written are kept; the model stops spending. */
+        post: operations["stopMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/messages/{id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Thumbs up or down, with the right answer when it is down. This is training data. */
+        post: operations["sendFeedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{id}/decide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve or deny a tool run. The person who asked for it can never decide it. */
+        post: operations["decideApproval"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1516,6 +1638,96 @@ export interface components {
             errors: components["schemas"]["ImportRowError"][];
             /** @description Decided by the server. The button follows it. */
             canCommit: boolean;
+        };
+        Conversation: {
+            id: string;
+            title: string;
+            /** Format: date-time */
+            updatedAt: string;
+            archived: boolean;
+        };
+        /** @enum {string} */
+        CitationResource: "legislation" | "news" | "file" | "invoice";
+        /** @description A stable pointer to the stored resource a statement rests on, with the passage that was used */
+        Citation: {
+            id: string;
+            resourceType: components["schemas"]["CitationResource"];
+            resourceId: string;
+            title: string;
+            /** @description For example an article number or a page */
+            locationLabel: string | null;
+            /** @description Plain text. Rendered as text, never as HTML. */
+            excerpt: string;
+        };
+        /** @enum {string} */
+        ToolRisk: "read" | "low-write" | "moderate-write";
+        /** @enum {string} */
+        ToolRunStatus: "proposed" | "approval_required" | "running" | "done" | "failed" | "denied";
+        ToolRun: {
+            id: string;
+            /** @example legislation.search */
+            toolName: string;
+            riskLevel: components["schemas"]["ToolRisk"];
+            status: components["schemas"]["ToolRunStatus"];
+            /** @description What the tool was asked, in words */
+            argumentsSummary: string;
+            resultSummary: string | null;
+            approvalId: string | null;
+        };
+        /** @enum {string} */
+        ApprovalStatus: "pending" | "approved" | "denied" | "expired";
+        Approval: {
+            id: string;
+            toolRunId: string;
+            toolName: string;
+            argumentsSummary: string;
+            targetResource: string;
+            riskLevel: components["schemas"]["ToolRisk"];
+            requestedBy: {
+                id: string;
+                name: string;
+            };
+            status: components["schemas"]["ApprovalStatus"];
+            /** Format: date-time */
+            expiresAt: string;
+            comment: string | null;
+        };
+        /** @enum {string} */
+        MessageStatus: "complete" | "failed" | "stopped";
+        Message: {
+            id: string;
+            /** @enum {string} */
+            role: "user" | "assistant";
+            content: string;
+            /** Format: date-time */
+            createdAt: string;
+            status: components["schemas"]["MessageStatus"];
+            citations: components["schemas"]["Citation"][];
+            toolRuns: components["schemas"]["ToolRun"][];
+            approvals: components["schemas"]["Approval"][];
+            /** @description Which model wrote it, kept for traceability */
+            modelVersion: string | null;
+            /** @enum {string|null} */
+            feedback: "up" | "down" | null;
+        };
+        ConversationDetail: components["schemas"]["Conversation"] & {
+            messages: components["schemas"]["Message"][];
+        };
+        /** @description Something the user pointed the assistant at. The server checks the user may read it. */
+        ContextAttachment: {
+            type: components["schemas"]["CitationResource"];
+            id: string;
+            title: string;
+        };
+        SendMessageRequest: {
+            content: string;
+            attachments: components["schemas"]["ContextAttachment"][];
+        };
+        FeedbackRequest: {
+            /** @enum {string} */
+            rating: "up" | "down";
+            /** @description The right answer, when the rating is down */
+            correction?: string;
         };
     };
     responses: {
@@ -3009,6 +3221,246 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationFailed"];
+        };
+    };
+    listConversations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversation"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    createConversation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    title?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversation"];
+                };
+            };
+        };
+    };
+    getConversation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateConversation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    title?: string;
+                    archived?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    sendMessage: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description The event stream */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationFailed"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resumeMessageStream: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Last-Event-ID"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The remaining events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    stopMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stopped */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    sendFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    decideApproval: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    decision: "approved" | "denied";
+                    comment?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The approval after the decision */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Approval"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
         };
     };
 }

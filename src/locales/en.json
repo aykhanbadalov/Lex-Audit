@@ -820,5 +820,91 @@
       "ready": "The file is ready:",
       "failed": "The file could not be created"
     }
+  },
+  "assistant": {
+    "createFailed": "The conversation could not be created",
+    "updateFailed": "The change was not saved",
+    "roleAssistant": "LexAudit AI",
+    "roleUser": "You",
+    "thinking": "Preparing an answer…",
+    "writing": "The answer is being written",
+    "stopped": "The answer was stopped.",
+    "failed": "The answer was left unfinished.",
+    "retry": "Ask again",
+    "tools": "Tool operations",
+    "messages": "Conversation",
+    "messageLabel": "Your message",
+    "placeholder": "Write your question. Enter to send, Shift+Enter for a new line.",
+    "send": "Send",
+    "stop": "Stop",
+    "ask": "Ask AI",
+    "conversations": "Conversations",
+    "newConversation": "New conversation",
+    "noConversations": "No conversations yet.",
+    "emptyTitle": "Ask a question and get an answer with sources",
+    "emptyHint": "You can ask about legislation, news, files and invoices. Sources are shown with the answer.",
+    "notFound": "Conversation not found",
+    "notFoundHint": "It may have been archived or is not available to you.",
+    "rename": "Rename",
+    "archive": "Archive",
+    "titleLabel": "Conversation title",
+    "archiveConfirm": {
+      "title": "Archive this conversation?",
+      "description": "It will be hidden from the list but not deleted."
+    },
+    "sources": {
+      "title": "Sources"
+    },
+    "context": {
+      "title": "Attached context",
+      "legislation": "Law",
+      "news": "News",
+      "file": "File",
+      "invoice": "Invoice",
+      "remove": "Remove context {{title}}"
+    },
+    "tool": {
+      "legislation": {
+        "search": "Legislation search"
+      },
+      "ledger": {
+        "submit_entries": "Send journal entry for approval"
+      }
+    },
+    "toolStatus": {
+      "proposed": "Proposed",
+      "approval_required": "Awaiting approval",
+      "running": "Running",
+      "done": "Done",
+      "failed": "Failed",
+      "denied": "Denied"
+    },
+    "risk": {
+      "low-write": "Low-risk write",
+      "moderate-write": "Changes data"
+    },
+    "approval": {
+      "failed": "The decision was not saved",
+      "approved": "Approved",
+      "denied": "Denied",
+      "expired": "Expired",
+      "pending": "Awaiting approval",
+      "waitingOther": "Someone else must approve this operation. You cannot approve your own request.",
+      "waiting": "Awaiting approval. You are not allowed to decide.",
+      "request": "{{name}} asks for this operation: {{target}}. Check it before approving.",
+      "comment": "Comment",
+      "approve": "Approve",
+      "deny": "Deny"
+    },
+    "feedback": {
+      "thanks": "Thank you for your feedback",
+      "failed": "The feedback could not be sent",
+      "up": "The answer was helpful",
+      "down": "The answer is wrong",
+      "title": "What is wrong with the answer?",
+      "description": "If you write the right answer, the system can learn from it. This is optional.",
+      "correction": "The right answer",
+      "send": "Send"
+    }
   }
 }

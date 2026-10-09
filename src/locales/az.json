@@ -820,5 +820,91 @@
       "ready": "Fayl hazırdır:",
       "failed": "Fayl yaradılmadı"
     }
+  },
+  "assistant": {
+    "createFailed": "Söhbət yaradılmadı",
+    "updateFailed": "Dəyişiklik saxlanmadı",
+    "roleAssistant": "LexAudit AI",
+    "roleUser": "Siz",
+    "thinking": "Cavab hazırlanır…",
+    "writing": "Cavab yazılır",
+    "stopped": "Cavab dayandırıldı.",
+    "failed": "Cavab yarımçıq qaldı.",
+    "retry": "Yenidən soruş",
+    "tools": "Alət əməliyyatları",
+    "messages": "Söhbət",
+    "messageLabel": "Mesajınız",
+    "placeholder": "Sualınızı yazın. Göndərmək üçün Enter, yeni sətir üçün Shift+Enter.",
+    "send": "Göndər",
+    "stop": "Dayandır",
+    "ask": "AI-dan soruş",
+    "conversations": "Söhbətlər",
+    "newConversation": "Yeni söhbət",
+    "noConversations": "Hələ söhbət yoxdur.",
+    "emptyTitle": "Sual verin, mənbə ilə cavab alın",
+    "emptyHint": "Qanunvericilik, xəbərlər, fayllar və qaimələr üzrə sual verə bilərsiniz. Cavabda mənbələr göstərilir.",
+    "notFound": "Söhbət tapılmadı",
+    "notFoundHint": "Söhbət arxivə köçürülmüş və ya əlçatan olmaya bilər.",
+    "rename": "Adını dəyiş",
+    "archive": "Arxivə at",
+    "titleLabel": "Söhbətin adı",
+    "archiveConfirm": {
+      "title": "Söhbət arxivə atılsın?",
+      "description": "Söhbət siyahıdan gizlədiləcək, silinməyəcək."
+    },
+    "sources": {
+      "title": "Mənbələr"
+    },
+    "context": {
+      "title": "Əlavə olunmuş kontekst",
+      "legislation": "Qanun",
+      "news": "Xəbər",
+      "file": "Fayl",
+      "invoice": "Qaimə",
+      "remove": "{{title}} kontekstini çıxar"
+    },
+    "tool": {
+      "legislation": {
+        "search": "Qanunvericilikdə axtarış"
+      },
+      "ledger": {
+        "submit_entries": "Yazılışı təsdiqə göndər"
+      }
+    },
+    "toolStatus": {
+      "proposed": "Təklif olunub",
+      "approval_required": "Təsdiq gözləyir",
+      "running": "İcra olunur",
+      "done": "Tamamlanıb",
+      "failed": "Xəta",
+      "denied": "Rədd edilib"
+    },
+    "risk": {
+      "low-write": "Aşağı riskli yazma",
+      "moderate-write": "Dəyişiklik"
+    },
+    "approval": {
+      "failed": "Qərar saxlanmadı",
+      "approved": "Təsdiqlənib",
+      "denied": "Rədd edilib",
+      "expired": "Müddəti bitib",
+      "pending": "Təsdiq gözləyir",
+      "waitingOther": "Bu əməliyyatı başqa şəxs təsdiq etməlidir. Öz sorğunuzu özünüz təsdiq edə bilməzsiniz.",
+      "waiting": "Təsdiq gözləyir. Qərar vermək üçün icazəniz yoxdur.",
+      "request": "{{name}} bu əməliyyatı istəyir: {{target}}. Təsdiq etməzdən əvvəl yoxlayın.",
+      "comment": "Şərh",
+      "approve": "Təsdiq et",
+      "deny": "Rədd et"
+    },
+    "feedback": {
+      "thanks": "Rəyiniz üçün təşəkkür edirik",
+      "failed": "Rəy göndərilmədi",
+      "up": "Cavab faydalı oldu",
+      "down": "Cavab düzgün deyil",
+      "title": "Cavabda nə səhvdir?",
+      "description": "Düzgün cavabı yazsanız, sistem sizdən öyrənəcək. Bu istəyə bağlıdır.",
+      "correction": "Düzgün cavab",
+      "send": "Göndər"
+    }
   }
 }

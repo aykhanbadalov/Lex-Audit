@@ -337,7 +337,7 @@ features/invoices/
 | F7 Qaimələr | tamamlanıb (siyahı, yükləmə, mənbə sənədi ilə yanaşı redaktə, serverdə yenidən hesablama, problemlər, saxlanmamış dəyişikliklərdən qoruma, jurnal təklifi) |
 | F8 ƏDV + jurnal | tamamlanıb (dövr xülasəsi və drill-down, depozit hesabı uzlaşdırması, bəyannamə qaralaması, dərəcələr, jurnal siyahısı və detalı, hesablar planı) |
 | F9 Excel, uzlaşdırma, idxal | tamamlanıb (cədvəl təhlili və yeni fayl verən əməliyyatlar, bank/e-qaimə uzlaşdırması, 1C/e-taxes/bank idxalı xəritələmə ilə, 1C ixracı) |
-| F10–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
+| F10 AI Assistent | tamamlanıb (SSE axını və kəsilmədən davam, mənbələr, alət kartları, təsdiq ayrılığı, feedback, söhbət idarəsi, xəbər/qanun/qaimədən «AI-dan soruş») |
+| F11–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
 
-**Səhifələr yenilənmir, "Ask AI" düyməsi yoxdur:** AI Assistent (F10) hazır olmadığı üçün xəbər detalında "AI-dan soruş" düyməsi qəsdən əlavə olunmayıb.
 

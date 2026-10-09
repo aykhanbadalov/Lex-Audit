@@ -172,3 +172,26 @@ See `openapi.yaml` (`/excel/...`, `/reconciliations`, `/imports`, `/exports/onec
 - ✅ `POST /exports/onec` builds a file of approved entries for 1C and returns a File (also listed under Files). ❓ The real 1C format
   and the choice of which entries are included belong to the backend and an accountant.
 - ❓ New permission keys: `excel:write`, `reconciliation:read|write`, `integrations:read|write`.
+
+## 10. Assistant (phase F10)
+
+- ✅ **Sending a message** is `POST /conversations/{id}/messages` and answers with `text/event-stream`. Every event needs a
+  numeric, increasing `id:`; the client ignores an event it has already seen. Requires an `Idempotency-Key` (a retried send must
+  not ask the model twice).
+- ✅ **Resume.** If the connection drops, the client calls `GET /messages/{id}/events` with `Last-Event-ID` and expects the
+  missing events (then the rest). Keep generated events for a few minutes, even after the client disconnects.
+- ✅ **Stop.** `POST /messages/{id}/stop` must really cancel generation (it costs money). The stopped message is stored with
+  status `stopped` and the text written so far.
+- ✅ **Stored copy wins.** When a stream ends the client re-reads `GET /conversations/{id}`; the stored messages must match what
+  was streamed (same text, citations, tool runs, approvals).
+- ✅ **Citations point at stored resources** (`legislation | news | file | invoice` + id), are checked against the caller's
+  tenant and permissions, and the excerpt is the stored text. An answer to a legal question with no source must say so; the
+  model must never be allowed to cite something that was not retrieved.
+- ✅ **Retrieved text is untrusted** (prompt injection from uploaded files and news). The UI renders model output as sanitised
+  Markdown without images, but the backend must still keep tool permissions independent of what the text says.
+- ✅ **Writes go through approvals.** A tool with risk `write` creates an `Approval`; `POST /approvals/{id}/decide` answers
+  **403** to the requester and to anyone without `approvals:decide`, and **409** if already decided. Never rely on the UI hiding buttons.
+- ✅ Store `modelVersion` on every assistant message, and keep feedback (`up|down` + optional correction) linked to it: it is
+  the training signal for `MODEL_TRAINING.md`.
+- ❓ Rate limiting: answer **429** (`RATE_LIMITED`) when a user or company is over budget; the UI shows it as a failed answer.
+- ❓ Attachments (`news`, `legislation`, `file`, `invoice`) are ids only; the server loads the content itself and re-checks access.

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeft, FileQuestion } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/errors";
+import { AskAssistantLink } from "@/features/assistant/components/AskAssistantLink";
 import { useInvoice, type InvoiceDetail } from "@/features/invoices/api";
 import { InvoiceForm } from "@/features/invoices/components/InvoiceForm";
 import { InvoicePreview } from "@/features/invoices/components/InvoicePreview";
@@ -96,6 +97,12 @@ function InvoiceView({ detail }: { detail: InvoiceDetail }) {
         <h1 className="text-2xl font-semibold tracking-tight break-words">{detail.number ?? detail.sourceFileName}</h1>
         {detail.counterpartyName ? <p className="text-sm text-muted-foreground">{detail.counterpartyName}</p> : null}
       </header>
+
+      <div>
+        <AskAssistantLink
+          resource={{ type: "invoice", id: detail.id, title: detail.number ?? detail.sourceFileName }}
+        />
+      </div>
 
       {processing ? (
         <div role="status" className="rounded-lg border p-4 text-sm">

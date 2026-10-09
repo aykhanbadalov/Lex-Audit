@@ -3,6 +3,7 @@ import { ArrowLeft, Bookmark, ExternalLink, Newspaper } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/errors";
+import { AskAssistantLink } from "@/features/assistant/components/AskAssistantLink";
 import { useNewsDetail, useSetNewsBookmark, useSetNewsRead } from "@/features/news/api";
 import { AiNotice } from "@/shared/components/AiNotice";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -116,6 +117,10 @@ function NewsDetailPageContent() {
             </div>
           </dl>
         </header>
+
+        <div>
+          <AskAssistantLink resource={{ type: "news", id: item.id, title: item.title }} />
+        </div>
 
         <AiNotice modelVersion={item.ai.modelVersion}>
           <div className="space-y-3 text-sm">

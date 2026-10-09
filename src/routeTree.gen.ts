@@ -17,6 +17,8 @@ import { Route as AppApprovalsRouteImport } from './routes/_app/approvals'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppVatRouteImport } from './routes/_app/vat'
+import { Route as AppAssistantIndexRouteImport } from './routes/_app/assistant.index'
+import { Route as AppAssistantIdRouteImport } from './routes/_app/assistant.$id'
 import { Route as AppExcelIndexRouteImport } from './routes/_app/excel.index'
 import { Route as AppExcelIdRouteImport } from './routes/_app/excel.$id'
 import { Route as AppFilesIndexRouteImport } from './routes/_app/files.index'
@@ -73,6 +75,16 @@ const AppVatRoute = AppVatRouteImport.update({
   id: '/vat',
   path: '/vat',
   getParentRoute: () => AppRoute,
+} as any)
+const AppAssistantIndexRoute = AppAssistantIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAssistantRoute,
+} as any)
+const AppAssistantIdRoute = AppAssistantIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAssistantRoute,
 } as any)
 const AppExcelIndexRoute = AppExcelIndexRouteImport.update({
   id: '/excel/',
@@ -165,9 +177,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin': typeof AppAdminRoute
   '/approvals': typeof AppApprovalsRoute
-  '/assistant': typeof AppAssistantRoute
+  '/assistant': typeof AppAssistantRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/vat': typeof AppVatRoute
+  '/assistant/$id': typeof AppAssistantIdRoute
   '/excel/$id': typeof AppExcelIdRoute
   '/files/$id': typeof AppFilesIdRoute
   '/integrations/$id': typeof AppIntegrationsIdRoute
@@ -177,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/reconciliation/$id': typeof AppReconciliationIdRoute
+  '/assistant/': typeof AppAssistantIndexRoute
   '/excel/': typeof AppExcelIndexRoute
   '/files/': typeof AppFilesIndexRoute
   '/integrations/': typeof AppIntegrationsIndexRoute
@@ -191,9 +205,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin': typeof AppAdminRoute
   '/approvals': typeof AppApprovalsRoute
-  '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
   '/vat': typeof AppVatRoute
+  '/assistant/$id': typeof AppAssistantIdRoute
   '/excel/$id': typeof AppExcelIdRoute
   '/files/$id': typeof AppFilesIdRoute
   '/integrations/$id': typeof AppIntegrationsIdRoute
@@ -203,6 +217,7 @@ export interface FileRoutesByTo {
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/reconciliation/$id': typeof AppReconciliationIdRoute
+  '/assistant': typeof AppAssistantIndexRoute
   '/excel': typeof AppExcelIndexRoute
   '/files': typeof AppFilesIndexRoute
   '/integrations': typeof AppIntegrationsIndexRoute
@@ -219,9 +234,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/approvals': typeof AppApprovalsRoute
-  '/_app/assistant': typeof AppAssistantRoute
+  '/_app/assistant': typeof AppAssistantRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/vat': typeof AppVatRoute
+  '/_app/assistant/$id': typeof AppAssistantIdRoute
   '/_app/excel/$id': typeof AppExcelIdRoute
   '/_app/files/$id': typeof AppFilesIdRoute
   '/_app/integrations/$id': typeof AppIntegrationsIdRoute
@@ -231,6 +247,7 @@ export interface FileRoutesById {
   '/_app/legislation/$id': typeof AppLegislationIdRoute
   '/_app/news/$id': typeof AppNewsIdRoute
   '/_app/reconciliation/$id': typeof AppReconciliationIdRoute
+  '/_app/assistant/': typeof AppAssistantIndexRoute
   '/_app/excel/': typeof AppExcelIndexRoute
   '/_app/files/': typeof AppFilesIndexRoute
   '/_app/integrations/': typeof AppIntegrationsIndexRoute
@@ -250,6 +267,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/vat'
+    | '/assistant/$id'
     | '/excel/$id'
     | '/files/$id'
     | '/integrations/$id'
@@ -259,6 +277,7 @@ export interface FileRouteTypes {
     | '/legislation/$id'
     | '/news/$id'
     | '/reconciliation/$id'
+    | '/assistant/'
     | '/excel/'
     | '/files/'
     | '/integrations/'
@@ -273,9 +292,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin'
     | '/approvals'
-    | '/assistant'
     | '/dashboard'
     | '/vat'
+    | '/assistant/$id'
     | '/excel/$id'
     | '/files/$id'
     | '/integrations/$id'
@@ -285,6 +304,7 @@ export interface FileRouteTypes {
     | '/legislation/$id'
     | '/news/$id'
     | '/reconciliation/$id'
+    | '/assistant'
     | '/excel'
     | '/files'
     | '/integrations'
@@ -303,6 +323,7 @@ export interface FileRouteTypes {
     | '/_app/assistant'
     | '/_app/dashboard'
     | '/_app/vat'
+    | '/_app/assistant/$id'
     | '/_app/excel/$id'
     | '/_app/files/$id'
     | '/_app/integrations/$id'
@@ -312,6 +333,7 @@ export interface FileRouteTypes {
     | '/_app/legislation/$id'
     | '/_app/news/$id'
     | '/_app/reconciliation/$id'
+    | '/_app/assistant/'
     | '/_app/excel/'
     | '/_app/files/'
     | '/_app/integrations/'
@@ -385,6 +407,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/vat'
       preLoaderRoute: typeof AppVatRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/assistant/': {
+      id: '/_app/assistant/'
+      path: '/'
+      fullPath: '/assistant/'
+      preLoaderRoute: typeof AppAssistantIndexRouteImport
+      parentRoute: typeof AppAssistantRoute
+    }
+    '/_app/assistant/$id': {
+      id: '/_app/assistant/$id'
+      path: '/$id'
+      fullPath: '/assistant/$id'
+      preLoaderRoute: typeof AppAssistantIdRouteImport
+      parentRoute: typeof AppAssistantRoute
     }
     '/_app/excel/': {
       id: '/_app/excel/'
@@ -508,10 +544,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAssistantRouteChildren {
+  AppAssistantIdRoute: typeof AppAssistantIdRoute
+  AppAssistantIndexRoute: typeof AppAssistantIndexRoute
+}
+
+const AppAssistantRouteChildren: AppAssistantRouteChildren = {
+  AppAssistantIdRoute: AppAssistantIdRoute,
+  AppAssistantIndexRoute: AppAssistantIndexRoute,
+}
+
+const AppAssistantRouteWithChildren = AppAssistantRoute._addFileChildren(
+  AppAssistantRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppApprovalsRoute: typeof AppApprovalsRoute
-  AppAssistantRoute: typeof AppAssistantRoute
+  AppAssistantRoute: typeof AppAssistantRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppVatRoute: typeof AppVatRoute
   AppExcelIdRoute: typeof AppExcelIdRoute
@@ -536,7 +586,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppApprovalsRoute: AppApprovalsRoute,
-  AppAssistantRoute: AppAssistantRoute,
+  AppAssistantRoute: AppAssistantRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
   AppVatRoute: AppVatRoute,
   AppExcelIdRoute: AppExcelIdRoute,
