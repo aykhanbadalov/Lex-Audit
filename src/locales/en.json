@@ -42,7 +42,11 @@
     "invalidCode": "The code is wrong",
     "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
     "demoEmail": "Demo e-mail",
-    "demoPassword": "Demo password"
+    "demoPassword": "Demo password",
+    "tagline": "Accounting and compliance in one place",
+    "point1": "Invoices, VAT and journal entries in one system",
+    "point2": "An AI assistant grounded in Azerbaijani law",
+    "point3": "Approval workflow and a full audit trail"
   },
   "dashboard": {
     "title": "Today",

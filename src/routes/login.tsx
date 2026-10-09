@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -83,80 +84,106 @@ function LoginPage() {
     }
   }
 
+  const fieldClass = "h-11 px-3.5 text-base";
+  const labelClass = "block text-sm font-medium";
+
   return (
-    <main className="grid min-h-dvh place-items-center p-4">
-      <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-6 shadow-sm">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">{t("auth.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
-          </div>
+    <main className="grid min-h-dvh lg:grid-cols-2">
+      <aside className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
+        <p className="text-xl font-semibold">{t("app.name")}</p>
+        <div className="max-w-md space-y-8">
+          <h2 className="text-3xl leading-tight font-semibold">{t("auth.tagline")}</h2>
+          <ul className="space-y-4 text-base text-primary-foreground/80">
+            {(["point1", "point2", "point3"] as const).map((key) => (
+              <li key={key} className="flex items-start gap-3">
+                <Check className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                <span>{t(`auth.${key}`)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-sm text-primary-foreground/60">© {new Date().getFullYear()} LexAudit AI</p>
+      </aside>
+
+      <section className="relative flex flex-col items-center justify-center px-6 py-16">
+        <div className="absolute top-4 right-4 md:top-6 md:right-6">
           <LanguageSwitcher />
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              {t("auth.email")}
-            </label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="username"
-              aria-invalid={Boolean(errors.email)}
-              {...register("email")}
-            />
-            {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
-            {DEMO ? (
-              <p className="text-xs text-muted-foreground">
-                {t("auth.demoEmail")}: <code className="font-mono">{DEMO.email}</code>
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              {t("auth.password")}
-            </label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={Boolean(errors.password)}
-              {...register("password")}
-            />
-            {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
-            {DEMO?.password ? (
-              <p className="text-xs text-muted-foreground">
-                {t("auth.demoPassword")}: <code className="font-mono">{DEMO.password}</code>
-              </p>
-            ) : null}
-          </div>
-          {needsCode ? (
-            <div className="space-y-1">
-              <label htmlFor="mfaCode" className="text-sm font-medium">
-                {t("auth.mfaCode")}
+        <div className="w-full max-w-sm">
+          <p className="mb-10 text-lg font-semibold lg:hidden">{t("app.name")}</p>
+          <header className="mb-8 space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight">{t("auth.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
+          </header>
+
+          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <div className="space-y-2">
+              <label htmlFor="email" className={labelClass}>
+                {t("auth.email")}
               </label>
               <Input
-                id="mfaCode"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={10}
-                autoFocus
-                {...register("mfaCode")}
+                id="email"
+                type="email"
+                autoComplete="username"
+                className={fieldClass}
+                aria-invalid={Boolean(errors.email)}
+                {...register("email")}
               />
-              <p className="text-xs text-muted-foreground">{t("auth.mfaHint")}</p>
+              {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+              {DEMO ? (
+                <p className="text-xs text-muted-foreground">
+                  {t("auth.demoEmail")}: <code className="font-mono">{DEMO.email}</code>
+                </p>
+              ) : null}
             </div>
-          ) : null}
-          {formError ? (
-            <p role="alert" className="text-sm text-destructive">
-              {formError}
-            </p>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {t("auth.submit")}
-          </Button>
-        </form>
-      </div>
+            <div className="space-y-2">
+              <label htmlFor="password" className={labelClass}>
+                {t("auth.password")}
+              </label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                className={fieldClass}
+                aria-invalid={Boolean(errors.password)}
+                {...register("password")}
+              />
+              {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
+              {DEMO?.password ? (
+                <p className="text-xs text-muted-foreground">
+                  {t("auth.demoPassword")}: <code className="font-mono">{DEMO.password}</code>
+                </p>
+              ) : null}
+            </div>
+            {needsCode ? (
+              <div className="space-y-2">
+                <label htmlFor="mfaCode" className={labelClass}>
+                  {t("auth.mfaCode")}
+                </label>
+                <Input
+                  id="mfaCode"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={10}
+                  autoFocus
+                  className={fieldClass}
+                  {...register("mfaCode")}
+                />
+                <p className="text-xs text-muted-foreground">{t("auth.mfaHint")}</p>
+              </div>
+            ) : null}
+            {formError ? (
+              <p role="alert" className="text-sm text-destructive">
+                {formError}
+              </p>
+            ) : null}
+            <Button type="submit" size="lg" className="h-11 w-full text-base" disabled={isSubmitting}>
+              {t("auth.submit")}
+            </Button>
+          </form>
+        </div>
+      </section>
     </main>
   );
 }
