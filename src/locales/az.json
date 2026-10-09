@@ -49,7 +49,9 @@
     "demoRoleAdmin": "Admin",
     "demoRoleAccountant": "Mühasib",
     "demoRoleApprover": "Təsdiqləyici",
-    "demoRoleViewer": "İzləyici"
+    "demoRoleViewer": "İzləyici",
+    "showPassword": "Şifrəni göstər",
+    "hidePassword": "Şifrəni gizlət"
   },
   "dashboard": {
     "title": "Bu gün",

@@ -49,7 +49,9 @@
     "demoRoleAdmin": "Admin",
     "demoRoleAccountant": "Accountant",
     "demoRoleApprover": "Approver",
-    "demoRoleViewer": "Viewer"
+    "demoRoleViewer": "Viewer",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "dashboard": {
     "title": "Today",

@@ -49,7 +49,9 @@
     "demoRoleAdmin": "Админ",
     "demoRoleAccountant": "Бухгалтер",
     "demoRoleApprover": "Согласующий",
-    "demoRoleViewer": "Наблюдатель"
+    "demoRoleViewer": "Наблюдатель",
+    "showPassword": "Показать пароль",
+    "hidePassword": "Скрыть пароль"
   },
   "dashboard": {
     "title": "Сегодня",

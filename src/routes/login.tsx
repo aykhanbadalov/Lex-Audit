@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -8,6 +9,7 @@ import { ApiError } from "@/api/errors";
 import { isMfaRequired, login } from "@/api/session";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
 import { isAuthenticated } from "@/shared/stores/authStore";
+import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
@@ -77,6 +79,7 @@ function LoginPage() {
   const search = Route.useSearch();
   const [formError, setFormError] = useState<string | null>(null);
   const [needsCode, setNeedsCode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const schema = z.object({
     email: z.email({ error: t("auth.emailInvalid") }),
@@ -160,14 +163,25 @@ function LoginPage() {
                 <label htmlFor="password" className={labelClass}>
                   {t("auth.password")}
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  className={fieldClass}
-                  aria-invalid={Boolean(errors.password)}
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    className={cn(fieldClass, "pr-11")}
+                    aria-invalid={Boolean(errors.password)}
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-1/2 right-2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? <EyeOff className="size-5" aria-hidden /> : <Eye className="size-5" aria-hidden />}
+                  </button>
+                </div>
                 {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
               </div>
               {needsCode ? (
