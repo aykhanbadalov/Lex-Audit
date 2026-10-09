@@ -205,6 +205,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Files of the signed-in user's company */
+        get: operations["listFiles"];
+        put?: never;
+        /** Upload one file. Returns at once; extraction and indexing continue in the background. */
+        post: operations["uploadFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename, move or retag */
+        patch: operations["updateFile"];
+        trace?: never;
+    };
+    "/files/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Soft delete. Nothing is ever deleted permanently from the UI. */
+        post: operations["archiveFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["restoreFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/reindex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run extraction and indexing again (for example after a failure) */
+        post: operations["reindexFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The stored bytes, with the original name in Content-Disposition */
+        get: operations["downloadFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -369,6 +471,66 @@ export interface components {
             to: components["schemas"]["LegislationVersion"];
             articles: components["schemas"]["ArticleDiff"][];
         };
+        /**
+         * @description pending (queued) → extracting → ready | failed
+         * @enum {string}
+         */
+        FileStatus: "pending" | "extracting" | "ready" | "failed";
+        File: {
+            id: string;
+            name: string;
+            mimeType: string;
+            sizeBytes: number;
+            /** @description Always starts with a slash; root is / */
+            folder: string;
+            tags: string[];
+            status: components["schemas"]["FileStatus"];
+            /** @description Human-readable reason when status is failed */
+            statusDetail: string | null;
+            ownerName: string;
+            isArchived: boolean;
+            currentVersionNo: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        FilePage: {
+            items: components["schemas"]["File"][];
+            nextCursor: string | null;
+        };
+        FileVersion: {
+            id: string;
+            versionNo: number;
+            sizeBytes: number;
+            sha256: string;
+            /** Format: date-time */
+            uploadedAt: string;
+            uploadedByName: string;
+        };
+        /** @description Where the file was used, so people see what depends on it */
+        FileUsage: {
+            id: string;
+            /** @enum {string} */
+            action: "cited" | "opened" | "downloaded" | "indexed";
+            actorName: string;
+            /** Format: date-time */
+            occurredAt: string;
+            detail: string;
+        };
+        FileDetail: components["schemas"]["File"] & {
+            /** @description Newest first */
+            versions: components["schemas"]["FileVersion"][];
+            usage: components["schemas"]["FileUsage"][];
+            /** @description First part of the extracted text (plain text, at most a few thousand characters). null until extraction finishes. */
+            extractedTextPreview: string | null;
+        };
+        /** @description Only the fields present are changed. */
+        FileUpdate: {
+            name?: string;
+            folder?: string;
+            tags?: string[];
+        };
     };
     responses: {
         /** @description Missing, invalid or expired access token */
@@ -391,6 +553,42 @@ export interface components {
         };
         /** @description The resource does not exist (or is not visible to this company) */
         NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description The file is larger than the allowed size */
+        PayloadTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description The file type is not allowed */
+        UnsupportedType: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description The request body or parameters are invalid */
+        ValidationFailed: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description The resource is in a state that does not allow this action */
+        Conflict: {
             headers: {
                 [name: string]: unknown;
             };
@@ -712,6 +910,218 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LegislationDiff"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listFiles: {
+        parameters: {
+            query?: {
+                /** @description Matches name, tags and folder */
+                q?: string;
+                status?: components["schemas"]["FileStatus"];
+                archived?: "active" | "archived" | "all";
+                tag?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilePage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    uploadFile: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    /** @description Slash separated, e.g. /Müqavilələr/2026 */
+                    folder?: string;
+                    tags?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Stored. status is `pending`. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            413: components["responses"]["PayloadTooLarge"];
+            415: components["responses"]["UnsupportedType"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    getFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Updated file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    archiveFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archived file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    restoreFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Restored file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    reindexFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted. status is `pending` again. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["File"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    downloadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description File bytes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
                 };
             };
             404: components["responses"]["NotFound"];

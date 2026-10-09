@@ -22,6 +22,9 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
     css: false,
+    // The real app and the API share one origin. jsdom defaults to localhost:3000, which would make every API call
+    // cross-origin and trigger CORS preflights that production never sees.
+    environmentOptions: { jsdom: { url: "http://localhost" } },
     // Node requires absolute URLs; in the browser the relative /api/v1 base is used.
     env: { VITE_API_BASE_URL: "http://localhost/api/v1", VITE_ENABLE_MSW: "false" },
   },

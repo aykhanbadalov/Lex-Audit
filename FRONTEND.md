@@ -333,7 +333,8 @@ features/invoices/
 | F3 API client, MSW | tamamlanıb (sessiya yenilənməsi, icazə yoxlayan mock-lar) |
 | F4 Auth | qismən: login, refresh, logout, guard-lar var; 2FA və "şifrəni unutdum" yoxdur |
 | F5 Xəbərlər + qanunvericilik | tamamlanıb (filtrlər URL-də, əlfəcin, AI bölməsi ayrıca, versiya müqayisəsi) |
-| F6–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
+| F6 Fayllar | tamamlanıb (yükləmə növbəsi və irəliləyiş, avtomatik status yenilənməsi, redaktə, arxivləmə, yenidən işləmə, yükləmə) |
+| F7–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
 
 **Səhifələr yenilənmir, "Ask AI" düyməsi yoxdur:** AI Assistent (F10) hazır olmadığı üçün xəbər detalında "AI-dan soruş" düyməsi qəsdən əlavə olunmayıb.
 

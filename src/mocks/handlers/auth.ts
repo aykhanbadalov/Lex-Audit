@@ -17,6 +17,8 @@ const ACCOUNTANT_PERMISSIONS = [
   "excel:read",
   "news:read",
   "legislation:read",
+  "files:read",
+  "files:write",
   "assistant:use",
 ];
 
@@ -44,6 +46,15 @@ export const mockUsers: Record<string, User> = {
     email: "admin@lexaudit.test",
     role: "admin",
     permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read", "approvals:decide", "admin:manage"],
+  },
+  // Reads everything and writes nothing: used to test that write actions stay hidden.
+  "auditor@lexaudit.test": {
+    id: "user-auditor",
+    companyId: "company-demo",
+    name: "Səbinə Rzayeva",
+    email: "auditor@lexaudit.test",
+    role: "auditor",
+    permissions: ACCOUNTANT_PERMISSIONS.filter((permission) => !permission.endsWith(":write")),
   },
   // Used to test the "no access" path: signed in, but allowed to see nothing.
   "viewer@lexaudit.test": {

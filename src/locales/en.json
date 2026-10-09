@@ -20,7 +20,8 @@
       "knowledge": "Knowledge",
       "governance": "Governance"
     },
-    "legislation": "Legislation"
+    "legislation": "Legislation",
+    "files": "Files"
   },
   "auth": {
     "title": "Sign in",
@@ -79,7 +80,8 @@
     "assistant": "AI assistant that cites its sources",
     "approvals": "Operations awaiting approval",
     "admin": "Users, roles, sources and model management",
-    "legislation": "Laws, codes, decisions and standards, with versions and changes"
+    "legislation": "Laws, codes, decisions and standards, with versions and changes",
+    "files": "Upload, store and search documents"
   },
   "risk": {
     "low": "Low risk",
@@ -197,6 +199,106 @@
       "changed": "Changed",
       "added": "Added",
       "removed": "Removed"
+    }
+  },
+  "files": {
+    "status": {
+      "pending": "Queued",
+      "extracting": "Processing",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "columns": {
+      "name": "Name",
+      "folder": "Folder",
+      "size": "Size",
+      "status": "Status",
+      "owner": "Owner",
+      "updated": "Updated"
+    },
+    "archivedBadge": "Archived",
+    "searchPlaceholder": "File name, folder or tag",
+    "empty": "No files yet",
+    "emptyHint": "Files will appear here once they are uploaded.",
+    "emptyHintWrite": "Upload your first file using the area above.",
+    "archiveFilter": {
+      "label": "Archive",
+      "active": "Active files",
+      "archived": "Archived only",
+      "all": "All"
+    },
+    "back": "Back to files",
+    "notFound": "File not found",
+    "notFoundHint": "It may have been archived or is not available to you.",
+    "download": "Download",
+    "downloadFailed": "The file could not be downloaded. Please try again.",
+    "archive": "Archive",
+    "restore": "Restore",
+    "saved": "Changes saved",
+    "archived": "File archived",
+    "restored": "File restored",
+    "reindexStarted": "The file was sent for processing again",
+    "actionFailed": "The action failed. Please try again.",
+    "reindex": "Process again",
+    "failedTitle": "The file could not be read",
+    "type": "Type",
+    "created": "Uploaded",
+    "tags": "Tags",
+    "noTags": "No tags",
+    "extractedText": "Extracted text",
+    "noText": "No text was extracted from this file.",
+    "noTextFailed": "There is no text because the file could not be read.",
+    "textPending": "The file is being processed; the text will appear shortly.",
+    "versions": "Versions",
+    "currentVersion": "current",
+    "usage": "Usage history",
+    "noUsage": "The file has not been used yet.",
+    "usageAction": {
+      "cited": "Cited",
+      "opened": "Opened",
+      "downloaded": "Downloaded",
+      "indexed": "Indexed"
+    },
+    "archiveConfirm": {
+      "title": "Archive this file?",
+      "description": "The file is hidden from the list but not deleted. You can restore it at any time."
+    },
+    "edit": {
+      "open": "Edit",
+      "title": "Edit file",
+      "description": "You can change the name, folder and tags. The file content does not change.",
+      "name": "Name",
+      "folder": "Folder",
+      "tags": "Tags",
+      "tagsHint": "Separate with commas. Up to 10 tags.",
+      "nameRequired": "The name cannot be empty",
+      "nameTooLong": "The name is too long",
+      "nameSlash": "The name cannot contain /",
+      "folderInvalid": "The folder path is not valid",
+      "tagsTooMany": "No more than 10 tags",
+      "tagTooLong": "A tag cannot be longer than 30 characters"
+    },
+    "upload": {
+      "title": "Upload files",
+      "drop": "Drag files here",
+      "hint": "PDF, images, Excel, CSV, XML or ZIP. Up to {{size}}.",
+      "choose": "Choose file",
+      "input": "Choose a file",
+      "queue": "Upload queue",
+      "clear": "Clear finished",
+      "queued": "Waiting in queue",
+      "uploading": "Uploading… {{percent}}%",
+      "done": "Uploaded",
+      "cancel": "Cancel upload of {{name}}",
+      "remove": "Remove {{name}} from the list",
+      "error": {
+        "empty": "The file is empty",
+        "tooLarge": "The file is too large",
+        "unsupportedType": "This file type is not supported",
+        "network": "Network error. Please try again.",
+        "forbidden": "You are not allowed to upload files",
+        "server": "The file could not be uploaded. Please try again."
+      }
     }
   }
 }

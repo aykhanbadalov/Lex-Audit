@@ -1,3 +1,4 @@
+import type { FilesSearch } from "@/features/files/filters";
 import type { LegislationListSearch } from "@/features/legislation/filters";
 import type { NewsSearch } from "@/features/news/filters";
 
@@ -7,5 +8,6 @@ declare module "@tanstack/history" {
   interface HistoryState {
     fromNewsSearch?: NewsSearch;
     fromLegislationSearch?: LegislationListSearch;
+    fromFilesSearch?: FilesSearch;
   }
 }

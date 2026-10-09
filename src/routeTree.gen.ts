@@ -20,6 +20,8 @@ import { Route as AppExcelRouteImport } from './routes/_app/excel'
 import { Route as AppInvoicesRouteImport } from './routes/_app/invoices'
 import { Route as AppLedgerRouteImport } from './routes/_app/ledger'
 import { Route as AppVatRouteImport } from './routes/_app/vat'
+import { Route as AppFilesIndexRouteImport } from './routes/_app/files.index'
+import { Route as AppFilesIdRouteImport } from './routes/_app/files.$id'
 import { Route as AppLegislationIndexRouteImport } from './routes/_app/legislation.index'
 import { Route as AppLegislationIdRouteImport } from './routes/_app/legislation.$id'
 import { Route as AppNewsIndexRouteImport } from './routes/_app/news.index'
@@ -79,6 +81,16 @@ const AppVatRoute = AppVatRouteImport.update({
   path: '/vat',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFilesIndexRoute = AppFilesIndexRouteImport.update({
+  id: '/files/',
+  path: '/files/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFilesIdRoute = AppFilesIdRouteImport.update({
+  id: '/files/$id',
+  path: '/files/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLegislationIndexRoute = AppLegislationIndexRouteImport.update({
   id: '/legislation/',
   path: '/legislation/',
@@ -111,8 +123,10 @@ export interface FileRoutesByFullPath {
   '/invoices': typeof AppInvoicesRoute
   '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
+  '/files/$id': typeof AppFilesIdRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
+  '/files/': typeof AppFilesIndexRoute
   '/legislation/': typeof AppLegislationIndexRoute
   '/news/': typeof AppNewsIndexRoute
 }
@@ -127,8 +141,10 @@ export interface FileRoutesByTo {
   '/invoices': typeof AppInvoicesRoute
   '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
+  '/files/$id': typeof AppFilesIdRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
+  '/files': typeof AppFilesIndexRoute
   '/legislation': typeof AppLegislationIndexRoute
   '/news': typeof AppNewsIndexRoute
 }
@@ -145,8 +161,10 @@ export interface FileRoutesById {
   '/_app/invoices': typeof AppInvoicesRoute
   '/_app/ledger': typeof AppLedgerRoute
   '/_app/vat': typeof AppVatRoute
+  '/_app/files/$id': typeof AppFilesIdRoute
   '/_app/legislation/$id': typeof AppLegislationIdRoute
   '/_app/news/$id': typeof AppNewsIdRoute
+  '/_app/files/': typeof AppFilesIndexRoute
   '/_app/legislation/': typeof AppLegislationIndexRoute
   '/_app/news/': typeof AppNewsIndexRoute
 }
@@ -163,8 +181,10 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/ledger'
     | '/vat'
+    | '/files/$id'
     | '/legislation/$id'
     | '/news/$id'
+    | '/files/'
     | '/legislation/'
     | '/news/'
   fileRoutesByTo: FileRoutesByTo
@@ -179,8 +199,10 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/ledger'
     | '/vat'
+    | '/files/$id'
     | '/legislation/$id'
     | '/news/$id'
+    | '/files'
     | '/legislation'
     | '/news'
   id:
@@ -196,8 +218,10 @@ export interface FileRouteTypes {
     | '/_app/invoices'
     | '/_app/ledger'
     | '/_app/vat'
+    | '/_app/files/$id'
     | '/_app/legislation/$id'
     | '/_app/news/$id'
+    | '/_app/files/'
     | '/_app/legislation/'
     | '/_app/news/'
   fileRoutesById: FileRoutesById
@@ -287,6 +311,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/files/': {
+      id: '/_app/files/'
+      path: '/files'
+      fullPath: '/files/'
+      preLoaderRoute: typeof AppFilesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/files/$id': {
+      id: '/_app/files/$id'
+      path: '/files/$id'
+      fullPath: '/files/$id'
+      preLoaderRoute: typeof AppFilesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/legislation/': {
       id: '/_app/legislation/'
       path: '/legislation'
@@ -327,8 +365,10 @@ interface AppRouteChildren {
   AppInvoicesRoute: typeof AppInvoicesRoute
   AppLedgerRoute: typeof AppLedgerRoute
   AppVatRoute: typeof AppVatRoute
+  AppFilesIdRoute: typeof AppFilesIdRoute
   AppLegislationIdRoute: typeof AppLegislationIdRoute
   AppNewsIdRoute: typeof AppNewsIdRoute
+  AppFilesIndexRoute: typeof AppFilesIndexRoute
   AppLegislationIndexRoute: typeof AppLegislationIndexRoute
   AppNewsIndexRoute: typeof AppNewsIndexRoute
 }
@@ -342,8 +382,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvoicesRoute: AppInvoicesRoute,
   AppLedgerRoute: AppLedgerRoute,
   AppVatRoute: AppVatRoute,
+  AppFilesIdRoute: AppFilesIdRoute,
   AppLegislationIdRoute: AppLegislationIdRoute,
   AppNewsIdRoute: AppNewsIdRoute,
+  AppFilesIndexRoute: AppFilesIndexRoute,
   AppLegislationIndexRoute: AppLegislationIndexRoute,
   AppNewsIndexRoute: AppNewsIndexRoute,
 }

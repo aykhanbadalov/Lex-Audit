@@ -20,7 +20,8 @@
       "knowledge": "Bilik",
       "governance": "İdarəetmə"
     },
-    "legislation": "Qanunvericilik"
+    "legislation": "Qanunvericilik",
+    "files": "Fayllar"
   },
   "auth": {
     "title": "Daxil ol",
@@ -79,7 +80,8 @@
     "assistant": "Mənbə göstərən AI köməkçi",
     "approvals": "Təsdiq gözləyən əməliyyatlar",
     "admin": "İstifadəçilər, rollar, mənbələr və model idarəetməsi",
-    "legislation": "Qanunlar, məcəllələr, qərarlar və standartlar; versiyalar və dəyişikliklər"
+    "legislation": "Qanunlar, məcəllələr, qərarlar və standartlar; versiyalar və dəyişikliklər",
+    "files": "Sənədlərin yüklənməsi, saxlanması və axtarışı"
   },
   "risk": {
     "low": "Aşağı risk",
@@ -197,6 +199,106 @@
       "changed": "Dəyişib",
       "added": "Əlavə olunub",
       "removed": "Çıxarılıb"
+    }
+  },
+  "files": {
+    "status": {
+      "pending": "Növbədə",
+      "extracting": "Oxunur",
+      "ready": "Hazırdır",
+      "failed": "Xəta"
+    },
+    "columns": {
+      "name": "Ad",
+      "folder": "Qovluq",
+      "size": "Ölçü",
+      "status": "Status",
+      "owner": "Sahib",
+      "updated": "Yenilənib"
+    },
+    "archivedBadge": "Arxivdədir",
+    "searchPlaceholder": "Fayl adı, qovluq və ya teq",
+    "empty": "Hələ fayl yoxdur",
+    "emptyHint": "Fayllar yükləndikdə burada görünəcək.",
+    "emptyHintWrite": "Yuxarıdakı sahədən ilk faylınızı yükləyin.",
+    "archiveFilter": {
+      "label": "Arxiv",
+      "active": "Aktiv fayllar",
+      "archived": "Yalnız arxiv",
+      "all": "Hamısı"
+    },
+    "back": "Fayllara qayıt",
+    "notFound": "Fayl tapılmadı",
+    "notFoundHint": "Fayl arxivə köçürülmüş və ya əlçatan olmaya bilər.",
+    "download": "Yüklə",
+    "downloadFailed": "Fayl yüklənmədi. Yenidən cəhd edin.",
+    "archive": "Arxivə at",
+    "restore": "Bərpa et",
+    "saved": "Dəyişikliklər saxlanıldı",
+    "archived": "Fayl arxivə köçürüldü",
+    "restored": "Fayl bərpa olundu",
+    "reindexStarted": "Fayl yenidən işlənməyə göndərildi",
+    "actionFailed": "Əməliyyat alınmadı. Yenidən cəhd edin.",
+    "reindex": "Yenidən işlə",
+    "failedTitle": "Fayl oxuna bilmədi",
+    "type": "Növ",
+    "created": "Yüklənib",
+    "tags": "Teqlər",
+    "noTags": "Teq yoxdur",
+    "extractedText": "Çıxarılmış mətn",
+    "noText": "Bu fayldan mətn çıxarılmayıb.",
+    "noTextFailed": "Fayl oxunmadığı üçün mətn yoxdur.",
+    "textPending": "Fayl işlənir, mətn tezliklə görünəcək.",
+    "versions": "Versiyalar",
+    "currentVersion": "cari",
+    "usage": "İstifadə tarixçəsi",
+    "noUsage": "Fayl hələ istifadə olunmayıb.",
+    "usageAction": {
+      "cited": "İstinad edilib",
+      "opened": "Açılıb",
+      "downloaded": "Yüklənib",
+      "indexed": "İndekslənib"
+    },
+    "archiveConfirm": {
+      "title": "Fayl arxivə atılsın?",
+      "description": "Fayl siyahıdan gizlədiləcək, amma silinməyəcək. İstənilən vaxt bərpa edə bilərsiniz."
+    },
+    "edit": {
+      "open": "Redaktə et",
+      "title": "Faylı redaktə et",
+      "description": "Adı, qovluğu və teqləri dəyişə bilərsiniz. Fayl məzmunu dəyişmir.",
+      "name": "Ad",
+      "folder": "Qovluq",
+      "tags": "Teqlər",
+      "tagsHint": "Vergül ilə ayırın. Ən çox 10 teq.",
+      "nameRequired": "Ad boş ola bilməz",
+      "nameTooLong": "Ad çox uzundur",
+      "nameSlash": "Adda / işarəsi ola bilməz",
+      "folderInvalid": "Qovluq yolu düzgün deyil",
+      "tagsTooMany": "Ən çox 10 teq ola bilər",
+      "tagTooLong": "Teq 30 simvoldan uzun ola bilməz"
+    },
+    "upload": {
+      "title": "Fayl yüklə",
+      "drop": "Faylları bura sürüşdürün",
+      "hint": "PDF, şəkil, Excel, CSV, XML və ya ZIP. Ən çox {{size}}.",
+      "choose": "Fayl seç",
+      "input": "Fayl seçin",
+      "queue": "Yükləmə növbəsi",
+      "clear": "Tamamlananları təmizlə",
+      "queued": "Növbədə gözləyir",
+      "uploading": "Yüklənir… {{percent}}%",
+      "done": "Yükləndi",
+      "cancel": "{{name}} yüklənməsini ləğv et",
+      "remove": "{{name}} siyahıdan sil",
+      "error": {
+        "empty": "Fayl boşdur",
+        "tooLarge": "Fayl çox böyükdür",
+        "unsupportedType": "Bu fayl növü dəstəklənmir",
+        "network": "Şəbəkə xətası. Yenidən cəhd edin.",
+        "forbidden": "Fayl yükləmək icazəniz yoxdur",
+        "server": "Fayl yüklənmədi. Yenidən cəhd edin."
+      }
     }
   }
 }

@@ -8,6 +8,8 @@ export const PERMISSIONS = [
   "excel:read",
   "news:read",
   "legislation:read",
+  "files:read",
+  "files:write",
   "assistant:use",
   "approvals:read",
   "approvals:decide",

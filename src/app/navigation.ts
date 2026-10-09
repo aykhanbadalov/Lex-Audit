@@ -2,6 +2,7 @@ import {
   BookOpenCheck,
   Bot,
   FileSpreadsheet,
+  Files,
   Gauge,
   Newspaper,
   Percent,
@@ -19,6 +20,7 @@ export interface NavItem {
     | "/invoices"
     | "/vat"
     | "/ledger"
+    | "/files"
     | "/excel"
     | "/news"
     | "/legislation"
@@ -36,6 +38,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/invoices", labelKey: "nav.invoices", icon: Receipt, permission: "invoices:read", group: "work" },
   { to: "/vat", labelKey: "nav.vat", icon: Percent, permission: "vat:read", group: "work" },
   { to: "/ledger", labelKey: "nav.ledger", icon: BookOpenCheck, permission: "ledger:read", group: "work" },
+  { to: "/files", labelKey: "nav.files", icon: Files, permission: "files:read", group: "work" },
   { to: "/excel", labelKey: "nav.excel", icon: FileSpreadsheet, permission: "excel:read", group: "work" },
   { to: "/news", labelKey: "nav.news", icon: Newspaper, permission: "news:read", group: "knowledge" },
   { to: "/legislation", labelKey: "nav.legislation", icon: Scale, permission: "legislation:read", group: "knowledge" },
