@@ -42,7 +42,14 @@
     "invalidCode": "Kod yanlışdır",
     "tooManyAttempts": "Çox cəhd edildi. Bir dəqiqə gözləyib yenidən yoxlayın.",
     "demoEmail": "Demo e-poçt",
-    "demoPassword": "Demo şifrə"
+    "demoPassword": "Demo şifrə",
+    "demoCredentialsTitle": "Giriş məlumatları",
+    "demoCredentialsSubtitle": "Hamısı üçün eyni şifrə",
+    "demoCredentialsFill": "Formu doldur",
+    "demoRoleAdmin": "Admin",
+    "demoRoleAccountant": "Mühasib",
+    "demoRoleApprover": "Təsdiqləyici",
+    "demoRoleViewer": "İzləyici"
   },
   "dashboard": {
     "title": "Bu gün",

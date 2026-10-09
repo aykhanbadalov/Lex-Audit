@@ -42,7 +42,14 @@
     "invalidCode": "The code is wrong",
     "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
     "demoEmail": "Demo e-mail",
-    "demoPassword": "Demo password"
+    "demoPassword": "Demo password",
+    "demoCredentialsTitle": "Demo sign-in",
+    "demoCredentialsSubtitle": "Same password for all accounts",
+    "demoCredentialsFill": "Fill form",
+    "demoRoleAdmin": "Admin",
+    "demoRoleAccountant": "Accountant",
+    "demoRoleApprover": "Approver",
+    "demoRoleViewer": "Viewer"
   },
   "dashboard": {
     "title": "Today",
