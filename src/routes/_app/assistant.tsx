@@ -49,7 +49,7 @@ function AssistantShell() {
                     className="block truncate rounded-md px-2.5 py-1.5 text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
                     activeProps={{ className: "bg-accent font-medium", "aria-current": "page" }}
                   >
-                    {conversation.title}
+                    {conversation.title || t("assistant.untitled")}
                   </Link>
                 </li>
               ))}

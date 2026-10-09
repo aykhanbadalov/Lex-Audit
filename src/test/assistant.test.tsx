@@ -1,10 +1,8 @@
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { api } from "@/api/client";
-import { streamSse } from "@/api/sse";
-import { chatConfig } from "@/features/assistant/useChat";
 import { apiPath } from "@/mocks/handlers/base";
 import { setMockRefreshUser } from "@/mocks/refreshCookie";
 import { server } from "@/mocks/server";
@@ -12,21 +10,13 @@ import { useAuthStore } from "@/shared/stores/authStore";
 import { renderApp, setupMockApi, signInAs } from "./utils";
 
 setupMockApi();
-
-beforeEach(() => {
-  chatConfig.resumeDelayMs = 0;
-});
-
-afterEach(() => {
-  server.events.removeAllListeners();
-  chatConfig.maxResumes = 3;
-});
+afterEach(() => server.events.removeAllListeners());
 
 const box = () => screen.findByLabelText("Mesajınız");
 async function ask(text: string) {
   await userEvent.type(await box(), `${text}{Enter}`);
 }
-const answers = () => screen.queryAllByText(/ƏDV ödəyiciləri qaimə-fakturanı vaxtında təqdim etməlidir/);
+const answers = () => screen.queryAllByText(/qaimə-fakturanı vaxtında təqdim etməlidir/);
 
 /** Records the JSON body of every request that matches. */
 function record(match: (request: Request) => boolean) {
@@ -45,48 +35,29 @@ function record(match: (request: Request) => boolean) {
 const posted = (suffix: string) => (request: Request) =>
   request.method === "POST" && new URL(request.url).pathname.endsWith(suffix);
 
-/** Starts a stream that writes one piece and then never finishes, so stopping can be tested. */
-function stallingStream() {
-  const first =
-    'id: 1\nevent: message.started\ndata: {"messageId":"msg-stall"}\n\nid: 2\nevent: message.delta\ndata: {"text":"Yazılır"}\n\n';
-  server.use(
-    http.post(
-      apiPath("/conversations/:id/messages"),
-      () =>
-        new HttpResponse(
-          new ReadableStream({ start: (controller) => controller.enqueue(new TextEncoder().encode(first)) }),
-          { headers: { "Content-Type": "text/event-stream" } },
-        ),
-    ),
-  );
-}
+const event = (name: string, data: unknown) => `event: ${name}\ndata: ${JSON.stringify(data)}\n\n`;
+const stream = (...parts: string[]) =>
+  new HttpResponse(parts.join(""), { headers: { "Content-Type": "text/event-stream" } });
 
 describe("a grounded answer", () => {
-  it("streams in, shows its sources as links, and the stored copy replaces the live one without a duplicate", async () => {
+  it("streams in with the tool that was used and its sources, and the stored copy replaces the live one", async () => {
     signInAs();
     renderApp("/assistant/conv-2");
     await ask("ƏDV qaimə haqqında soruşuram");
 
     expect(await screen.findByText(/qaimə-fakturanı vaxtında təqdim etməlidir \[1\]/)).toBeInTheDocument();
     const sources = await screen.findByRole("region", { name: "Mənbələr" });
-    expect(within(sources).getByRole("link", { name: /Vergi Məcəlləsi — Maddə 2/ })).toHaveAttribute(
-      "href",
-      "/legislation/leg-tax-code",
-    );
-    expect(within(sources).getByRole("link", { name: /ƏDV depozit hesabı üzrə izahat/ })).toHaveAttribute(
-      "href",
-      "/news/news-vat-deposit-clarification",
-    );
+    expect(within(sources).getByText("Vergi Məcəlləsi, maddə 2")).toBeInTheDocument();
+    expect(within(sources).getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByText("Qanunvericilikdə axtarış")).toBeInTheDocument();
-    expect(screen.getByText("2 nəticə tapıldı")).toBeInTheDocument();
 
-    // After the stream ends the stored message takes over: still exactly one answer and one user message.
-    await waitFor(() => expect(screen.getAllByRole("button", { name: "Cavab faydalı oldu" })).toHaveLength(1));
+    // After the stream ends the stored messages take over: still one question and one answer, with feedback offered.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Cavab faydalı oldu" })).toBeInTheDocument());
     expect(answers()).toHaveLength(1);
-    expect(screen.getAllByText("ƏDV qaimə haqqında soruşuram")).toHaveLength(1);
+    expect(within(screen.getByRole("log")).getAllByText("ƏDV qaimə haqqında soruşuram")).toHaveLength(1);
   });
 
-  it("refuses to answer a legal question it has no source for, instead of inventing one", async () => {
+  it("says it found no source when nothing matches, instead of inventing one", async () => {
     signInAs();
     renderApp("/assistant/conv-2");
     await ask("Hava necə olacaq?");
@@ -94,25 +65,12 @@ describe("a grounded answer", () => {
     expect(screen.queryByRole("region", { name: "Mənbələr" })).not.toBeInTheDocument();
   });
 
-  it("uses the resource the user attached, and sends it with the question", async () => {
+  it("starts the question about a news item, a law or an invoice with its name and id, so the assistant's tools can read it", async () => {
     signInAs();
-    const bodies = record(posted("/messages"));
     renderApp(
       "/assistant/conv-2?contextType=news&contextId=news-einvoice-bill&contextTitle=E-qaim%C9%99%20layih%C9%99si",
     );
-    expect(await screen.findByText("Xəbər: E-qaimə layihəsi")).toBeInTheDocument();
-
-    await ask("Bu nə deməkdir?");
-
-    const sources = await screen.findByRole("region", { name: "Mənbələr" });
-    expect(within(sources).getByRole("link", { name: /E-qaimə layihəsi/ })).toHaveAttribute(
-      "href",
-      "/news/news-einvoice-bill",
-    );
-    expect((bodies[0] as { attachments: unknown[] }).attachments).toEqual([
-      { type: "news", id: "news-einvoice-bill", title: "E-qaimə layihəsi" },
-    ]);
-    expect(screen.queryByText("Xəbər: E-qaimə layihəsi")).not.toBeInTheDocument(); // sent once, not attached to the next question too
+    expect(await box()).toHaveValue("Xəbər «E-qaimə layihəsi» (id: news-einvoice-bill): ");
   });
 });
 
@@ -127,6 +85,7 @@ describe("starting a conversation", () => {
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/assistant\/conv-n/));
     expect(await screen.findByText(/qaimə-fakturanı vaxtında təqdim etməlidir/)).toBeInTheDocument();
     expect(sends).toHaveLength(1);
+    expect((sends[0] as { content: string }).content).toBe("ƏDV haqqında");
   });
 });
 
@@ -144,7 +103,6 @@ describe("keyboard", () => {
 
     await userEvent.type(field, "birinci{Shift>}{Enter}{/Shift}ikinci");
     expect(field).toHaveValue("birinci\nikinci");
-    expect(bodies).toHaveLength(0);
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect((bodies[0] as { content: string }).content).toBe("birinci\nikinci");
@@ -155,106 +113,81 @@ describe("keyboard", () => {
     const bodies = record(posted("/messages"));
     renderApp("/assistant/conv-2");
     const field = await box();
-    fireEvent.change(field, { target: { value: "ə" } });
-    fireEvent.keyDown(field, { key: "Enter", isComposing: true });
+    await userEvent.type(field, "ə");
+    field.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", isComposing: true, bubbles: true }));
     expect(bodies).toHaveLength(0);
   });
 });
 
 describe("when the stream does not go to plan", () => {
-  it("stops on request, keeps what was written, and tells the server to stop spending", async () => {
+  it("stops on request: the connection is closed, what was written stays, and the box is free again", async () => {
     signInAs();
-    stallingStream();
-    let stopped = 0;
-    server.events.on("request:start", ({ request }) => {
-      if (request.url.endsWith("/stop")) stopped++;
-    });
-    // What the server stores once it has been told to stop.
     server.use(
-      http.get(apiPath("/conversations/conv-2"), () =>
-        HttpResponse.json({
-          id: "conv-2",
-          title: "x",
-          updatedAt: "2026-10-07T08:00:00Z",
-          archived: false,
-          messages: [
-            {
-              id: "msg-stall",
-              role: "assistant",
-              content: "Yazılır",
-              createdAt: "2026-10-07T08:00:00Z",
-              status: "stopped",
-              toolRuns: [],
-              approvals: [],
-              citations: [],
-              modelVersion: null,
-              feedback: null,
-            },
-          ],
-        }),
-      ),
+      http.post(apiPath("/conversations/:id/messages"), () => {
+        return new HttpResponse(
+          new ReadableStream({
+            start: (controller) =>
+              controller.enqueue(
+                new TextEncoder().encode(
+                  event("message.created", { messageId: "u" }) + event("delta", { text: "Yazılır" }),
+                ),
+              ),
+          }),
+          { headers: { "Content-Type": "text/event-stream" } },
+        );
+      }),
     );
     renderApp("/assistant/conv-2");
     await ask("uzun sual");
-    expect((await screen.findAllByText("Yazılır")).length).toBeGreaterThan(0);
+    expect(await screen.findByText("Yazılır")).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Dayandır" }));
 
-    expect(await screen.findByText("Cavab dayandırıldı.")).toBeInTheDocument();
-    expect(screen.getAllByText("Yazılır").length).toBeGreaterThan(0);
-    await waitFor(() => expect(stopped).toBe(1));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Göndər" })).toBeInTheDocument());
+    expect(screen.getByText("Yazılır")).toBeInTheDocument();
+    expect(screen.getByText("Cavab dayandırıldı.")).toBeInTheDocument();
   });
 
-  it("shows a failed answer as failed, keeps the partial text, and asks again on request", async () => {
+  it("shows an error event as a failed answer, keeps what was written and asks again on request", async () => {
     signInAs();
     const bodies = record(posted("/messages"));
     renderApp("/assistant/conv-2");
     await ask("xəta olsun");
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Cavab yarımçıq qaldı.");
-    expect(screen.getByText(/Cavabı hazırlayarkən/)).toBeInTheDocument();
+    expect(screen.getByText(/Cavab hazırlanır/)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Yenidən soruş" }));
     await waitFor(() => expect(bodies).toHaveLength(2));
     expect((bodies[1] as { content: string }).content).toBe("xəta olsun");
   });
 
-  it("resumes a dropped connection from the last event, without losing or repeating any text", async () => {
-    signInAs();
-    const lastIds: (string | null)[] = [];
-    server.events.on("request:start", ({ request }) => {
-      if (request.url.includes("/events")) lastIds.push(request.headers.get("Last-Event-ID"));
-    });
-    renderApp("/assistant/conv-2");
-
-    await ask("ƏDV haqqında kəsilən bağlantı");
-
-    await waitFor(() => expect(screen.getByRole("button", { name: "Cavab faydalı oldu" })).toBeInTheDocument());
-    expect(lastIds).toEqual(["8"]);
-    expect(answers()).toHaveLength(1);
-    expect(within(screen.getByRole("region", { name: "Mənbələr" })).getAllByRole("listitem")).toHaveLength(2);
-  });
-
-  it("gives up with a clear failure when the connection keeps dropping", async () => {
-    signInAs();
-    chatConfig.maxResumes = 2;
-    server.use(http.get(apiPath("/messages/:id/events"), () => HttpResponse.error()));
-    renderApp("/assistant/conv-2");
-    await ask("ƏDV haqqında kəsilən bağlantı");
-    expect(await screen.findByRole("alert")).toHaveTextContent("Cavab yarımçıq qaldı.");
-    chatConfig.maxResumes = 3;
-  });
-
-  it("reports a refusal from the server (rate limit) as a failure, not as an empty answer", async () => {
+  it("treats a stream that just ends, with no answer, as a failure", async () => {
     signInAs();
     server.use(
       http.post(apiPath("/conversations/:id/messages"), () =>
-        HttpResponse.json({ error: { code: "RATE_LIMITED", message: "slow down", requestId: "r" } }, { status: 429 }),
+        stream(event("delta", { text: "yarım" }), event("done", {})),
       ),
     );
     renderApp("/assistant/conv-2");
-    await ask("ƏDV");
-    expect(await screen.findByRole("alert")).toHaveTextContent("Cavab yarımçıq qaldı.");
+    await ask("sual");
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+  });
+
+  it.each([
+    [409, "CONFLICT", "Assistent hələ əvvəlki suala cavab verir."],
+    [429, "RATE_LIMITED", "Çox mesaj göndərildi."],
+    [503, "UPSTREAM_UNAVAILABLE", "Dil modeli hazırda əlçatan deyil."],
+  ])("reports a %i from the backend in plain words", async (status, code, message) => {
+    signInAs();
+    server.use(
+      http.post(apiPath("/conversations/:id/messages"), () =>
+        HttpResponse.json({ error: { code, message: "x", requestId: "r" } }, { status }),
+      ),
+    );
+    renderApp("/assistant/conv-2");
+    await ask("sual");
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
   });
 
   it("refreshes an expired session before opening the stream", async () => {
@@ -278,20 +211,17 @@ describe("what a model writes is never trusted", () => {
         HttpResponse.json({
           id: "conv-2",
           title: "x",
+          createdAt: "2026-10-07T08:00:00Z",
           updatedAt: "2026-10-07T08:00:00Z",
-          archived: false,
           messages: [
             {
               id: "m-evil",
               role: "assistant",
               content: text,
-              createdAt: "2026-10-07T08:00:00Z",
-              status: "complete",
-              toolRuns: [],
-              approvals: [],
               citations: [],
+              toolCalls: null,
               modelVersion: null,
-              feedback: null,
+              createdAt: "2026-10-07T08:00:00Z",
             },
           ],
         }),
@@ -304,36 +234,26 @@ describe("what a model writes is never trusted", () => {
     expect(container.querySelector("a[href^='javascript']")).toBeNull();
   });
 
-  it("shows a citation excerpt as plain text", async () => {
+  it("shows a source label as plain text", async () => {
     signInAs();
     server.use(
       http.get(apiPath("/conversations/conv-2"), () =>
         HttpResponse.json({
           id: "conv-2",
           title: "x",
+          createdAt: "2026-10-07T08:00:00Z",
           updatedAt: "2026-10-07T08:00:00Z",
-          archived: false,
           messages: [
             {
               id: "m1",
               role: "assistant",
               content: "Cavab [1]",
-              createdAt: "2026-10-07T08:00:00Z",
-              status: "complete",
-              toolRuns: [],
-              approvals: [],
-              modelVersion: null,
-              feedback: null,
               citations: [
-                {
-                  id: "c1",
-                  resourceType: "legislation",
-                  resourceId: "leg-tax-code",
-                  title: "T",
-                  locationLabel: null,
-                  excerpt: '<img src=x onerror="alert(1)"> mətn',
-                },
+                { label: '<img src=x onerror="alert(1)"> mənbə', chunkId: "11111111-1111-4111-8111-111111111111" },
               ],
+              toolCalls: null,
+              modelVersion: null,
+              createdAt: "2026-10-07T08:00:00Z",
             },
           ],
         }),
@@ -345,122 +265,51 @@ describe("what a model writes is never trusted", () => {
   });
 });
 
-describe("approvals", () => {
-  async function requestAsAccountant() {
-    signInAs("muhasib@lexaudit.test");
-    const { id } = (await api.POST("/conversations", { body: {} })).data!;
-    for await (const event of streamSse(`/conversations/${id}/messages`, {
-      method: "POST",
-      body: { content: "yazılışı təsdiqə göndər", attachments: [] },
-      headers: { "Idempotency-Key": "k" },
-    }))
-      void event;
-    return id;
-  }
+describe("changes need a second person", () => {
+  it("shows that a change waits for approval, with a way to the queue, and opens a request only somebody else can decide", async () => {
+    signInAs();
+    renderApp("/assistant/conv-2");
+    await ask("yazılışı təsdiqə göndər");
 
-  it("tells the person who asked that someone else must approve, and gives them no button", async () => {
-    const id = await requestAsAccountant();
-    renderApp(`/assistant/${id}`);
-    expect(await screen.findByText(/başqa şəxs təsdiq etməlidir/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Təsdiq et" })).not.toBeInTheDocument();
-  });
+    expect(await screen.findByText("Dəyişiklik başqa şəxsin təsdiqini gözləyir.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Təsdiqlərə bax" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/approvals"),
+    );
 
-  it("lets a different person with the permission approve it, and the card then shows the result", async () => {
-    const id = await requestAsAccountant();
-    signInAs("bas.muhasib@lexaudit.test");
-    const { queryClient } = renderApp(`/assistant/${id}`);
-    expect(await screen.findByText(/Aygün Məmmədova bu əməliyyatı istəyir/)).toBeInTheDocument();
-
-    await userEvent.type(screen.getByLabelText(/Şərh/), "yoxlandı");
-    await userEvent.click(screen.getByRole("button", { name: "Təsdiq et" }));
-
-    await act(async () => void (await queryClient.invalidateQueries()));
-    expect(await screen.findByText(/Təsdiqlənib: yoxlandı/)).toBeInTheDocument();
-    expect(screen.getByText("Yazılış təsdiqə göndərildi (demo)")).toBeInTheDocument();
-  });
-
-  it("is refused by the server for the requester, even if the buttons were bypassed", async () => {
-    signInAs("bas.muhasib@lexaudit.test"); // the chief accountant asks, then tries to approve their own request
-    const { id } = (await api.POST("/conversations", { body: {} })).data!;
-    for await (const event of streamSse(`/conversations/${id}/messages`, {
-      method: "POST",
-      body: { content: "yazılış", attachments: [] },
-      headers: { "Idempotency-Key": "k" },
-    }))
-      void event;
-    const conversation = (await api.GET("/conversations/{id}", { params: { path: { id } } })).data!;
-    const approvalId = conversation.messages[1]!.approvals[0]!.id;
-
+    const queue = (await api.GET("/approvals")).data!;
+    const request = queue.find((item) => item.kind === "tool:ledger.submit_entries")!;
+    expect(request.status).toBe("pending");
     await expect(
       api.POST("/approvals/{id}/decide", {
-        params: { path: { id: approvalId } },
-        body: { decision: "approved", comment: "yoxlandı" },
+        params: { path: { id: request.id } },
+        body: { decision: "approve", comment: "ok" },
       }),
-    ).rejects.toMatchObject({ status: 403 });
-  });
-
-  it("is refused by the server for someone without the approval permission, and decided only once", async () => {
-    const id = await requestAsAccountant();
-    const conversation = (await api.GET("/conversations/{id}", { params: { path: { id } } })).data!;
-    const approvalId = conversation.messages[1]!.approvals[0]!.id;
-    await expect(
-      api.POST("/approvals/{id}/decide", {
-        params: { path: { id: approvalId } },
-        body: { decision: "approved", comment: "yoxlandı" },
-      }),
-    ).rejects.toMatchObject({ status: 403 });
-
-    signInAs("bas.muhasib@lexaudit.test");
-    await api.POST("/approvals/{id}/decide", {
-      params: { path: { id: approvalId } },
-      body: { decision: "denied", comment: "yoxlandı" },
-    });
-    await expect(
-      api.POST("/approvals/{id}/decide", {
-        params: { path: { id: approvalId } },
-        body: { decision: "approved", comment: "yoxlandı" },
-      }),
-    ).rejects.toMatchObject({ status: 409 });
+    ).rejects.toMatchObject({ status: 403 }); // the accountant who asked cannot approve it
   });
 });
 
-describe("feedback and conversations", () => {
-  it("sends a thumbs-up straight away and a thumbs-down with the right answer", async () => {
+describe("feedback", () => {
+  it("sends a thumbs-up straight away, and a thumbs-down together with the right answer", async () => {
     signInAs();
     const bodies = record(posted("/feedback"));
-    renderApp("/assistant/conv-1");
-
+    const first = renderApp("/assistant/conv-1");
     await userEvent.click(await screen.findByRole("button", { name: "Cavab faydalı oldu" }));
     await waitFor(() => expect(bodies).toHaveLength(1));
-    expect(bodies[0]).toEqual({ rating: "up" });
+    expect(bodies[0]).toEqual({ kind: "thumbs", value: "up" });
+    first.unmount();
 
-    await userEvent.click(screen.getByRole("button", { name: "Cavab düzgün deyil" }));
+    renderApp("/assistant/conv-1");
+    await userEvent.click(await screen.findByRole("button", { name: "Cavab düzgün deyil" }));
     await userEvent.type(screen.getByLabelText("Düzgün cavab"), "Düzgün cavab budur");
     await userEvent.click(screen.getByRole("button", { name: "Göndər" }));
-    await waitFor(() => expect(bodies).toHaveLength(2));
-    expect(bodies[1]).toEqual({ rating: "down", correction: "Düzgün cavab budur" });
+    await waitFor(() => expect(bodies).toHaveLength(3));
+    expect(bodies[1]).toEqual({ kind: "thumbs", value: "down" });
+    expect(bodies[2]).toEqual({ kind: "correction", correction: "Düzgün cavab budur" });
   });
+});
 
-  it("renames a conversation and archives it only after confirmation", async () => {
-    signInAs();
-    const { router } = renderApp("/assistant/conv-1");
-    await userEvent.click(await screen.findByRole("button", { name: "Adını dəyiş" }));
-    const field = screen.getByLabelText("Söhbətin adı");
-    await userEvent.clear(field);
-    await userEvent.type(field, "Yeni ad");
-    await userEvent.click(screen.getByRole("button", { name: "Yadda saxla" }));
-    expect(await screen.findByRole("link", { name: "Yeni ad" })).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole("button", { name: "Arxivə at" }));
-    await userEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Ləğv et" }));
-    expect(screen.getByRole("link", { name: "Yeni ad" })).toBeInTheDocument(); // cancelled: still there
-
-    await userEvent.click(screen.getByRole("button", { name: "Arxivə at" }));
-    await userEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Arxivə at" }));
-    await waitFor(() => expect(router.state.location.pathname).toBe("/assistant"));
-    expect(screen.queryByRole("link", { name: "Yeni ad" })).not.toBeInTheDocument();
-  });
-
+describe("access", () => {
   it("shows 'not found' for an unknown conversation", async () => {
     signInAs();
     renderApp("/assistant/nope");

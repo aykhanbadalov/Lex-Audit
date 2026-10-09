@@ -889,7 +889,6 @@
   },
   "assistant": {
     "createFailed": "Söhbət yaradılmadı",
-    "updateFailed": "Dəyişiklik saxlanmadı",
     "roleAssistant": "LexAudit AI",
     "roleUser": "Siz",
     "thinking": "Cavab hazırlanır…",
@@ -911,56 +910,52 @@
     "emptyHint": "Qanunvericilik, xəbərlər, fayllar və qaimələr üzrə sual verə bilərsiniz. Cavabda mənbələr göstərilir.",
     "notFound": "Söhbət tapılmadı",
     "notFoundHint": "Söhbət arxivə köçürülmüş və ya əlçatan olmaya bilər.",
-    "rename": "Adını dəyiş",
-    "archive": "Arxivə at",
-    "titleLabel": "Söhbətin adı",
-    "archiveConfirm": {
-      "title": "Söhbət arxivə atılsın?",
-      "description": "Söhbət siyahıdan gizlədiləcək, silinməyəcək."
-    },
     "sources": {
       "title": "Mənbələr"
     },
     "context": {
-      "title": "Əlavə olunmuş kontekst",
       "legislation": "Qanun",
       "news": "Xəbər",
       "file": "Fayl",
-      "invoice": "Qaimə",
-      "remove": "{{title}} kontekstini çıxar"
+      "invoice": "Qaimə"
     },
     "tool": {
-      "legislation": {
-        "search": "Qanunvericilikdə axtarış"
-      },
-      "ledger": {
-        "submit_entries": "Yazılışı təsdiqə göndər"
-      }
+      "legislation_search": "Qanunvericilikdə axtarış",
+      "legislation_get": "Qanunun mətni",
+      "legislation_diff": "Qanun versiyalarının müqayisəsi",
+      "news_search": "Xəbərlərdə axtarış",
+      "news_get": "Xəbərin oxunması",
+      "files_search": "Fayllarda axtarış",
+      "files_read_text": "Faylın mətninin oxunması",
+      "regulations_search": "Vergi Məcəlləsində axtarış",
+      "receipts_search": "Qəbzlərdə axtarış",
+      "receipts_get": "Qəbzin oxunması",
+      "receipts_ingest": "Qəbzin yüklənməsi",
+      "invoice_get": "Qaiməyə baxış",
+      "invoice_list": "Qaimələrin siyahısı",
+      "invoice_validate": "Qaimənin yoxlanması",
+      "vat_calculate": "ƏDV hesablanması",
+      "withholding_calculate": "Mənbədən tutulmanın hesablanması",
+      "fx_convert": "Valyuta çevrilməsi",
+      "vat_deposit_reconcile": "Depozit hesabının uzlaşdırılması",
+      "ledger_suggest_entries": "Jurnal yazılışı təklifi",
+      "vat_period_summary": "Dövr üzrə ƏDV xülasəsi",
+      "ledger_submit_entries": "Yazılışı təsdiqə göndər",
+      "mhbs_classify": "Hesab təsnifatı",
+      "import_preview": "İdxal önbaxışı",
+      "import_commit": "İdxalın icrası",
+      "onec_export_entries": "1C ixracı",
+      "excel_profile": "Cədvəlin təhlili",
+      "excel_query": "Cədvəl üzrə sorğu",
+      "excel_generate_report": "Hesabat yaradılması",
+      "reconcile_run": "Uzlaşdırma"
     },
     "toolStatus": {
-      "proposed": "Təklif olunub",
+      "running": "İşləyir",
+      "succeeded": "Tamamlandı",
+      "rejected": "Rədd edildi",
       "approval_required": "Təsdiq gözləyir",
-      "running": "İcra olunur",
-      "done": "Tamamlanıb",
-      "failed": "Xəta",
-      "denied": "Rədd edilib"
-    },
-    "risk": {
-      "low-write": "Aşağı riskli yazma",
-      "moderate-write": "Dəyişiklik"
-    },
-    "approval": {
-      "failed": "Qərar saxlanmadı",
-      "approved": "Təsdiqlənib",
-      "denied": "Rədd edilib",
-      "expired": "Müddəti bitib",
-      "pending": "Təsdiq gözləyir",
-      "waitingOther": "Bu əməliyyatı başqa şəxs təsdiq etməlidir. Öz sorğunuzu özünüz təsdiq edə bilməzsiniz.",
-      "waiting": "Təsdiq gözləyir. Qərar vermək üçün icazəniz yoxdur.",
-      "request": "{{name}} bu əməliyyatı istəyir: {{target}}. Təsdiq etməzdən əvvəl yoxlayın.",
-      "comment": "Şərh (məcburi)",
-      "approve": "Təsdiq et",
-      "deny": "Rədd et"
+      "failed": "Alınmadı"
     },
     "feedback": {
       "thanks": "Rəyiniz üçün təşəkkür edirik",
@@ -971,6 +966,20 @@
       "description": "Düzgün cavabı yazsanız, sistem sizdən öyrənəcək. Bu istəyə bağlıdır.",
       "correction": "Düzgün cavab",
       "send": "Göndər"
+    },
+    "untitled": "Yeni söhbət",
+    "stepLimit": "Cavab addım limitinə çatdığı üçün bildiklərinizlə yekunlaşdırıldı.",
+    "approvalNote": "Dəyişiklik başqa şəxsin təsdiqini gözləyir.",
+    "openApprovals": "Təsdiqlərə bax",
+    "errors": {
+      "STEP_LIMIT": "Cavab addım limitinə çatdı.",
+      "TOOL_LIMIT": "Cavab alət limitinə çatdı.",
+      "TIMEOUT": "Cavab çox uzandı və dayandırıldı.",
+      "UPSTREAM_UNAVAILABLE": "Dil modeli hazırda əlçatan deyil.",
+      "RATE_LIMITED": "Çox mesaj göndərildi. Bir az gözləyin.",
+      "CONFLICT": "Assistent hələ əvvəlki suala cavab verir.",
+      "NETWORK": "Bağlantı kəsildi.",
+      "INTERNAL": "Cavab yarımçıq qaldı."
     }
   },
   "approvals": {
@@ -988,13 +997,18 @@
       "tool_action": "AI əməliyyatı",
       "access_request": "Giriş sorğusu",
       "tax_rate_change": "Vergi dərəcəsi",
-      "model_release": "Model buraxılışı"
+      "model_release": "Model buraxılışı",
+      "journal_post": "Jurnal yazılışı",
+      "tax_rate_proposal": "Vergi dərəcəsi",
+      "import_commit": "İdxal",
+      "tool": "AI əməliyyatı"
     },
     "status": {
       "pending": "Gözləyir",
       "approved": "Təsdiqlənib",
       "denied": "Rədd edilib",
-      "expired": "Müddəti bitib"
+      "expired": "Müddəti bitib",
+      "rejected": "Rədd edilib"
     },
     "requestedBy": "{{name}} istəyib, {{date}}",
     "deadline": "Son tarix: {{date}}",
@@ -1008,7 +1022,26 @@
     },
     "openConversation": "Söhbətə bax",
     "commentRequired": "Şərh (məcburi, ən azı 3 simvol)",
-    "decidedBy": "{{name}} qərar verib, {{date}}"
+    "decidedBy": "{{name}} qərar verib, {{date}}",
+    "title": {
+      "journal_post": "Jurnal yazılışı uçota alınsın",
+      "tax_rate_proposal": "Yeni vergi dərəcəsi qüvvəyə mindirilsin",
+      "import_commit": "İdxal icra edilsin",
+      "tool": "AI əməliyyatı: {{detail}}"
+    },
+    "openEntry": "Yazılışı jurnalda aç",
+    "openRates": "Dərəcələrə bax",
+    "openImport": "İdxala bax",
+    "noAccessToSubject": "Yazılışı görmək üçün jurnal icazəniz yoxdur.",
+    "waitingOther": "Bu əməliyyatı başqa şəxs təsdiq etməlidir. Öz sorğunuzu özünüz təsdiq edə bilməzsiniz.",
+    "waiting": "Təsdiq gözləyir. Qərar vermək üçün icazəniz yoxdur.",
+    "approve": "Təsdiq et",
+    "reject": "Rədd et",
+    "execution": {
+      "succeeded": "İcra olundu",
+      "failed": "İcra alınmadı",
+      "skipped": "İcra olunmadı"
+    }
   },
   "audit": {
     "export": "CSV-yə ixrac",
@@ -1022,7 +1055,8 @@
       "actor": "Kim",
       "action": "Əməliyyat",
       "resource": "Resurs",
-      "outcome": "Nəticə"
+      "outcome": "Nəticə",
+      "change": "Dəyişiklik"
     },
     "outcome": {
       "success": "Uğurlu",
@@ -1039,8 +1073,45 @@
       "import_commit": "İdxal icra edildi",
       "assistant_message": "AI-ya sual verildi",
       "approval_decide": "Təsdiq qərarı",
-      "audit_export": "Audit jurnalı ixrac edildi"
-    }
+      "audit_export": "Audit jurnalı ixrac edildi",
+      "auth_login_failed": "Uğursuz giriş cəhdi",
+      "auth_logout": "Sistemdən çıxış",
+      "auth_refresh": "Sessiya yeniləndi",
+      "auth_refresh_reuse_detected": "Köhnə sessiya tokeni təkrar işlədildi",
+      "approval_execute": "Təsdiqdən sonra icra",
+      "approval_expire": "Təsdiqin vaxtı bitdi",
+      "conversation_create": "Söhbət yaradıldı",
+      "chart_import": "Hesablar planı yükləndi",
+      "excel_job": "Excel işi",
+      "file_upload": "Fayl yükləndi",
+      "file_update": "Fayl dəyişdirildi",
+      "file_restore": "Fayl bərpa olundu",
+      "file_reindex": "Fayl yenidən işləndi",
+      "impact_status": "Təsir tapıntısı yeniləndi",
+      "import_preview": "İdxal önbaxışı",
+      "import_commit_requested": "İdxalın icrası təsdiqə göndərildi",
+      "invoice_validate": "Qaimə yoxlandı",
+      "invoice_propose_entries": "Jurnal yazılışı təklif olundu",
+      "message_feedback": "AI cavabına rəy verildi",
+      "model_register": "Model qeydə alındı",
+      "model_status": "Model statusu dəyişdi",
+      "reconciliation_run": "Uzlaşdırma işə salındı",
+      "reconciliation_confirm": "Uzlaşdırma təsdiqləndi",
+      "role_create": "Rol yaradıldı",
+      "role_permissions": "Rolun icazələri dəyişdi",
+      "source_update": "Mənbə dəyişdirildi",
+      "tax_rate_propose": "Vergi dərəcəsi təklif olundu",
+      "tax_rate_request_activation": "Dərəcənin aktivləşməsi təsdiqə göndərildi",
+      "user_create": "İstifadəçi yaradıldı",
+      "user_roles": "İstifadəçinin rolları dəyişdi",
+      "user_status": "İstifadəçinin statusu dəyişdi",
+      "vat_deposit_import": "Depozit çıxarışı yükləndi",
+      "vat_return_draft": "ƏDV bəyannaməsi qaralaması"
+    },
+    "limitNote": "Ən son {{count}} hadisə göstərilir (serverin verdiyi maksimum 200).",
+    "showChange": "Göstər",
+    "before": "Əvvəl",
+    "after": "Sonra"
   },
   "admin": {
     "tabsLabel": "İdarəetmə bölmələri",

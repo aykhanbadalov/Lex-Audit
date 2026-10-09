@@ -2,19 +2,34 @@ import { Bot, TriangleAlert, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
 import { SafeMarkdown } from "../SafeMarkdown";
-import type { DisplayMessage } from "../display";
+import type { Citation, ToolCall, TurnError, TurnStatus } from "../chatReducer";
 import { CitationList } from "./CitationList";
 import { FeedbackBar } from "./FeedbackBar";
 import { ToolCard } from "./ToolCard";
 
+export interface DisplayMessage {
+  /** The stored id; null while the answer is only being written locally. */
+  id: string | null;
+  role: "user" | "assistant";
+  content: string;
+  status: TurnStatus;
+  citations: Citation[];
+  /** Live tools carry a status; tools of a stored message only have names. */
+  tools: Pick<ToolCall, "tool">[] | ToolCall[];
+  modelVersion: string | null;
+  error: TurnError | null;
+  live: boolean;
+}
+
 interface MessageViewProps {
   message: DisplayMessage;
-  conversationId: string;
   /** Offered on an answer that failed: ask the same question again. */
   onRetry?: () => void;
 }
 
-export function MessageView({ message, conversationId, onRetry }: MessageViewProps) {
+const isLiveTool = (tool: Pick<ToolCall, "tool"> | ToolCall): tool is ToolCall => "callId" in tool;
+
+export function MessageView({ message, onRetry }: MessageViewProps) {
   const { t } = useTranslation();
   const assistant = message.role === "assistant";
   const Icon = assistant ? Bot : User;
@@ -51,10 +66,15 @@ export function MessageView({ message, conversationId, onRetry }: MessageViewPro
         {message.status === "stopped" ? (
           <p className="mt-1 text-xs text-muted-foreground">{t("assistant.stopped")}</p>
         ) : null}
+        {message.status === "complete" && message.error?.code === "STEP_LIMIT" ? (
+          <p className="mt-1 text-xs text-muted-foreground">{t("assistant.stepLimit")}</p>
+        ) : null}
         {message.status === "failed" ? (
           <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             <TriangleAlert className="size-4 text-destructive" aria-hidden="true" />
-            <span>{t("assistant.failed")}</span>
+            <span>
+              {t(`assistant.errors.${message.error?.code ?? "INTERNAL"}`, { defaultValue: t("assistant.failed") })}
+            </span>
             {onRetry ? (
               <Button type="button" variant="outline" size="sm" onClick={onRetry}>
                 {t("assistant.retry")}
@@ -63,24 +83,26 @@ export function MessageView({ message, conversationId, onRetry }: MessageViewPro
           </div>
         ) : null}
 
-        {message.toolRuns.length > 0 ? (
+        {message.tools.length > 0 ? (
           <ul aria-label={t("assistant.tools")} className="mt-3 space-y-2">
-            {message.toolRuns.map((toolRun) => (
-              <ToolCard
-                key={toolRun.id}
-                toolRun={toolRun}
-                approval={message.approvals.find((approval) => approval.id === toolRun.approvalId)}
-              />
-            ))}
+            {message.tools.map((tool, index) =>
+              isLiveTool(tool) ? (
+                <ToolCard
+                  key={tool.callId}
+                  tool={tool.tool}
+                  status={tool.status}
+                  summary={tool.summary}
+                  approvalId={tool.approvalId}
+                />
+              ) : (
+                <ToolCard key={`${tool.tool}-${index}`} tool={tool.tool} />
+              ),
+            )}
           </ul>
         ) : null}
         <CitationList citations={message.citations} />
-
-        {assistant && !message.live && message.status === "complete" && message.id ? (
-          <FeedbackBar
-            message={{ ...message, id: message.id, createdAt: "", status: "complete" }}
-            conversationId={conversationId}
-          />
+        {assistant && message.status === "complete" && !message.live && message.id ? (
+          <FeedbackBar messageId={message.id} />
         ) : null}
       </div>
     </li>

@@ -61,13 +61,23 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/assistant", labelKey: "nav.assistant", icon: Bot, permission: "assistant:use", group: "knowledge" },
   { to: "/approvals", labelKey: "nav.approvals", icon: ShieldCheck, permission: "approvals:read", group: "governance" },
   { to: "/audit-log", labelKey: "nav.audit", icon: ScrollText, permission: "audit:read", group: "governance" },
-  { to: "/admin", labelKey: "nav.admin", icon: Settings, anyOf: ["users:read", "roles:read", "platform:admin"], group: "governance" },
+  {
+    to: "/admin",
+    labelKey: "nav.admin",
+    icon: Settings,
+    anyOf: ["users:read", "roles:read", "platform:admin"],
+    group: "governance",
+  },
 ];
 
 export const NAV_GROUPS: NavItem["group"][] = ["work", "knowledge", "governance"];
 
 export function visibleNavItems(permissions: readonly string[]): NavItem[] {
   return NAV_ITEMS.filter((item) =>
-    item.permission ? permissions.includes(item.permission) : item.anyOf ? item.anyOf.some((code) => permissions.includes(code)) : true,
+    item.permission
+      ? permissions.includes(item.permission)
+      : item.anyOf
+        ? item.anyOf.some((code) => permissions.includes(code))
+        : true,
   );
 }

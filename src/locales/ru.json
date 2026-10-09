@@ -889,7 +889,6 @@
   },
   "assistant": {
     "createFailed": "Не удалось создать беседу",
-    "updateFailed": "Изменение не сохранено",
     "roleAssistant": "LexAudit AI",
     "roleUser": "Вы",
     "thinking": "Готовлю ответ…",
@@ -911,56 +910,52 @@
     "emptyHint": "Можно спрашивать о законодательстве, новостях, файлах и счетах-фактурах. В ответе указываются источники.",
     "notFound": "Беседа не найдена",
     "notFoundHint": "Беседа могла быть перемещена в архив или недоступна.",
-    "rename": "Переименовать",
-    "archive": "В архив",
-    "titleLabel": "Название беседы",
-    "archiveConfirm": {
-      "title": "Переместить беседу в архив?",
-      "description": "Беседа будет скрыта из списка, но не удалена."
-    },
     "sources": {
       "title": "Источники"
     },
     "context": {
-      "title": "Добавленный контекст",
       "legislation": "Закон",
       "news": "Новость",
       "file": "Файл",
-      "invoice": "Счёт-фактура",
-      "remove": "Убрать контекст «{{title}}»"
+      "invoice": "Счёт"
     },
     "tool": {
-      "legislation": {
-        "search": "Поиск по законодательству"
-      },
-      "ledger": {
-        "submit_entries": "Отправить проводку на согласование"
-      }
+      "legislation_search": "Поиск по законодательству",
+      "legislation_get": "Текст закона",
+      "legislation_diff": "Сравнение версий закона",
+      "news_search": "Поиск по новостям",
+      "news_get": "Чтение новости",
+      "files_search": "Поиск по файлам",
+      "files_read_text": "Чтение текста файла",
+      "regulations_search": "Поиск по Налоговому кодексу",
+      "receipts_search": "Поиск по чекам",
+      "receipts_get": "Чтение чека",
+      "receipts_ingest": "Загрузка чека",
+      "invoice_get": "Просмотр счёта",
+      "invoice_list": "Список счетов",
+      "invoice_validate": "Проверка счёта",
+      "vat_calculate": "Расчёт НДС",
+      "withholding_calculate": "Расчёт налога у источника",
+      "fx_convert": "Пересчёт валюты",
+      "vat_deposit_reconcile": "Сверка депозитного счёта",
+      "ledger_suggest_entries": "Предложение проводки",
+      "vat_period_summary": "Сводка НДС за период",
+      "ledger_submit_entries": "Отправить запись на утверждение",
+      "mhbs_classify": "Классификация счёта",
+      "import_preview": "Предпросмотр импорта",
+      "import_commit": "Выполнение импорта",
+      "onec_export_entries": "Экспорт в 1С",
+      "excel_profile": "Анализ таблицы",
+      "excel_query": "Запрос к таблице",
+      "excel_generate_report": "Создание отчёта",
+      "reconcile_run": "Сверка"
     },
     "toolStatus": {
-      "proposed": "Предложено",
-      "approval_required": "Ждёт согласования",
       "running": "Выполняется",
-      "done": "Выполнено",
-      "failed": "Ошибка",
-      "denied": "Отклонено"
-    },
-    "risk": {
-      "low-write": "Запись с низким риском",
-      "moderate-write": "Изменение данных"
-    },
-    "approval": {
-      "failed": "Решение не сохранено",
-      "approved": "Одобрено",
-      "denied": "Отклонено",
-      "expired": "Срок истёк",
-      "pending": "Ждёт согласования",
-      "waitingOther": "Эту операцию должен согласовать другой человек. Свой запрос согласовать нельзя.",
-      "waiting": "Ждёт согласования. У вас нет права принимать решение.",
-      "request": "{{name}} просит выполнить операцию: {{target}}. Проверьте перед согласованием.",
-      "comment": "Комментарий (обязательно)",
-      "approve": "Одобрить",
-      "deny": "Отклонить"
+      "succeeded": "Готово",
+      "rejected": "Отклонено",
+      "approval_required": "Ждёт утверждения",
+      "failed": "Не выполнено"
     },
     "feedback": {
       "thanks": "Спасибо за отзыв",
@@ -971,6 +966,20 @@
       "description": "Если напишете правильный ответ, система научится на нём. Это необязательно.",
       "correction": "Правильный ответ",
       "send": "Отправить"
+    },
+    "untitled": "Новый диалог",
+    "stepLimit": "Ответ достиг лимита шагов, поэтому завершён тем, что известно.",
+    "approvalNote": "Изменение ждёт утверждения другим сотрудником.",
+    "openApprovals": "Открыть утверждения",
+    "errors": {
+      "STEP_LIMIT": "Ответ достиг лимита шагов.",
+      "TOOL_LIMIT": "Ответ достиг лимита инструментов.",
+      "TIMEOUT": "Ответ занял слишком много времени и был остановлен.",
+      "UPSTREAM_UNAVAILABLE": "Языковая модель сейчас недоступна.",
+      "RATE_LIMITED": "Слишком много сообщений. Подождите немного.",
+      "CONFLICT": "Ассистент ещё отвечает на предыдущий вопрос.",
+      "NETWORK": "Соединение прервано.",
+      "INTERNAL": "Ответ оборвался."
     }
   },
   "approvals": {
@@ -988,13 +997,18 @@
       "tool_action": "Действие ИИ",
       "access_request": "Запрос доступа",
       "tax_rate_change": "Налоговая ставка",
-      "model_release": "Выпуск модели"
+      "model_release": "Выпуск модели",
+      "journal_post": "Проводка",
+      "tax_rate_proposal": "Налоговая ставка",
+      "import_commit": "Импорт",
+      "tool": "Действие ИИ"
     },
     "status": {
       "pending": "Ожидает",
       "approved": "Одобрено",
       "denied": "Отклонено",
-      "expired": "Срок истёк"
+      "expired": "Срок истёк",
+      "rejected": "Отклонено"
     },
     "requestedBy": "Запросил(а) {{name}}, {{date}}",
     "deadline": "Срок: {{date}}",
@@ -1008,7 +1022,26 @@
     },
     "openConversation": "Открыть диалог",
     "commentRequired": "Комментарий (обязательно, не менее 3 символов)",
-    "decidedBy": "Решение принял(а) {{name}}, {{date}}"
+    "decidedBy": "Решение принял(а) {{name}}, {{date}}",
+    "title": {
+      "journal_post": "Провести запись в учёте",
+      "tax_rate_proposal": "Ввести новую налоговую ставку",
+      "import_commit": "Выполнить импорт",
+      "tool": "Действие ИИ: {{detail}}"
+    },
+    "openEntry": "Открыть запись в журнале",
+    "openRates": "Открыть ставки",
+    "openImport": "Открыть импорт",
+    "noAccessToSubject": "Нет права на журнал, чтобы увидеть запись.",
+    "waitingOther": "Это действие должен утвердить другой сотрудник. Свой запрос утвердить нельзя.",
+    "waiting": "Ожидает утверждения. У вас нет права принимать решение.",
+    "approve": "Утвердить",
+    "reject": "Отклонить",
+    "execution": {
+      "succeeded": "Выполнено",
+      "failed": "Не выполнено",
+      "skipped": "Пропущено"
+    }
   },
   "audit": {
     "export": "Экспорт в CSV",
@@ -1022,7 +1055,8 @@
       "actor": "Кто",
       "action": "Действие",
       "resource": "Объект",
-      "outcome": "Результат"
+      "outcome": "Результат",
+      "change": "Изменение"
     },
     "outcome": {
       "success": "Успешно",
@@ -1033,14 +1067,51 @@
       "auth_login": "Вход в систему",
       "invoice_upload": "Счёт загружен",
       "invoice_update": "Счёт изменён",
-      "journal_submit": "Проводка отправлена на утверждение",
+      "journal_submit": "Запись отправлена на утверждение",
       "vat_declaration_draft": "Черновик декларации по НДС",
       "file_archive": "Файл архивирован",
       "import_commit": "Импорт выполнен",
       "assistant_message": "Вопрос ИИ",
       "approval_decide": "Решение по запросу",
-      "audit_export": "Журнал аудита экспортирован"
-    }
+      "audit_export": "Журнал аудита экспортирован",
+      "auth_login_failed": "Неудачная попытка входа",
+      "auth_logout": "Выход из системы",
+      "auth_refresh": "Сессия обновлена",
+      "auth_refresh_reuse_detected": "Старый токен сессии использован повторно",
+      "approval_execute": "Выполнение после утверждения",
+      "approval_expire": "Срок запроса истёк",
+      "conversation_create": "Создан диалог",
+      "chart_import": "План счетов загружен",
+      "excel_job": "Задание Excel",
+      "file_upload": "Файл загружен",
+      "file_update": "Файл изменён",
+      "file_restore": "Файл восстановлен",
+      "file_reindex": "Файл обработан заново",
+      "impact_status": "Статус находки обновлён",
+      "import_preview": "Предпросмотр импорта",
+      "import_commit_requested": "Импорт отправлен на утверждение",
+      "invoice_validate": "Счёт проверен",
+      "invoice_propose_entries": "Предложена проводка",
+      "message_feedback": "Оценка ответа ИИ",
+      "model_register": "Модель зарегистрирована",
+      "model_status": "Статус модели изменён",
+      "reconciliation_run": "Запущена сверка",
+      "reconciliation_confirm": "Сверка подтверждена",
+      "role_create": "Роль создана",
+      "role_permissions": "Права роли изменены",
+      "source_update": "Источник изменён",
+      "tax_rate_propose": "Предложена налоговая ставка",
+      "tax_rate_request_activation": "Ввод ставки отправлен на утверждение",
+      "user_create": "Пользователь создан",
+      "user_roles": "Роли пользователя изменены",
+      "user_status": "Статус пользователя изменён",
+      "vat_deposit_import": "Выписка депозитного счёта загружена",
+      "vat_return_draft": "Черновик декларации по НДС"
+    },
+    "limitNote": "Показаны последние события: {{count}} (максимум сервера — 200).",
+    "showChange": "Показать",
+    "before": "Было",
+    "after": "Стало"
   },
   "admin": {
     "tabsLabel": "Разделы управления",

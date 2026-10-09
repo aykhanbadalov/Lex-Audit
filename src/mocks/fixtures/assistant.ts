@@ -1,293 +1,215 @@
-// DEMO CONTENT. Answers, sources and tool runs are scripted; the real model, retrieval and tools belong to the backend.
-import type { components } from "../draft/schema";
+// DEMO CONTENT. Answers, sources and tool use are scripted from keywords; the real model, retrieval and tools belong
+// to the backend. The shapes mirror the backend: conversations, stored messages, and the events of the SSE stream.
 import { addApprovalRequest } from "./approvals";
+import type { MockUser } from "../handlers/auth";
 
-type Conversation = components["schemas"]["Conversation"];
-type Message = components["schemas"]["Message"];
-type Citation = components["schemas"]["Citation"];
-type ToolRun = components["schemas"]["ToolRun"];
-type Approval = components["schemas"]["Approval"];
-type Attachment = components["schemas"]["ContextAttachment"];
-import type { MockUser as User } from "../handlers/auth";
+export interface StoredConversation {
+  id: string;
+  title: string | null;
+  createdAt: string;
+  updatedAt: string;
+  messages: StoredMessage[];
+}
+
+export interface StoredMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations: { label: string; chunkId: string }[];
+  toolCalls: { id: string; name: string }[] | null;
+  modelVersion: string | null;
+  createdAt: string;
+}
 
 export interface ScriptEvent {
-  id: number;
   event: string;
   data: unknown;
 }
 
-interface StoredConversation extends Conversation {
-  messages: Message[];
-}
-
-const MODEL = "lexaudit-llm-demo-0.1";
-const NO_SOURCE = "Bu sual üçün bazada mənbə tapılmadı. Hüquqi məsələdə mənbəsiz cavab vermirəm.";
+export const NO_SOURCE =
+  "Bu sual üçün bazada mənbə tapılmadı. Qanunvericilik, xəbərlər və ya fayllar üzrə dəqiq sual verin.";
 
 const seed = (): StoredConversation[] => [
   {
     id: "conv-1",
-    title: "ƏDV depozit hesabı",
-    updatedAt: "2026-10-08T10:00:00Z",
-    archived: false,
+    title: "ƏDV depozit hesabı haqqında",
+    createdAt: "2026-10-06T09:00:00Z",
+    updatedAt: "2026-10-06T09:05:00Z",
     messages: [
       {
-        id: "msg-s1",
+        id: "msg-1",
         role: "user",
-        content: "ƏDV depozit hesabı nə üçündür?",
-        createdAt: "2026-10-08T09:59:00Z",
-        status: "complete",
+        content: "ƏDV depozit hesabı nədir?",
         citations: [],
-        toolRuns: [],
-        approvals: [],
+        toolCalls: null,
         modelVersion: null,
-        feedback: null,
+        createdAt: "2026-10-06T09:00:00Z",
       },
       {
-        id: "msg-s2",
+        id: "msg-2",
         role: "assistant",
-        content: "ƏDV ödəyiciləri ödənişləri **ƏDV depozit hesabı** vasitəsilə həyata keçirir [1].",
-        createdAt: "2026-10-08T10:00:00Z",
-        status: "complete",
-        citations: [
-          {
-            id: "c-s1",
-            resourceType: "legislation",
-            resourceId: "leg-tax-code",
-            title: "Vergi Məcəlləsi",
-            locationLabel: "Maddə 3",
-            excerpt: "ƏDV ödəyiciləri ödənişləri ƏDV depozit hesabı vasitəsilə həyata keçirir.",
-          },
-        ],
-        toolRuns: [],
-        approvals: [],
-        modelVersion: MODEL,
-        feedback: null,
+        content: "ƏDV ödəyiciləri ödənişləri **depozit hesabı** vasitəsilə həyata keçirir [1].",
+        citations: [{ label: "Vergi Məcəlləsi, maddə 3", chunkId: "11111111-1111-4111-8111-111111111111" }],
+        toolCalls: [{ id: "call-1", name: "legislation.search" }],
+        modelVersion: "lexaudit-llm-demo-0.1",
+        createdAt: "2026-10-06T09:00:05Z",
       },
     ],
   },
-  { id: "conv-2", title: "Boş söhbət", updatedAt: "2026-10-07T08:00:00Z", archived: false, messages: [] },
+  { id: "conv-2", title: null, createdAt: "2026-10-07T08:00:00Z", updatedAt: "2026-10-07T08:00:00Z", messages: [] },
 ];
 
 let db = seed();
 let counter = 0;
-const approvals = new Map<string, Approval>();
-const events = new Map<string, ScriptEvent[]>();
 
 export function resetAssistant(): void {
   db = seed();
   counter = 0;
-  approvals.clear();
-  events.clear();
 }
 
-export const listConversations = (): Conversation[] =>
-  db
-    .filter((entry) => !entry.archived)
-    .map(({ messages: _messages, ...summary }) => {
-      void _messages;
-      return summary;
-    })
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-
-export const findConversation = (id: string) => db.find((entry) => entry.id === id);
+export const listConversations = (): StoredConversation[] =>
+  [...db].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+export const findConversation = (id: string): StoredConversation | undefined => db.find((entry) => entry.id === id);
 
 export function createConversation(title?: string): StoredConversation {
+  const now = new Date().toISOString();
   const created: StoredConversation = {
     id: `conv-n${++counter}`,
-    title: title?.trim() || "Yeni söhbət",
-    updatedAt: new Date().toISOString(),
-    archived: false,
+    title: title ?? null,
+    createdAt: now,
+    updatedAt: now,
     messages: [],
   };
   db = [created, ...db];
   return created;
 }
 
-export function findMessage(id: string): Message | undefined {
-  return db.flatMap((entry) => entry.messages).find((message) => message.id === id);
-}
-
-export function eventsOf(messageId: string): ScriptEvent[] | undefined {
-  return events.get(messageId);
-}
-
-const link = (
-  type: Attachment["type"],
-  id: string,
-  title: string,
-  excerpt: string,
-  location: string | null = null,
-): Citation => ({
-  id: `c-${id}`,
-  resourceType: type,
-  resourceId: id,
-  title,
-  locationLabel: location,
-  excerpt,
-});
-
 const lower = (text: string) => text.toLocaleLowerCase("az");
 
 /** Decides what the scripted "model" does, from the words of the question. */
-export function answer(conversation: StoredConversation, content: string, attachments: Attachment[], user: User) {
-  const messageId = `msg-a${++counter}`;
+export function answer(conversation: StoredConversation, content: string, user: MockUser): ScriptEvent[] {
   const text = lower(content);
-  const list: ScriptEvent[] = [];
-  const push = (event: string, data: unknown) => list.push({ id: list.length + 1, event, data });
-  push("message.started", { messageId });
+  const n = ++counter;
+  const userMessageId = `msg-u${n}`;
+  const assistantId = `msg-a${n}`;
+  const now = new Date().toISOString();
+  const events: ScriptEvent[] = [{ event: "message.created", data: { messageId: userMessageId } }];
+  const user_: StoredMessage = {
+    id: userMessageId,
+    role: "user",
+    content,
+    citations: [],
+    toolCalls: null,
+    modelVersion: null,
+    createdAt: now,
+  };
+  conversation.messages.push(user_);
+  conversation.title ??= content.slice(0, 40);
+  conversation.updatedAt = now;
 
-  let body = NO_SOURCE;
-  let citations: Citation[] = [];
-  let toolRuns: ToolRun[] = [];
-  let approvalList: Approval[] = [];
-  let status: Message["status"] = "complete";
-  let failAfterText = false;
-  let dropAfter: number | null = null;
+  const finish = (body: string, citations: StoredMessage["citations"], toolCalls: StoredMessage["toolCalls"]) => {
+    events.push({
+      event: "final",
+      data: { messageId: assistantId, content: body, citations, model: "lexaudit-llm-demo-0.1" },
+    });
+    events.push({ event: "done", data: {} });
+    conversation.messages.push({
+      id: assistantId,
+      role: "assistant",
+      content: body,
+      citations,
+      toolCalls,
+      modelVersion: "lexaudit-llm-demo-0.1",
+      createdAt: new Date().toISOString(),
+    });
+  };
+  const words = (body: string) => body.match(/.{1,24}(\s|$)/g) ?? [body];
+
+  if (/xəta/.test(text)) {
+    events.push({ event: "step", data: { n: 1 } }, { event: "delta", data: { text: "Cavab hazırlanır, " } });
+    events.push(
+      { event: "error", data: { code: "INTERNAL", message: "The assistant failed." } },
+      { event: "done", data: {} },
+    );
+    return events;
+  }
 
   if (/yazılış|təsdiqə göndər|arxivlə/.test(text)) {
-    const run: ToolRun = {
-      id: `t-${counter}`,
-      toolName: "ledger.submit_entries",
-      riskLevel: "moderate-write",
-      status: "approval_required",
-      argumentsSummary: "je-seed-3 yazılışını təsdiqə göndər",
-      resultSummary: null,
-      approvalId: `appr-${counter}`,
-    };
-    const approval: Approval = {
-      id: run.approvalId!,
-      toolRunId: run.id,
-      toolName: run.toolName,
-      argumentsSummary: run.argumentsSummary,
-      targetResource: "Jurnal yazılışı je-seed-3",
-      riskLevel: "moderate-write",
-      requestedBy: { id: user.id, name: user.name },
-      status: "pending",
-      expiresAt: new Date(Date.now() + 24 * 3600_000).toISOString(),
-      comment: null,
-    };
-    approvals.set(approval.id, approval);
+    const approvalId = `appr-tool-${n}`;
+    events.push({ event: "step", data: { n: 1 } });
+    events.push({
+      event: "tool.call",
+      data: { callId: `call-${n}`, tool: "ledger.submit_entries", arguments: { entryId: "je-seed-3" } },
+    });
+    events.push({
+      event: "tool.result",
+      data: {
+        callId: `call-${n}`,
+        tool: "ledger.submit_entries",
+        status: "approval_required",
+        summary: "Yazılış təsdiq gözləyir",
+        toolRunId: `run-${n}`,
+        approvalId,
+      },
+    });
     addApprovalRequest({
-      id: approval.id,
+      id: approvalId,
       kind: "tool:ledger.submit_entries",
       title: "Jurnal yazılışı təsdiqə göndərilsin",
-      summary: approval.argumentsSummary,
-      riskLevel: approval.riskLevel,
+      summary: "je-seed-3",
+      riskLevel: "moderate-write",
       status: "pending",
-      requestedBy: approval.requestedBy,
-      requestedAt: new Date().toISOString(),
-      expiresAt: approval.expiresAt,
+      requestedBy: { id: user.id, name: user.name },
+      requestedAt: now,
+      expiresAt: new Date(Date.now() + 24 * 3_600_000).toISOString(),
       decidedBy: null,
       decidedAt: null,
       comment: null,
-      changes: [{ label: "Yazılış je-seed-3", before: "Təklif", after: "Təsdiq gözləyir" }],
-      source: { type: "conversation", id: conversation.id },
+      changes: [],
+      source: { type: "tool_run", id: `run-${n}` } as never,
     });
-    toolRuns = [run];
-    approvalList = [approval];
-    push("tool.requested", { toolRun: { ...run, status: "proposed" } });
-    push("tool.approval_required", { toolRun: run, approval });
-    body = "Yazılışı təsdiqə göndərmək üçün baş mühasibin təsdiqi lazımdır. Təsdiq gələnə qədər heç nə dəyişməyəcək.";
-  } else if (attachments.length > 0 || /ədv|qaimə|vergi/.test(text) || /kəsil/.test(text)) {
-    const search: ToolRun = {
-      id: `t-${counter}`,
-      toolName: "legislation.search",
-      riskLevel: "read",
-      status: "done",
-      argumentsSummary: "ƏDV və qaimə-faktura",
-      resultSummary: "2 nəticə tapıldı",
-      approvalId: null,
-    };
-    toolRuns = [search];
-    push("tool.requested", { toolRun: { ...search, status: "proposed", resultSummary: null } });
-    push("tool.started", { toolRun: { ...search, status: "running", resultSummary: null } });
-    push("tool.completed", { toolRun: search });
-    citations =
-      attachments.length > 0
-        ? attachments.map((item) =>
-            link(item.type, item.id, item.title, `Əlavə etdiyiniz «${item.title}» sənədindən parça.`),
-          )
-        : [
-            link(
-              "legislation",
-              "leg-tax-code",
-              "Vergi Məcəlləsi",
-              "ƏDV ödəyiciləri mal və xidmətlərin təqdimatı zamanı elektron qaimə-fakturanı vaxtında təqdim edir.",
-              "Maddə 2",
-            ),
-            link(
-              "news",
-              "news-vat-deposit-clarification",
-              "ƏDV depozit hesabı üzrə izahat dərc olunub",
-              "İzahatda ƏDV depozit hesabından istifadə qaydaları barədə suallar cavablandırılır.",
-            ),
-          ];
-    citations.forEach((citation) => push("citation.added", { citation }));
-    body =
-      attachments.length > 0
-        ? "Əlavə etdiyiniz sənədə əsasən: onun məzmunu sualınıza aiddir [1]."
-        : "ƏDV ödəyiciləri qaimə-fakturanı vaxtında təqdim etməlidir [1]. Ödənişlər ƏDV depozit hesabı vasitəsilə aparılır [2].";
-    if (/kəsil/.test(text)) dropAfter = 8;
-  } else if (/xəta/.test(text)) {
-    body = "Cavabı hazırlayarkən";
-    failAfterText = true;
-    status = "failed";
+    finish(
+      "Yazılışı təsdiqə göndərmək üçün başqa şəxsin təsdiqi lazımdır. Təsdiq gələnə qədər heç nə dəyişməyəcək.",
+      [],
+      [{ id: `call-${n}`, name: "ledger.submit_entries" }],
+    );
+    return events;
   }
 
-  // Stream the text in small pieces, like a model does.
-  const words = body.split(/(?<= )/);
-  for (const piece of words) push("message.delta", { text: piece });
-
-  const message: Message = {
-    id: messageId,
-    role: "assistant",
-    content: body,
-    createdAt: new Date().toISOString(),
-    status,
-    citations,
-    toolRuns,
-    approvals: approvalList,
-    modelVersion: MODEL,
-    feedback: null,
-  };
-  if (failAfterText)
-    push("message.failed", { code: "UPSTREAM_UNAVAILABLE", message: "The model service is unavailable" });
-  else push("message.completed", { message });
-
-  events.set(messageId, list);
-  const userMessage: Message = {
-    id: `msg-u${counter}`,
-    role: "user",
-    content,
-    createdAt: new Date().toISOString(),
-    status: "complete",
-    citations: [],
-    toolRuns: [],
-    approvals: [],
-    modelVersion: null,
-    feedback: null,
-  };
-  conversation.messages.push(userMessage, message);
-  conversation.updatedAt = new Date().toISOString();
-  return { messageId, events: list, dropAfter };
-}
-
-export function setFeedback(message: Message, rating: "up" | "down"): void {
-  message.feedback = rating;
-}
-
-/** Keeps the chat's own copy in step after the queue has accepted a decision. */
-export function syncToolApproval(id: string, decision: "approved" | "denied", comment: string | null): void {
-  const approval = approvals.get(id);
-  if (!approval) return;
-  approval.status = decision;
-  approval.comment = comment;
-  const run = db
-    .flatMap((entry) => entry.messages)
-    .flatMap((message) => message.toolRuns)
-    .find((candidate) => candidate.id === approval.toolRunId);
-  if (run) {
-    run.status = decision === "approved" ? "done" : "denied";
-    run.resultSummary = decision === "approved" ? "Yazılış təsdiqə göndərildi (demo)" : "Əməliyyat rədd edildi";
+  if (/ədv|qaimə|vergi|depozit/.test(text) || /kəsil/.test(text)) {
+    events.push({ event: "step", data: { n: 1 } });
+    events.push({
+      event: "tool.call",
+      data: { callId: `call-${n}`, tool: "legislation.search", arguments: { query: content.slice(0, 80) } },
+    });
+    events.push({
+      event: "tool.result",
+      data: {
+        callId: `call-${n}`,
+        tool: "legislation.search",
+        status: "succeeded",
+        summary: "2 nəticə tapıldı",
+        toolRunId: `run-${n}`,
+      },
+    });
+    events.push({ event: "step", data: { n: 2 } });
+    const body =
+      "ƏDV ödəyiciləri qaimə-fakturanı vaxtında təqdim etməlidir [1] və ödənişləri ƏDV depozit hesabı vasitəsilə həyata keçirir [2].";
+    for (const piece of words(body)) events.push({ event: "delta", data: { text: piece } });
+    finish(
+      body,
+      [
+        { label: "Vergi Məcəlləsi, maddə 2", chunkId: "22222222-2222-4222-8222-222222222222" },
+        { label: "ƏDV depozit hesabı üzrə izahat", chunkId: "33333333-3333-4333-8333-333333333333" },
+      ],
+      [{ id: `call-${n}`, name: "legislation.search" }],
+    );
+    return events;
   }
+
+  // Nothing relevant was found: the assistant says so instead of inventing a source.
+  events.push({ event: "step", data: { n: 1 } });
+  for (const piece of words(NO_SOURCE)) events.push({ event: "delta", data: { text: piece } });
+  finish(NO_SOURCE, [], null);
+  return events;
 }

@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Body, Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 
-export type Conversation = components["schemas"]["Conversation"];
-export type ConversationDetail = components["schemas"]["ConversationDetail"];
-export type Attachment = components["schemas"]["ContextAttachment"];
+export type Conversation = Item<Json<"/conversations">>;
+export type ConversationDetail = Json<"/conversations/{id}">;
+export type StoredMessage = Item<ConversationDetail["messages"]>;
+export type FeedbackBody = Body<"/messages/{id}/feedback">;
 
 export const MAX_MESSAGE_LENGTH = 4000;
 
@@ -19,7 +20,8 @@ export const assistantKeys = {
 export function useConversations() {
   return useQuery({
     queryKey: assistantKeys.list,
-    queryFn: async ({ signal }) => unwrap(await api.GET("/conversations", { signal })),
+    queryFn: async ({ signal }) =>
+      unwrap(await api.GET("/conversations", { signal, params: { query: { limit: 50 } } })),
   });
 }
 
@@ -42,30 +44,13 @@ export function useCreateConversation() {
   });
 }
 
-export function useUpdateConversation(id: string) {
-  const queryClient = useQueryClient();
+/** A rating, or the right answer. Both are kept with the answer they are about: this is what the model learns from. */
+export function useSendFeedback() {
   return useMutation({
-    mutationFn: async (body: { title?: string; archived?: boolean }) =>
-      unwrap(await api.PATCH("/conversations/{id}", { params: { path: { id } }, body })),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["conversations"] }),
-    onError: () => {
-      toast.error(i18n.t("assistant.updateFailed"));
-    },
-  });
-}
-
-export function useSendFeedback(conversationId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (vars: { messageId: string; rating: "up" | "down"; correction?: string }) => {
-      await api.POST("/messages/{id}/feedback", {
-        params: { path: { id: vars.messageId } },
-        body: { rating: vars.rating, correction: vars.correction || undefined },
-      });
-    },
+    mutationFn: async (vars: { messageId: string; body: FeedbackBody }) =>
+      unwrap(await api.POST("/messages/{id}/feedback", { params: { path: { id: vars.messageId } }, body: vars.body })),
     onSuccess: () => {
       toast.success(i18n.t("assistant.feedback.thanks"));
-      return queryClient.invalidateQueries({ queryKey: assistantKeys.detail(conversationId) });
     },
     onError: () => {
       toast.error(i18n.t("assistant.feedback.failed"));

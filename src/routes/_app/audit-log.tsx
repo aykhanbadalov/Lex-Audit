@@ -1,38 +1,26 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuditEvents, useExportAudit, type AuditEvent } from "@/features/audit/api";
-import {
-  AUDIT_OUTCOMES,
-  auditActionKey,
-  auditSearchSchema,
-  hasActiveAuditFilters,
-  type AuditSearch,
-} from "@/features/audit/filters";
+import { auditCsv, filterAuditEvents, useAuditEvents, type AuditEvent } from "@/features/audit/api";
+import { auditActionKey, auditSearchSchema, hasActiveAuditFilters, type AuditSearch } from "@/features/audit/filters";
+import { usePeople } from "@/shared/api/people";
 import { DataTable } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
 import { useSearchText } from "@/shared/hooks/useSearchText";
 import { formatDateTime } from "@/shared/lib/date";
+import { saveBlob } from "@/shared/lib/download";
 import { localeTag } from "@/shared/lib/locale";
-import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { Select } from "@/shared/ui/select";
 
 export const Route = createFileRoute("/_app/audit-log")({
   validateSearch: auditSearchSchema,
   component: AuditPage,
 });
-
-const OUTCOME_TONE: Record<AuditEvent["outcome"], BadgeTone> = {
-  success: "success",
-  denied: "warning",
-  failed: "danger",
-};
 
 function AuditPage() {
   return (
@@ -46,11 +34,23 @@ function AuditContent() {
   const { t, i18n } = useTranslation();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const list = useAuditEvents(search);
-  const exportAudit = useExportAudit();
-  const items = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
+  const list = useAuditEvents();
+  const person = usePeople();
   const tag = localeTag(i18n.language);
   const active = hasActiveAuditFilters(search);
+  const actionText = (action: string) => t(`audit.action.${auditActionKey(action)}`, { defaultValue: action });
+
+  const items = useMemo(
+    () =>
+      filterAuditEvents(
+        list.data ?? [],
+        search,
+        (event) =>
+          `${person(event.actorId)} ${actionText(event.action)} ${event.action} ${event.resourceType} ${event.resourceId}`,
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the helpers depend on the language and the people list
+    [list.data, search, i18n.language, person],
+  );
 
   const { text, onTextChange } = useSearchText(
     search.q,
@@ -62,17 +62,17 @@ function AuditContent() {
   const columns = useMemo<ColumnDef<AuditEvent, unknown>[]>(
     () => [
       {
-        accessorKey: "at",
+        accessorKey: "createdAt",
         header: t("audit.columns.at"),
-        cell: ({ row }) => <time dateTime={row.original.at}>{formatDateTime(row.original.at, tag)}</time>,
+        cell: ({ row }) => <time dateTime={row.original.createdAt}>{formatDateTime(row.original.createdAt, tag)}</time>,
       },
-      { id: "actor", header: t("audit.columns.actor"), cell: ({ row }) => row.original.actor.name },
+      { id: "actor", header: t("audit.columns.actor"), cell: ({ row }) => person(row.original.actorId) },
       {
         id: "action",
         header: t("audit.columns.action"),
         cell: ({ row }) => (
           <span className="block">
-            {t(`audit.action.${auditActionKey(row.original.action)}`, { defaultValue: row.original.action })}
+            {actionText(row.original.action)}
             <span className="block font-mono text-xs text-muted-foreground">{row.original.requestId}</span>
           </span>
         ),
@@ -80,18 +80,27 @@ function AuditContent() {
       {
         id: "resource",
         header: t("audit.columns.resource"),
-        cell: ({ row }) => row.original.resourceLabel,
-      },
-      {
-        id: "outcome",
-        header: t("audit.columns.outcome"),
         cell: ({ row }) => (
-          <Badge tone={OUTCOME_TONE[row.original.outcome]}>{t(`audit.outcome.${row.original.outcome}`)}</Badge>
+          <span className="block">
+            {row.original.resourceType}
+            <span className="block font-mono text-xs break-all text-muted-foreground">{row.original.resourceId}</span>
+          </span>
         ),
       },
+      {
+        id: "change",
+        header: t("audit.columns.change"),
+        enableSorting: false,
+        cell: ({ row }) => <Change event={row.original} />,
+      },
     ],
-    [t, tag],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- actionText only depends on t
+    [t, tag, person],
   );
+
+  function exportCsv() {
+    saveBlob(new Blob([auditCsv(items, person)], { type: "text/csv;charset=utf-8" }), "audit-jurnali.csv");
+  }
 
   return (
     <>
@@ -99,27 +108,16 @@ function AuditContent() {
         title={t("nav.audit")}
         description={t("modules.audit")}
         actions={
-          <Button variant="outline" disabled={exportAudit.isPending} onClick={() => exportAudit.mutate(search)}>
+          <Button variant="outline" disabled={items.length === 0} onClick={exportCsv}>
             <Download className="size-4" aria-hidden="true" />
             {t("audit.export")}
           </Button>
         }
       />
-      {exportAudit.data ? (
-        <p role="status" className="mb-4 text-sm">
-          {t("audit.exported")}{" "}
-          <Link
-            to="/files/$id"
-            params={{ id: exportAudit.data.id }}
-            className="font-medium text-primary hover:underline"
-          >
-            {exportAudit.data.name}
-          </Link>
-        </p>
-      ) : null}
+      <p className="mb-4 text-xs text-muted-foreground">{t("audit.limitNote", { count: list.data?.length ?? 0 })}</p>
       <form
         role="search"
-        className="mb-6 grid gap-3 sm:grid-cols-[1fr_10rem_10rem_10rem_auto] sm:items-end"
+        className="mb-6 grid gap-3 sm:grid-cols-[1fr_10rem_10rem_auto] sm:items-end"
         onSubmit={(event) => event.preventDefault()}
       >
         <div className="space-y-1.5">
@@ -131,21 +129,6 @@ function AuditContent() {
             placeholder={t("audit.searchPlaceholder")}
             onChange={(event) => onTextChange(event.target.value)}
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="au-outcome">{t("audit.columns.outcome")}</Label>
-          <Select
-            id="au-outcome"
-            value={search.outcome ?? ""}
-            onChange={(event) => update({ outcome: (event.target.value || undefined) as AuditSearch["outcome"] })}
-          >
-            <option value="">{t("common.all")}</option>
-            {AUDIT_OUTCOMES.map((outcome) => (
-              <option key={outcome} value={outcome}>
-                {t(`audit.outcome.${outcome}`)}
-              </option>
-            ))}
-          </Select>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="au-from">{t("news.filters.from")}</Label>
@@ -184,13 +167,32 @@ function AuditContent() {
         emptyTitle={t("audit.empty")}
         emptyDescription={t("audit.emptyHint")}
       />
-      {list.hasNextPage ? (
-        <div className="flex justify-center pt-4">
-          <Button variant="outline" onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>
-            {list.isFetchingNextPage ? t("app.loading") : t("common.loadMore")}
-          </Button>
-        </div>
-      ) : null}
     </>
+  );
+}
+
+/** What the event changed, as plain text. The backend masks personal data before it stores it. */
+function Change({ event }: { event: AuditEvent }) {
+  const { t } = useTranslation();
+  if (event.before == null && event.after == null) return <span className="text-muted-foreground">—</span>;
+  const show = (value: unknown) => JSON.stringify(value, null, 2);
+  return (
+    <details>
+      <summary className="cursor-pointer text-sm text-primary">{t("audit.showChange")}</summary>
+      <div className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
+        {event.before != null ? (
+          <div>
+            <p className="font-medium">{t("audit.before")}</p>
+            <pre className="max-h-40 overflow-auto rounded bg-muted p-2 whitespace-pre-wrap">{show(event.before)}</pre>
+          </div>
+        ) : null}
+        {event.after != null ? (
+          <div>
+            <p className="font-medium">{t("audit.after")}</p>
+            <pre className="max-h-40 overflow-auto rounded bg-muted p-2 whitespace-pre-wrap">{show(event.after)}</pre>
+          </div>
+        ) : null}
+      </div>
+    </details>
   );
 }

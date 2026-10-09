@@ -1,10 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Bot } from "lucide-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCreateConversation } from "@/features/assistant/api";
 import { Composer } from "@/features/assistant/components/Composer";
-import { assistantSearchSchema, contextFromSearch } from "@/features/assistant/context";
+import { assistantSearchSchema, contextFromSearch, draftFor } from "@/features/assistant/context";
 import { EmptyState } from "@/shared/components/EmptyState";
 
 export const Route = createFileRoute("/_app/assistant/")({
@@ -18,7 +17,7 @@ function NewConversation() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const create = useCreateConversation();
-  const [attachments, setAttachments] = useState(() => contextFromSearch(search));
+  const resource = contextFromSearch(search);
 
   return (
     <div className="space-y-6">
@@ -26,8 +25,7 @@ function NewConversation() {
       <Composer
         streaming={false}
         disabled={create.isPending}
-        attachments={attachments}
-        onRemoveAttachment={(target) => setAttachments((current) => current.filter((item) => item !== target))}
+        initialText={resource ? draftFor(resource, t(`assistant.context.${resource.type}`)) : ""}
         onStop={() => undefined}
         onSend={(content) =>
           create.mutate(undefined, {
@@ -36,7 +34,7 @@ function NewConversation() {
                 to: "/assistant/$id",
                 params: { id: conversation.id },
                 search: {},
-                state: { pendingChat: { content, attachments } },
+                state: { pendingChat: content },
               }),
           })
         }

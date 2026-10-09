@@ -3,18 +3,14 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useApprovals } from "@/features/approvals/api";
 import { ApprovalCard } from "@/features/approvals/components/ApprovalCard";
-import {
-  APPROVAL_KINDS,
-  APPROVAL_STATUSES,
-  approvalsSearchSchema,
-  type ApprovalsSearch,
-} from "@/features/approvals/filters";
+import { APPROVAL_STATUSES, approvalsSearchSchema, type ApprovalsSearch } from "@/features/approvals/filters";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { Button } from "@/shared/ui/button";
+import { usePermission } from "@/shared/hooks/usePermission";
+import { useAuthStore } from "@/shared/stores/authStore";
 import { Label } from "@/shared/ui/label";
 import { Select } from "@/shared/ui/select";
 
@@ -35,9 +31,19 @@ function ApprovalsContent() {
   const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const list = useApprovals(search);
-  const items = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
-  const pendingCount = list.data?.pages[0]?.pendingCount;
+  const list = useApprovals();
+  const me = useAuthStore((state) => state.user?.id);
+  const canDecide = usePermission("approvals:decide");
+  const items = useMemo(
+    () => (list.data ?? []).filter((item) => search.status === "all" || item.status === search.status),
+    [list.data, search.status],
+  );
+  // What waits for this person: pending, not their own request, and they may decide.
+  const pendingCount = list.data
+    ? canDecide
+      ? list.data.filter((item) => item.status === "pending" && item.requesterId !== me).length
+      : 0
+    : undefined;
   const update = (patch: Partial<ApprovalsSearch>) =>
     void navigate({ search: (previous) => ({ ...previous, ...patch }), replace: true });
 
@@ -64,21 +70,6 @@ function ApprovalsContent() {
             ))}
           </Select>
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="ap-kind">{t("approvals.filters.kind")}</Label>
-          <Select
-            id="ap-kind"
-            value={search.kind ?? ""}
-            onChange={(event) => update({ kind: (event.target.value || undefined) as ApprovalsSearch["kind"] })}
-          >
-            <option value="">{t("common.all")}</option>
-            {APPROVAL_KINDS.map((kind) => (
-              <option key={kind} value={kind}>
-                {t(`approvals.kind.${kind}`)}
-              </option>
-            ))}
-          </Select>
-        </div>
       </form>
 
       {list.isPending ? (
@@ -99,13 +90,6 @@ function ApprovalsContent() {
           ))}
         </ul>
       )}
-      {list.hasNextPage ? (
-        <div className="flex justify-center pt-4">
-          <Button variant="outline" onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>
-            {list.isFetchingNextPage ? t("app.loading") : t("common.loadMore")}
-          </Button>
-        </div>
-      ) : null}
     </>
   );
 }

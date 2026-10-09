@@ -1,30 +1,27 @@
-import type { Approval, Citation, LiveMessage, Message, ToolRun } from "./chatReducer";
+import type { LiveTurn, ToolCall } from "./chatReducer";
+import type { StoredMessage } from "./api";
+import type { DisplayMessage } from "./components/MessageView";
 
-export interface DisplayMessage {
-  id: string | null;
-  role: "user" | "assistant";
-  content: string;
-  status: "streaming" | Message["status"];
-  citations: Citation[];
-  toolRuns: ToolRun[];
-  approvals: Approval[];
-  modelVersion: string | null;
-  feedback: Message["feedback"];
-  /** True while this is the local copy being written, before the stored one replaces it. */
-  live: boolean;
-}
+export const fromStored = (message: StoredMessage, known?: ToolCall[]): DisplayMessage => ({
+  id: message.id,
+  role: message.role === "user" ? "user" : "assistant",
+  content: message.content,
+  status: "complete",
+  citations: message.citations,
+  tools: known ?? (message.toolCalls ?? []).map((call) => ({ tool: call.name })),
+  modelVersion: message.modelVersion,
+  error: null,
+  live: false,
+});
 
-export const fromStored = (message: Message): DisplayMessage => ({ ...message, live: false });
-
-export const fromLive = (state: LiveMessage): DisplayMessage => ({
-  id: state.id,
+export const fromLive = (turn: LiveTurn): DisplayMessage => ({
+  id: turn.messageId,
   role: "assistant",
-  content: state.content,
-  status: state.status === "complete" ? "complete" : state.status,
-  citations: state.citations,
-  toolRuns: state.toolRuns,
-  approvals: state.approvals,
-  modelVersion: null,
-  feedback: null,
+  content: turn.content,
+  status: turn.status,
+  citations: turn.citations,
+  tools: turn.tools,
+  modelVersion: turn.model,
+  error: turn.error,
   live: true,
 });

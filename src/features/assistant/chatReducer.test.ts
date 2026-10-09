@@ -1,121 +1,82 @@
 import { describe, expect, it } from "vitest";
-import type { SseEvent } from "@/api/sse";
-import { initialLive, isTerminal, reduce, type LiveMessage } from "./chatReducer";
+import { initialTurn, reduce, type LiveTurn, type StreamedEvent } from "./chatReducer";
 
-const ev = (id: number | null, event: string, data: unknown): SseEvent => ({
-  id: id === null ? null : String(id),
-  event,
-  data: JSON.stringify(data),
-});
-const run = (events: SseEvent[], from: LiveMessage = initialLive) => events.reduce(reduce, from);
-const citation = (id: string) => ({
-  id,
-  resourceType: "legislation",
-  resourceId: "leg-tax-code",
-  title: "Vergi Məcəlləsi",
-  locationLabel: "Maddə 2",
-  excerpt: "…",
-});
-const toolRun = (status: string) => ({
-  id: "t1",
-  toolName: "legislation.search",
-  riskLevel: "read",
-  status,
-  argumentsSummary: "ƏDV",
-  resultSummary: null,
-  approvalId: null,
-});
+const ev = (event: string, data: unknown): StreamedEvent => ({ event, data: JSON.stringify(data) });
+const run = (events: StreamedEvent[], from: LiveTurn = initialTurn) => events.reduce(reduce, from);
 
-describe("chat reducer", () => {
-  it("builds the answer from deltas, in order", () => {
+describe("assistant turn", () => {
+  it("builds the answer from deltas, then the saved answer replaces it", () => {
     const state = run([
-      ev(1, "message.started", { messageId: "m1" }),
-      ev(2, "message.delta", { text: "ƏDV " }),
-      ev(3, "message.delta", { text: "18%-dir." }),
+      ev("message.created", { messageId: "u1" }),
+      ev("delta", { text: "ƏDV " }),
+      ev("delta", { text: "18%" }),
     ]);
-    expect(state).toMatchObject({ id: "m1", content: "ƏDV 18%-dir.", status: "streaming", lastEventId: 3 });
-    expect(isTerminal(state)).toBe(false);
-  });
+    expect(state.content).toBe("ƏDV 18%");
+    expect(state.status).toBe("streaming");
 
-  it("ignores events it has already applied, so resuming a dropped stream cannot duplicate text", () => {
-    const first = run([
-      ev(1, "message.started", { messageId: "m1" }),
-      ev(2, "message.delta", { text: "A" }),
-      ev(3, "message.delta", { text: "B" }),
-    ]);
-    // The server replays from the start on resume; ids 1-3 are old news.
-    const resumed = run(
+    const done = run(
       [
-        ev(2, "message.delta", { text: "A" }),
-        ev(3, "message.delta", { text: "B" }),
-        ev(4, "message.delta", { text: "C" }),
+        ev("final", {
+          messageId: "a1",
+          content: "ƏDV dərəcəsi 18%-dir.",
+          citations: [{ label: "VM m.2", chunkId: "c1" }],
+          model: "m-1",
+        }),
+        ev("done", {}),
       ],
-      first,
+      state,
     );
-    expect(resumed.content).toBe("ABC");
-    expect(resumed.lastEventId).toBe(4);
+    expect(done).toMatchObject({ status: "complete", messageId: "a1", content: "ƏDV dərəcəsi 18%-dir.", model: "m-1" });
+    expect(done.citations).toEqual([{ label: "VM m.2", chunkId: "c1" }]);
   });
 
-  it("collects each citation once, even when it is announced twice", () => {
+  it("follows a tool from running to its outcome, including one that waits for approval", () => {
     const state = run([
-      ev(1, "citation.added", { citation: citation("c1") }),
-      ev(2, "citation.added", { citation: citation("c1") }),
-      ev(3, "citation.added", { citation: citation("c2") }),
+      ev("tool.call", { callId: "t1", tool: "ledger.submit_entries", arguments: {} }),
+      ev("tool.result", {
+        callId: "t1",
+        tool: "ledger.submit_entries",
+        status: "approval_required",
+        summary: "gözləyir",
+        toolRunId: "r",
+        approvalId: "ap1",
+      }),
     ]);
-    expect(state.citations.map((c) => c.id)).toEqual(["c1", "c2"]);
-  });
-
-  it("follows a tool run through its states without duplicating it", () => {
-    const state = run([
-      ev(1, "tool.requested", { toolRun: toolRun("proposed") }),
-      ev(2, "tool.started", { toolRun: toolRun("running") }),
-      ev(3, "tool.completed", { toolRun: { ...toolRun("done"), resultSummary: "2 nəticə" } }),
+    expect(state.tools).toEqual([
+      {
+        callId: "t1",
+        tool: "ledger.submit_entries",
+        status: "approval_required",
+        summary: "gözləyir",
+        approvalId: "ap1",
+      },
     ]);
-    expect(state.toolRuns).toHaveLength(1);
-    expect(state.toolRuns[0]).toMatchObject({ status: "done", resultSummary: "2 nəticə" });
   });
 
-  it("keeps the approval that a write tool is waiting for", () => {
-    const approval = { id: "a1", toolRunId: "t1", status: "pending" };
-    const state = run([ev(1, "tool.approval_required", { toolRun: toolRun("approval_required"), approval })]);
-    expect(state.approvals).toEqual([approval]);
-    expect(state.toolRuns[0]?.status).toBe("approval_required");
+  it("treats a stream that ends without an answer as a failure", () => {
+    expect(run([ev("delta", { text: "yarım" }), ev("done", {})]).status).toBe("failed");
   });
 
-  it("lets the stored message replace what was assembled, and finishes", () => {
-    const message = { id: "m1", content: "Son mətn.", citations: [citation("c9")], toolRuns: [], approvals: [] };
-    const state = run([
-      ev(1, "message.started", { messageId: "m1" }),
-      ev(2, "message.delta", { text: "yarımçıq" }),
-      ev(3, "message.completed", { message }),
+  it("fails on a hard error, but keeps the answer when the agent only ran out of steps", () => {
+    expect(run([ev("error", { code: "TIMEOUT", message: "x" }), ev("done", {})]).status).toBe("failed");
+    const soft = run([
+      ev("error", { code: "STEP_LIMIT", message: "limit" }),
+      ev("final", { messageId: "a", content: "Bildiyimi yazıram", citations: [], model: "m" }),
+      ev("done", {}),
     ]);
-    expect(state).toMatchObject({ content: "Son mətn.", status: "complete" });
-    expect(state.citations.map((c) => c.id)).toEqual(["c9"]);
-    expect(isTerminal(state)).toBe(true);
+    expect(soft.status).toBe("complete");
+    expect(soft.error?.code).toBe("STEP_LIMIT");
   });
 
-  it("keeps the partial text and the reason when the model fails", () => {
+  it("skips malformed or unknown events instead of crashing", () => {
     const state = run([
-      ev(1, "message.delta", { text: "Yarım" }),
-      ev(2, "message.failed", { code: "UPSTREAM_UNAVAILABLE", message: "x" }),
-    ]);
-    expect(state).toMatchObject({ content: "Yarım", status: "failed", error: { code: "UPSTREAM_UNAVAILABLE" } });
-  });
-
-  it("skips malformed or unknown events instead of breaking the stream", () => {
-    const state = run([
-      { id: "1", event: "message.delta", data: "not json" },
-      ev(2, "message.delta", { text: 42 }),
-      ev(3, "something.new", { x: 1 }),
-      ev(4, "message.delta", { text: "ok" }),
+      { event: "delta", data: "{not json" },
+      ev("delta", { text: 5 }),
+      ev("tool.result", { callId: "x", status: "weird" }),
+      ev("something.new", { a: 1 }),
+      ev("delta", { text: "ok" }),
     ]);
     expect(state.content).toBe("ok");
-    expect(state.status).toBe("streaming");
-  });
-
-  it("applies events that carry no id (they cannot be deduplicated)", () => {
-    expect(run([ev(null, "message.delta", { text: "a" }), ev(null, "message.delta", { text: "b" })]).content).toBe(
-      "ab",
-    );
+    expect(state.tools).toEqual([]);
   });
 });

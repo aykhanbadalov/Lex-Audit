@@ -1,28 +1,9 @@
 import { http, HttpResponse } from "msw";
 import { decideRequest, findApproval, listApprovals, runEffect } from "../fixtures/approvals";
 import { wireApproval } from "../wire";
-import { syncToolApproval } from "../fixtures/assistant";
-import { auditCsv, queryAudit, recordAudit } from "../fixtures/audit";
-import { addUploadedFile, toRecord } from "../fixtures/files";
+import { queryAudit, recordAudit } from "../fixtures/audit";
 import { apiError, authorize } from "./auth";
 import { apiPath } from "./base";
-
-function page<T>(request: Request, rows: T[]) {
-  const params = new URL(request.url).searchParams;
-  const limit = Math.min(Number(params.get("limit") ?? 20) || 20, 100);
-  const offset = Number(params.get("cursor") ?? 0) || 0;
-  const next = offset + limit;
-  return { items: rows.slice(offset, next), nextCursor: next < rows.length ? String(next) : null };
-}
-
-const filtersFrom = (params: URLSearchParams) => ({
-  q: params.get("q"),
-  action: params.get("action"),
-  resourceType: params.get("resourceType"),
-  outcome: params.get("outcome"),
-  from: params.get("from"),
-  to: params.get("to"),
-});
 
 export const approvalsHandlers = [
   // A plain array, newest first; the backend has no filters or paging here.
@@ -62,7 +43,6 @@ export const approvalsHandlers = [
     if (result.ok) {
       audit("success");
       runEffect(id, decision);
-      syncToolApproval(id, decision, result.approval.comment);
       return HttpResponse.json(wireApproval(result.approval));
     }
     if (result.reason === "not-found") return apiError(404, "NOT_FOUND", "Approval not found");
@@ -76,30 +56,24 @@ export const approvalsHandlers = [
   http.get(apiPath("/audit-events"), ({ request }) => {
     const auth = authorize(request, "audit:read");
     if ("response" in auth) return auth.response;
-    const rows = queryAudit(filtersFrom(new URL(request.url).searchParams));
-    return HttpResponse.json(page(request, rows));
-  }),
-
-  http.post(apiPath("/audit-events/export"), async ({ request }) => {
-    const auth = authorize(request, "audit:read");
-    if ("response" in auth) return auth.response;
-    const body = (await request.json()) as Record<string, string | undefined>;
-    const rows = queryAudit(body);
-    const csv = auditCsv(rows);
-    recordAudit(auth.user, {
-      action: "audit.export",
-      resourceType: "file",
-      resourceId: "audit-export",
-      resourceLabel: `Audit jurnalı ixracı (${rows.length} hadisə)`,
-      outcome: "success",
-    });
-    const file = addUploadedFile({
-      name: `audit-jurnali-${new Date().toISOString().slice(0, 10)}.csv`,
-      mimeType: "text/csv",
-      sizeBytes: new TextEncoder().encode(csv).length,
-      folder: "/Audit",
-      tags: ["audit", "ixrac"],
-    });
-    return HttpResponse.json(toRecord(file), { status: 201 });
+    const limit = Math.min(Number(new URL(request.url).searchParams.get("limit") ?? 50) || 50, 200);
+    return HttpResponse.json(
+      queryAudit({})
+        .slice(0, limit)
+        .map((event) => ({
+          id: event.id,
+          actorId: event.actor.id,
+          action: event.action,
+          resourceType: event.resourceType,
+          resourceId: event.resourceId,
+          before: null,
+          after:
+            event.outcome === "success"
+              ? { label: event.resourceLabel }
+              : { label: event.resourceLabel, outcome: event.outcome },
+          requestId: event.requestId,
+          createdAt: event.at,
+        })),
+    );
   }),
 ];

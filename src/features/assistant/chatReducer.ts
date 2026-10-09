@@ -1,112 +1,139 @@
-import type { SseEvent } from "@/api/sse";
-import type { components } from "@/api/schema";
+/**
+ * What the assistant's answer looks like while it is still being written, built from the events the backend streams:
+ * message.created, step, delta, tool.call, tool.result, final, error, done.
+ * Pure: the same events always give the same state, and a malformed event is skipped instead of crashing the chat.
+ */
+export type ToolStatus = "running" | "succeeded" | "rejected" | "approval_required" | "failed";
 
-export type Citation = components["schemas"]["Citation"];
-export type ToolRun = components["schemas"]["ToolRun"];
-export type Approval = components["schemas"]["Approval"];
-export type Message = components["schemas"]["Message"];
-
-/** The assistant message as it is being written. Once finished it is replaced by the stored one. */
-export interface LiveMessage {
-  id: string | null;
-  content: string;
-  citations: Citation[];
-  toolRuns: ToolRun[];
-  approvals: Approval[];
-  status: "streaming" | "complete" | "failed" | "stopped";
-  error: { code: string; message: string } | null;
-  /** The highest event id applied. Replayed events at or below it are ignored. */
-  lastEventId: number;
+export interface ToolCall {
+  callId: string;
+  tool: string;
+  status: ToolStatus;
+  /** A short sentence from the backend about what the tool did. */
+  summary: string | null;
+  approvalId: string | null;
 }
 
-export const initialLive: LiveMessage = {
-  id: null,
-  content: "",
-  citations: [],
-  toolRuns: [],
-  approvals: [],
+export interface Citation {
+  label: string;
+  chunkId: string;
+}
+
+export type TurnStatus = "streaming" | "complete" | "failed" | "stopped";
+
+export interface TurnError {
+  code: string;
+  message: string;
+}
+
+export interface LiveTurn {
+  status: TurnStatus;
+  /** The id of the stored answer, known once the backend has saved it. */
+  messageId: string | null;
+  content: string;
+  step: number;
+  tools: ToolCall[];
+  citations: Citation[];
+  model: string | null;
+  error: TurnError | null;
+}
+
+export const initialTurn: LiveTurn = {
   status: "streaming",
+  messageId: null,
+  content: "",
+  step: 0,
+  tools: [],
+  citations: [],
+  model: null,
   error: null,
-  lastEventId: 0,
 };
 
-export function isTerminal(state: LiveMessage): boolean {
-  return state.status !== "streaming";
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+const str = (value: unknown): string | null => (typeof value === "string" ? value : null);
+
+export interface StreamedEvent {
+  event: string;
+  data: string;
 }
 
-const upsert = <T extends { id: string }>(list: readonly T[], item: T): T[] =>
-  list.some((existing) => existing.id === item.id)
-    ? list.map((existing) => (existing.id === item.id ? item : existing))
-    : [...list, item];
+/** An error that comes with a final answer (the agent ran out of steps) is a warning on a finished answer. */
+export const SOFT_ERRORS: readonly string[] = ["STEP_LIMIT"];
 
-function parse(event: SseEvent): Record<string, unknown> | null {
+export function reduce(state: LiveTurn, incoming: StreamedEvent): LiveTurn {
+  let data: unknown;
   try {
-    const value: unknown = JSON.parse(event.data);
-    return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+    data = JSON.parse(incoming.data);
   } catch {
-    return null; // a malformed event is skipped; it must not break the stream
+    return state;
   }
-}
+  if (!isRecord(data)) return state;
 
-/**
- * Applies one server event. Pure, so every behaviour here is testable without a network.
- * Events are idempotent: when a dropped stream is resumed, anything already applied is ignored.
- */
-export function reduce(state: LiveMessage, event: SseEvent): LiveMessage {
-  const id = event.id !== null && /^\d+$/.test(event.id) ? Number(event.id) : null;
-  if (id !== null && id <= state.lastEventId) return state;
-  const next: LiveMessage = id !== null ? { ...state, lastEventId: id } : state;
-  const data = parse(event);
-  if (!data) return next;
-
-  switch (event.event) {
-    case "message.started":
-      return typeof data.messageId === "string" ? { ...next, id: data.messageId } : next;
-    case "message.delta":
-      return typeof data.text === "string" ? { ...next, content: next.content + data.text } : next;
-    case "citation.added": {
-      const citation = data.citation as Citation | undefined;
-      return citation?.id ? { ...next, citations: upsert(next.citations, citation) } : next;
+  switch (incoming.event) {
+    case "delta": {
+      const text = str(data.text);
+      return text === null ? state : { ...state, content: state.content + text };
     }
-    case "tool.requested":
-    case "tool.started":
-    case "tool.completed":
-    case "tool.failed": {
-      const toolRun = data.toolRun as ToolRun | undefined;
-      return toolRun?.id ? { ...next, toolRuns: upsert(next.toolRuns, toolRun) } : next;
+    case "step": {
+      return typeof data.n === "number" ? { ...state, step: data.n } : state;
     }
-    case "tool.approval_required": {
-      const toolRun = data.toolRun as ToolRun | undefined;
-      const approval = data.approval as Approval | undefined;
-      if (!toolRun?.id) return next;
+    case "tool.call": {
+      const callId = str(data.callId);
+      const tool = str(data.tool);
+      if (!callId || !tool) return state;
+      const call: ToolCall = { callId, tool, status: "running", summary: null, approvalId: null };
+      return { ...state, tools: [...state.tools.filter((existing) => existing.callId !== callId), call] };
+    }
+    case "tool.result": {
+      const callId = str(data.callId);
+      const status = str(data.status);
+      if (!callId || !status || !["succeeded", "rejected", "approval_required", "failed"].includes(status))
+        return state;
+      const known = state.tools.some((existing) => existing.callId === callId);
+      const patch = { status: status as ToolStatus, summary: str(data.summary), approvalId: str(data.approvalId) };
       return {
-        ...next,
-        toolRuns: upsert(next.toolRuns, toolRun),
-        approvals: approval?.id ? upsert(next.approvals, approval) : next.approvals,
+        ...state,
+        tools: known
+          ? state.tools.map((existing) => (existing.callId === callId ? { ...existing, ...patch } : existing))
+          : [...state.tools, { callId, tool: str(data.tool) ?? "unknown", ...patch }],
       };
     }
-    case "message.completed": {
-      const message = data.message as Message | undefined;
-      // The stored message is authoritative: it replaces what was assembled from the deltas.
-      return message
-        ? {
-            ...next,
-            id: message.id,
-            content: message.content,
-            citations: message.citations,
-            toolRuns: message.toolRuns,
-            approvals: message.approvals,
-            status: "complete",
-          }
-        : next;
-    }
-    case "message.failed":
+    case "final": {
+      const content = str(data.content);
+      if (content === null) return state;
+      const citations = Array.isArray(data.citations)
+        ? data.citations.flatMap((item): Citation[] =>
+            isRecord(item) && str(item.label) && str(item.chunkId)
+              ? [{ label: item.label as string, chunkId: item.chunkId as string }]
+              : [],
+          )
+        : [];
+      // The saved answer replaces what was streamed. A soft error that came before it is kept as a note.
+      const failed = state.error !== null && !SOFT_ERRORS.includes(state.error.code);
       return {
-        ...next,
-        status: "failed",
-        error: { code: String(data.code ?? "INTERNAL"), message: String(data.message ?? "") },
+        ...state,
+        status: failed ? "failed" : "complete",
+        content,
+        citations,
+        messageId: str(data.messageId),
+        model: str(data.model),
       };
+    }
+    case "error": {
+      const code = str(data.code) ?? "INTERNAL";
+      const error = { code, message: str(data.message) ?? "" };
+      return { ...state, error, status: SOFT_ERRORS.includes(code) ? state.status : "failed" };
+    }
+    case "done": {
+      // The stream is over. If no answer was saved and nothing failed explicitly, something went wrong on the way.
+      if (state.status === "streaming") {
+        return { ...state, status: "failed", error: state.error ?? { code: "INTERNAL", message: "" } };
+      }
+      return state;
+    }
     default:
-      return next;
+      return state;
   }
 }
+
+export const isFinished = (state: LiveTurn): boolean => state.status !== "streaming";

@@ -889,7 +889,6 @@
   },
   "assistant": {
     "createFailed": "The conversation could not be created",
-    "updateFailed": "The change was not saved",
     "roleAssistant": "LexAudit AI",
     "roleUser": "You",
     "thinking": "Preparing an answer…",
@@ -911,56 +910,52 @@
     "emptyHint": "You can ask about legislation, news, files and invoices. Sources are shown with the answer.",
     "notFound": "Conversation not found",
     "notFoundHint": "It may have been archived or is not available to you.",
-    "rename": "Rename",
-    "archive": "Archive",
-    "titleLabel": "Conversation title",
-    "archiveConfirm": {
-      "title": "Archive this conversation?",
-      "description": "It will be hidden from the list but not deleted."
-    },
     "sources": {
       "title": "Sources"
     },
     "context": {
-      "title": "Attached context",
       "legislation": "Law",
-      "news": "News",
+      "news": "News item",
       "file": "File",
-      "invoice": "Invoice",
-      "remove": "Remove context {{title}}"
+      "invoice": "Invoice"
     },
     "tool": {
-      "legislation": {
-        "search": "Legislation search"
-      },
-      "ledger": {
-        "submit_entries": "Send journal entry for approval"
-      }
+      "legislation_search": "Search the legislation",
+      "legislation_get": "Law text",
+      "legislation_diff": "Compare law versions",
+      "news_search": "Search the news",
+      "news_get": "Read a news item",
+      "files_search": "Search the files",
+      "files_read_text": "Read the text of a file",
+      "regulations_search": "Search the Tax Code",
+      "receipts_search": "Search receipts",
+      "receipts_get": "Read a receipt",
+      "receipts_ingest": "Load a receipt",
+      "invoice_get": "Look at an invoice",
+      "invoice_list": "List invoices",
+      "invoice_validate": "Check an invoice",
+      "vat_calculate": "Calculate VAT",
+      "withholding_calculate": "Calculate withholding",
+      "fx_convert": "Convert currency",
+      "vat_deposit_reconcile": "Reconcile the deposit account",
+      "ledger_suggest_entries": "Suggest a journal entry",
+      "vat_period_summary": "VAT summary for a period",
+      "ledger_submit_entries": "Send an entry for approval",
+      "mhbs_classify": "Classify an account",
+      "import_preview": "Preview an import",
+      "import_commit": "Run an import",
+      "onec_export_entries": "Export to 1C",
+      "excel_profile": "Analyse a spreadsheet",
+      "excel_query": "Query a spreadsheet",
+      "excel_generate_report": "Create a report",
+      "reconcile_run": "Reconcile"
     },
     "toolStatus": {
-      "proposed": "Proposed",
-      "approval_required": "Awaiting approval",
       "running": "Running",
-      "done": "Done",
-      "failed": "Failed",
-      "denied": "Denied"
-    },
-    "risk": {
-      "low-write": "Low-risk write",
-      "moderate-write": "Changes data"
-    },
-    "approval": {
-      "failed": "The decision was not saved",
-      "approved": "Approved",
-      "denied": "Denied",
-      "expired": "Expired",
-      "pending": "Awaiting approval",
-      "waitingOther": "Someone else must approve this operation. You cannot approve your own request.",
-      "waiting": "Awaiting approval. You are not allowed to decide.",
-      "request": "{{name}} asks for this operation: {{target}}. Check it before approving.",
-      "comment": "Comment (required)",
-      "approve": "Approve",
-      "deny": "Deny"
+      "succeeded": "Done",
+      "rejected": "Rejected",
+      "approval_required": "Waiting for approval",
+      "failed": "Failed"
     },
     "feedback": {
       "thanks": "Thank you for your feedback",
@@ -971,6 +966,20 @@
       "description": "If you write the right answer, the system can learn from it. This is optional.",
       "correction": "The right answer",
       "send": "Send"
+    },
+    "untitled": "New conversation",
+    "stepLimit": "The answer reached the step limit, so it was finished with what is known.",
+    "approvalNote": "The change waits for somebody else to approve it.",
+    "openApprovals": "See approvals",
+    "errors": {
+      "STEP_LIMIT": "The answer reached the step limit.",
+      "TOOL_LIMIT": "The answer reached the tool limit.",
+      "TIMEOUT": "The answer took too long and was stopped.",
+      "UPSTREAM_UNAVAILABLE": "The language model is not available right now.",
+      "RATE_LIMITED": "Too many messages. Please wait a moment.",
+      "CONFLICT": "The assistant is still answering the previous question.",
+      "NETWORK": "The connection was lost.",
+      "INTERNAL": "The answer was cut short."
     }
   },
   "approvals": {
@@ -988,13 +997,18 @@
       "tool_action": "AI action",
       "access_request": "Access request",
       "tax_rate_change": "Tax rate",
-      "model_release": "Model release"
+      "model_release": "Model release",
+      "journal_post": "Journal entry",
+      "tax_rate_proposal": "Tax rate",
+      "import_commit": "Import",
+      "tool": "AI action"
     },
     "status": {
       "pending": "Pending",
       "approved": "Approved",
       "denied": "Denied",
-      "expired": "Expired"
+      "expired": "Expired",
+      "rejected": "Rejected"
     },
     "requestedBy": "Requested by {{name}}, {{date}}",
     "deadline": "Deadline: {{date}}",
@@ -1008,7 +1022,26 @@
     },
     "openConversation": "Open the conversation",
     "commentRequired": "Comment (required, at least 3 characters)",
-    "decidedBy": "Decided by {{name}}, {{date}}"
+    "decidedBy": "Decided by {{name}}, {{date}}",
+    "title": {
+      "journal_post": "Post the entry to the books",
+      "tax_rate_proposal": "Put the new tax rate in force",
+      "import_commit": "Run the import",
+      "tool": "AI action: {{detail}}"
+    },
+    "openEntry": "Open the entry in the journal",
+    "openRates": "See the rates",
+    "openImport": "See the import",
+    "noAccessToSubject": "You have no journal permission to see the entry.",
+    "waitingOther": "Someone else has to approve this. You cannot approve your own request.",
+    "waiting": "Waiting for approval. You are not allowed to decide.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "execution": {
+      "succeeded": "Done",
+      "failed": "Did not run",
+      "skipped": "Skipped"
+    }
   },
   "audit": {
     "export": "Export to CSV",
@@ -1022,7 +1055,8 @@
       "actor": "Who",
       "action": "Action",
       "resource": "Resource",
-      "outcome": "Outcome"
+      "outcome": "Outcome",
+      "change": "Change"
     },
     "outcome": {
       "success": "Succeeded",
@@ -1039,8 +1073,45 @@
       "import_commit": "Import run",
       "assistant_message": "Asked the assistant",
       "approval_decide": "Approval decision",
-      "audit_export": "Audit log exported"
-    }
+      "audit_export": "Audit log exported",
+      "auth_login_failed": "Failed sign-in attempt",
+      "auth_logout": "Signed out",
+      "auth_refresh": "Session renewed",
+      "auth_refresh_reuse_detected": "An old session token was reused",
+      "approval_execute": "Run after approval",
+      "approval_expire": "Approval expired",
+      "conversation_create": "Conversation created",
+      "chart_import": "Chart of accounts loaded",
+      "excel_job": "Excel job",
+      "file_upload": "File uploaded",
+      "file_update": "File changed",
+      "file_restore": "File restored",
+      "file_reindex": "File processed again",
+      "impact_status": "Impact finding updated",
+      "import_preview": "Import preview",
+      "import_commit_requested": "Import sent for approval",
+      "invoice_validate": "Invoice checked",
+      "invoice_propose_entries": "Entry proposed",
+      "message_feedback": "Feedback on an AI answer",
+      "model_register": "Model registered",
+      "model_status": "Model status changed",
+      "reconciliation_run": "Reconciliation started",
+      "reconciliation_confirm": "Reconciliation confirmed",
+      "role_create": "Role created",
+      "role_permissions": "Role permissions changed",
+      "source_update": "Source changed",
+      "tax_rate_propose": "Tax rate proposed",
+      "tax_rate_request_activation": "Rate activation sent for approval",
+      "user_create": "User created",
+      "user_roles": "User roles changed",
+      "user_status": "User status changed",
+      "vat_deposit_import": "Deposit statement uploaded",
+      "vat_return_draft": "VAT return draft"
+    },
+    "limitNote": "Showing the latest {{count}} events (the server returns at most 200).",
+    "showChange": "Show",
+    "before": "Before",
+    "after": "After"
   },
   "admin": {
     "tabsLabel": "Administration sections",

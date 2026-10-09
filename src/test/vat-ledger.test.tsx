@@ -163,11 +163,17 @@ describe("journal", () => {
     const queue = (await api.GET("/approvals")).data!;
     const approval = queue.find((item) => item.resourceRef === "je-seed-3")!;
     await expect(
-      api.POST("/approvals/{id}/decide", { params: { path: { id: approval.id } }, body: { decision: "approve", comment: "ok" } }),
+      api.POST("/approvals/{id}/decide", {
+        params: { path: { id: approval.id } },
+        body: { decision: "approve", comment: "ok" },
+      }),
     ).rejects.toMatchObject({ status: 403 });
 
     signInAs("bas.muhasib@lexaudit.test");
-    await api.POST("/approvals/{id}/decide", { params: { path: { id: approval.id } }, body: { decision: "approve", comment: "yoxlandı" } });
+    await api.POST("/approvals/{id}/decide", {
+      params: { path: { id: approval.id } },
+      body: { decision: "approve", comment: "yoxlandı" },
+    });
     expect((await api.GET("/journal/{id}", { params: { path: { id: "je-seed-3" } } })).data!.status).toBe("posted");
   });
 

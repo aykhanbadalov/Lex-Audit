@@ -13,6 +13,6 @@ declare module "@tanstack/history" {
     fromFilesSearch?: FilesSearch;
     fromInvoicesSearch?: InvoicesSearch;
     /** The first message typed before the conversation existed; the chat page sends it once. */
-    pendingChat?: { content: string; attachments: Attachment[] };
+    pendingChat?: string;
   }
 }

@@ -2,39 +2,43 @@ import { Link } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useJournalEntry } from "@/features/ledger/api";
+import { JournalEntryCard } from "@/features/ledger/components/JournalEntryCard";
+import { usePeople } from "@/shared/api/people";
+import { usePermission } from "@/shared/hooks/usePermission";
 import { formatDateTime } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import { MIN_COMMENT_LENGTH, useDecide, type ApprovalRequest } from "../api";
+import { MIN_COMMENT_LENGTH, kindParts, useDecide, type Approval } from "../api";
 
-const STATUS_TONE: Record<ApprovalRequest["status"], BadgeTone> = {
+const STATUS_TONE: Record<Approval["status"], BadgeTone> = {
   pending: "warning",
   approved: "success",
-  denied: "danger",
+  rejected: "danger",
   expired: "neutral",
 };
 
-export function ApprovalCard({ item }: { item: ApprovalRequest }) {
+export function ApprovalCard({ item }: { item: Approval }) {
   const { t, i18n } = useTranslation();
   const tag = localeTag(i18n.language);
+  const person = usePeople();
+  const { base, detail } = kindParts(item.kind);
   const titleId = `approval-${item.id}`;
   return (
     <article aria-labelledby={titleId} className="space-y-3 rounded-lg border bg-card p-4">
       <header className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="outline">{t(`approvals.kind.${item.kind}`)}</Badge>
+          <Badge tone="outline">{t(`approvals.kind.${base}`, { defaultValue: item.kind })}</Badge>
           <Badge tone={STATUS_TONE[item.status]}>{t(`approvals.status.${item.status}`)}</Badge>
-          {item.riskLevel !== "read" ? <Badge tone="outline">{t(`assistant.risk.${item.riskLevel}`)}</Badge> : null}
         </div>
         <h2 id={titleId} className="text-base font-semibold">
-          {item.title}
+          {t(`approvals.title.${base}`, { defaultValue: item.kind, detail })}
         </h2>
-        <p className="text-sm text-muted-foreground">{item.summary}</p>
         <p className="text-xs text-muted-foreground">
-          {t("approvals.requestedBy", { name: item.requestedBy.name, date: formatDateTime(item.requestedAt, tag) })}
+          {t("approvals.requestedBy", { name: person(item.requesterId), date: formatDateTime(item.createdAt, tag) })}
           {" · "}
           {t(item.status === "pending" ? "approvals.deadline" : "approvals.deadlineWas", {
             date: formatDateTime(item.expiresAt, tag),
@@ -42,44 +46,13 @@ export function ApprovalCard({ item }: { item: ApprovalRequest }) {
         </p>
       </header>
 
-      {item.changes.length > 0 ? (
-        <table className="w-full text-sm">
-          <caption className="sr-only">{t("approvals.changes")}</caption>
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th scope="col" className="py-1 pr-3 font-medium">
-                {t("approvals.change.what")}
-              </th>
-              <th scope="col" className="py-1 pr-3 font-medium">
-                {t("approvals.change.before")}
-              </th>
-              <th scope="col" className="py-1 font-medium">
-                {t("approvals.change.after")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {item.changes.map((change) => (
-              <tr key={change.label} className="border-t">
-                <th scope="row" className="py-1.5 pr-3 text-left font-medium">
-                  {change.label}
-                </th>
-                <td className="py-1.5 pr-3 text-muted-foreground">{change.before ?? t("approvals.change.none")}</td>
-                <td className="py-1.5 font-medium">{change.after ?? t("approvals.change.none")}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
+      <Subject item={item} />
 
-      {item.source ? (
-        <Link
-          to="/assistant/$id"
-          params={{ id: item.source.id }}
-          className="inline-block text-sm text-primary hover:underline"
-        >
-          {t("approvals.openConversation")}
-        </Link>
+      {item.execution ? (
+        <p role="status" className="text-sm">
+          {t(`approvals.execution.${item.execution.status}`)}
+          {item.execution.message ? `: ${item.execution.message}` : ""}
+        </p>
       ) : null}
 
       <Decision item={item} />
@@ -87,34 +60,79 @@ export function ApprovalCard({ item }: { item: ApprovalRequest }) {
   );
 }
 
-function Decision({ item }: { item: ApprovalRequest }) {
+/** What the approval is about, shown so a person can see what they are agreeing to. */
+function Subject({ item }: { item: Approval }) {
+  const { t } = useTranslation();
+  const canReadJournal = usePermission("journal:read");
+  const entry = useJournalEntry(item.kind === "journal_post" && canReadJournal ? item.resourceRef : null);
+  if (item.kind === "journal_post") {
+    return entry.data ? (
+      <div className="space-y-2">
+        <p className="text-sm font-medium">{entry.data.description}</p>
+        <JournalEntryCard entry={entry.data} canSubmit={false} showSourceLink />
+        <Link
+          to="/ledger/$id"
+          params={{ id: item.resourceRef }}
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          {t("approvals.openEntry")}
+        </Link>
+      </div>
+    ) : (
+      <p className="text-sm text-muted-foreground">{t("approvals.noAccessToSubject")}</p>
+    );
+  }
+  if (item.kind === "tax_rate_proposal") {
+    return (
+      <Link to="/admin" search={{ tab: "rates" }} className="text-sm text-primary underline-offset-4 hover:underline">
+        {t("approvals.openRates")}
+      </Link>
+    );
+  }
+  if (item.kind === "import_commit") {
+    return (
+      <Link
+        to="/integrations/$id"
+        params={{ id: item.resourceRef }}
+        className="text-sm text-primary underline-offset-4 hover:underline"
+      >
+        {t("approvals.openImport")}
+      </Link>
+    );
+  }
+  return <p className="font-mono text-xs text-muted-foreground">{item.resourceRef}</p>;
+}
+
+function Decision({ item }: { item: Approval }) {
   const { t, i18n } = useTranslation();
   const me = useAuthStore((state) => state.user?.id);
+  const canDecide = usePermission("approvals:decide");
+  const person = usePeople();
   const decide = useDecide();
   const [comment, setComment] = useState("");
 
   if (item.status !== "pending") {
-    if (!item.decidedBy) return null;
+    if (!item.decidedAt) return null;
     return (
       <p className="border-t pt-3 text-sm text-muted-foreground">
         {t("approvals.decidedBy", {
-          name: item.decidedBy.name,
-          date: formatDateTime(item.decidedAt ?? item.requestedAt, localeTag(i18n.language)),
+          name: person(item.approverId),
+          date: formatDateTime(item.decidedAt, localeTag(i18n.language)),
         })}
         {item.comment ? `: ${item.comment}` : ""}
       </p>
     );
   }
-  if (item.requestedBy.id === me) {
+  if (item.requesterId === me) {
     return (
       <p role="status" className="flex items-start gap-1.5 border-t pt-3 text-sm">
         <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        {t("assistant.approval.waitingOther")}
+        {t("approvals.waitingOther")}
       </p>
     );
   }
-  if (!item.canDecide) {
-    return <p className="border-t pt-3 text-sm text-muted-foreground">{t("assistant.approval.waiting")}</p>;
+  if (!canDecide) {
+    return <p className="border-t pt-3 text-sm text-muted-foreground">{t("approvals.waiting")}</p>;
   }
 
   const ready = comment.trim().length >= MIN_COMMENT_LENGTH && !decide.isPending;
@@ -134,18 +152,18 @@ function Decision({ item }: { item: ApprovalRequest }) {
           type="button"
           size="sm"
           disabled={!ready}
-          onClick={() => decide.mutate({ id: item.id, decision: "approved", comment })}
+          onClick={() => decide.mutate({ id: item.id, decision: "approve", comment })}
         >
-          {t("assistant.approval.approve")}
+          {t("approvals.approve")}
         </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
           disabled={!ready}
-          onClick={() => decide.mutate({ id: item.id, decision: "denied", comment })}
+          onClick={() => decide.mutate({ id: item.id, decision: "reject", comment })}
         >
-          {t("assistant.approval.deny")}
+          {t("approvals.reject")}
         </Button>
       </div>
     </div>

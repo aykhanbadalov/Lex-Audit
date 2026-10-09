@@ -1,22 +1,17 @@
 import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
-import { FileQuestion, Archive, Pencil } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FileQuestion } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/errors";
-import { useConversation, useUpdateConversation } from "@/features/assistant/api";
-import { MessageView } from "@/features/assistant/components/MessageView";
-import { fromLive, fromStored, type DisplayMessage } from "@/features/assistant/display";
+import { useConversation, type StoredMessage } from "@/features/assistant/api";
 import { Composer } from "@/features/assistant/components/Composer";
-import { assistantSearchSchema, contextFromSearch } from "@/features/assistant/context";
+import { MessageView, type DisplayMessage } from "@/features/assistant/components/MessageView";
+import { assistantSearchSchema, contextFromSearch, draftFor } from "@/features/assistant/context";
+import { fromLive, fromStored } from "@/features/assistant/display";
 import { useChat } from "@/features/assistant/useChat";
-import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
-import { Button } from "@/shared/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
 
 export const Route = createFileRoute("/_app/assistant/$id")({
   validateSearch: assistantSearchSchema,
@@ -37,22 +32,18 @@ function ChatPage() {
     );
   }
   // Keyed by id so switching conversations never carries one chat's stream or draft into another.
-  return <Chat key={id} id={id} title={conversation.data.title} stored={conversation.data.messages.map(fromStored)} />;
+  return <Chat key={id} id={id} title={conversation.data.title} stored={conversation.data.messages} />;
 }
 
-function Chat({ id, title, stored }: { id: string; title: string; stored: DisplayMessage[] }) {
+function Chat({ id, title, stored }: { id: string; title: string | null; stored: StoredMessage[] }) {
   const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = useNavigate();
   const pendingChat = useLocation({ select: (location) => location.state.pendingChat });
   const chat = useChat(id);
-  const update = useUpdateConversation(id);
-  const [attachments, setAttachments] = useState(() => contextFromSearch(search));
-  const [renaming, setRenaming] = useState(false);
-  const [title_, setTitle] = useState(title);
-  const [archiving, setArchiving] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const sentFirst = useRef(false);
+  const resource = contextFromSearch(search);
 
   // The first message typed on the "new conversation" screen is sent here, exactly once.
   useEffect(() => {
@@ -64,29 +55,25 @@ function Chat({ id, title, stored }: { id: string; title: string; stored: Displa
   }, [pendingChat, chat, navigate, id]);
 
   const messages = useMemo<DisplayMessage[]>(() => {
-    const list = [...stored];
-    if (
-      chat.pending &&
-      !stored.some(
-        (message) => message.role === "user" && message.content === chat.pending?.content && chat.live === null,
-      )
-    ) {
+    const list = stored.map((message) => fromStored(message, chat.toolsByMessage[message.id]));
+    // While the answer is being written the backend has already stored the question; show it once, from the store.
+    const alreadyStored = list.some((message) => message.role === "user" && message.content === chat.pending);
+    if (chat.pending && !alreadyStored) {
       list.push({
         id: null,
         role: "user",
-        content: chat.pending.content,
+        content: chat.pending,
         status: "complete",
         citations: [],
-        toolRuns: [],
-        approvals: [],
+        tools: [],
         modelVersion: null,
-        feedback: null,
+        error: null,
         live: true,
       });
     }
     if (chat.live) list.push(fromLive(chat.live));
     return list;
-  }, [stored, chat.pending, chat.live]);
+  }, [stored, chat.pending, chat.live, chat.toolsByMessage]);
 
   // Keep the newest text in view, unless the reader has scrolled up to read something.
   useEffect(() => {
@@ -96,39 +83,12 @@ function Chat({ id, title, stored }: { id: string; title: string; stored: Displa
     if (nearBottom) end.scrollIntoView({ block: "end" });
   }, [messages.length, chat.live?.content]);
 
-  const send = (content: string) => {
-    void chat.send({ content, attachments });
-    setAttachments([]);
-  };
-  const lastStored = stored[stored.length - 1];
-  const lastQuestion = [...stored].reverse().find((message) => message.role === "user")?.content;
-  const retryStored =
-    lastStored?.role === "assistant" && lastStored.status === "failed" && lastQuestion
-      ? () => send(lastQuestion)
-      : undefined;
+  const retryQuestion = chat.pending;
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold tracking-tight break-words">{title}</h2>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setTitle(title);
-              setRenaming(true);
-            }}
-          >
-            <Pencil className="size-4" aria-hidden="true" />
-            {t("assistant.rename")}
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => setArchiving(true)}>
-            <Archive className="size-4" aria-hidden="true" />
-            {t("assistant.archive")}
-          </Button>
-        </div>
+      <header>
+        <h2 className="text-xl font-semibold tracking-tight break-words">{title || t("assistant.untitled")}</h2>
       </header>
 
       {messages.length === 0 ? (
@@ -140,17 +100,13 @@ function Chat({ id, title, stored }: { id: string; title: string; stored: Displa
               <MessageView
                 key={message.id ?? `local-${index}`}
                 message={message}
-                conversationId={id}
                 onRetry={
-                  message.live && message.status === "failed" && chat.pending
+                  message.live && message.status === "failed" && retryQuestion
                     ? () => {
-                        const request = chat.pending!;
                         chat.dismiss();
-                        void chat.send(request);
+                        void chat.send(retryQuestion);
                       }
-                    : index === messages.length - 1
-                      ? retryStored
-                      : undefined
+                    : undefined
                 }
               />
             ))}
@@ -162,57 +118,12 @@ function Chat({ id, title, stored }: { id: string; title: string; stored: Displa
       <div className="sticky bottom-0 space-y-2 bg-background pt-2">
         <Composer
           streaming={chat.streaming}
-          attachments={attachments}
-          onRemoveAttachment={(target) => setAttachments((current) => current.filter((item) => item !== target))}
-          onSend={send}
+          initialText={resource ? draftFor(resource, t(`assistant.context.${resource.type}`)) : ""}
+          onSend={(content) => void chat.send(content)}
           onStop={chat.stop}
         />
         <p className="text-xs text-muted-foreground">{t("ai.disclaimer")}</p>
       </div>
-
-      <Dialog open={renaming} onOpenChange={setRenaming}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("assistant.rename")}</DialogTitle>
-          </DialogHeader>
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (title_.trim()) update.mutate({ title: title_.trim() }, { onSuccess: () => setRenaming(false) });
-            }}
-          >
-            <div className="space-y-1.5">
-              <Label htmlFor="conversation-title">{t("assistant.titleLabel")}</Label>
-              <Input
-                id="conversation-title"
-                value={title_}
-                maxLength={120}
-                onChange={(event) => setTitle(event.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setRenaming(false)}>
-                {t("common.cancel")}
-              </Button>
-              <Button type="submit" disabled={!title_.trim() || update.isPending}>
-                {t("common.save")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <ConfirmDialog
-        open={archiving}
-        onOpenChange={setArchiving}
-        title={t("assistant.archiveConfirm.title")}
-        description={t("assistant.archiveConfirm.description")}
-        confirmLabel={t("assistant.archive")}
-        busy={update.isPending}
-        onConfirm={() =>
-          update.mutate({ archived: true }, { onSuccess: () => void navigate({ to: "/assistant", search: {} }) })
-        }
-      />
     </div>
   );
 }

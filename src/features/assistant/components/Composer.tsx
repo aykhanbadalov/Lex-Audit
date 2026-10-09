@@ -1,22 +1,21 @@
-import { Send, Square, X } from "lucide-react";
+import { Send, Square } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { MAX_MESSAGE_LENGTH, type Attachment } from "../api";
+import { MAX_MESSAGE_LENGTH } from "../api";
 
 interface ComposerProps {
   streaming: boolean;
   disabled?: boolean;
-  attachments: Attachment[];
-  onRemoveAttachment: (attachment: Attachment) => void;
+  /** Text the box starts with, for example a line that names the resource the question is about. */
+  initialText?: string;
   onSend: (content: string) => void;
   onStop: () => void;
 }
 
-export function Composer({ streaming, disabled, attachments, onRemoveAttachment, onSend, onStop }: ComposerProps) {
+export function Composer({ streaming, disabled, initialText = "", onSend, onStop }: ComposerProps) {
   const { t } = useTranslation();
-  const [text, setText] = useState("");
+  const [text, setText] = useState(initialText);
   const trimmed = text.trim();
   const canSend = trimmed.length > 0 && trimmed.length <= MAX_MESSAGE_LENGTH && !streaming && !disabled;
 
@@ -42,25 +41,6 @@ export function Composer({ streaming, disabled, attachments, onRemoveAttachment,
         submit();
       }}
     >
-      {attachments.length > 0 ? (
-        <ul aria-label={t("assistant.context.title")} className="flex flex-wrap gap-2">
-          {attachments.map((attachment) => (
-            <li key={`${attachment.type}-${attachment.id}`}>
-              <Badge tone="info" className="gap-1">
-                {t(`assistant.context.${attachment.type}`)}: {attachment.title}
-                <button
-                  type="button"
-                  aria-label={t("assistant.context.remove", { title: attachment.title })}
-                  className="ml-1 rounded-sm focus-visible:outline-2 focus-visible:outline-ring"
-                  onClick={() => onRemoveAttachment(attachment)}
-                >
-                  <X className="size-3" aria-hidden="true" />
-                </button>
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      ) : null}
       <div className="flex items-end gap-2">
         <label htmlFor="assistant-message" className="sr-only">
           {t("assistant.messageLabel")}

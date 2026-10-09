@@ -5,12 +5,15 @@ import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Label } from "@/shared/ui/label";
 import { useSendFeedback } from "../api";
-import type { Message } from "../chatReducer";
 
-/** A rating, and for a thumbs-down the right answer: this is what the model is later improved with. */
-export function FeedbackBar({ message, conversationId }: { message: Message; conversationId: string }) {
+/**
+ * A rating, and for a thumbs-down the right answer: this is what the model is later improved with.
+ * The backend keeps feedback but does not send it back, so what was given is remembered here for the session.
+ */
+export function FeedbackBar({ messageId }: { messageId: string }) {
   const { t } = useTranslation();
-  const send = useSendFeedback(conversationId);
+  const send = useSendFeedback();
+  const [given, setGiven] = useState<"up" | "down" | null>(null);
   const [correcting, setCorrecting] = useState(false);
   const [correction, setCorrection] = useState("");
 
@@ -20,23 +23,25 @@ export function FeedbackBar({ message, conversationId }: { message: Message; con
         type="button"
         variant="ghost"
         size="sm"
-        aria-pressed={message.feedback === "up"}
+        aria-pressed={given === "up"}
         aria-label={t("assistant.feedback.up")}
-        disabled={send.isPending}
-        onClick={() => send.mutate({ messageId: message.id, rating: "up" })}
+        disabled={send.isPending || given !== null}
+        onClick={() =>
+          send.mutate({ messageId, body: { kind: "thumbs", value: "up" } }, { onSuccess: () => setGiven("up") })
+        }
       >
-        <ThumbsUp className={message.feedback === "up" ? "size-4 fill-current" : "size-4"} aria-hidden="true" />
+        <ThumbsUp className={given === "up" ? "size-4 fill-current" : "size-4"} aria-hidden="true" />
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="sm"
-        aria-pressed={message.feedback === "down"}
+        aria-pressed={given === "down"}
         aria-label={t("assistant.feedback.down")}
-        disabled={send.isPending}
+        disabled={send.isPending || given !== null}
         onClick={() => setCorrecting(true)}
       >
-        <ThumbsDown className={message.feedback === "down" ? "size-4 fill-current" : "size-4"} aria-hidden="true" />
+        <ThumbsDown className={given === "down" ? "size-4 fill-current" : "size-4"} aria-hidden="true" />
       </Button>
       <Dialog open={correcting} onOpenChange={setCorrecting}>
         <DialogContent>
@@ -49,7 +54,7 @@ export function FeedbackBar({ message, conversationId }: { message: Message; con
             <textarea
               id="correction"
               value={correction}
-              maxLength={2000}
+              maxLength={4000}
               rows={4}
               onChange={(event) => setCorrection(event.target.value)}
               className="w-full rounded-md border border-input bg-background p-2 text-sm focus-visible:outline-2 focus-visible:outline-ring"
@@ -62,17 +67,20 @@ export function FeedbackBar({ message, conversationId }: { message: Message; con
             <Button
               type="button"
               disabled={send.isPending}
-              onClick={() =>
-                send.mutate(
-                  { messageId: message.id, rating: "down", correction: correction.trim() },
-                  {
-                    onSuccess: () => {
-                      setCorrecting(false);
-                      setCorrection("");
-                    },
-                  },
-                )
-              }
+              onClick={async () => {
+                try {
+                  // A thumbs-down is always recorded; the right answer, when given, is recorded with it.
+                  await send.mutateAsync({ messageId, body: { kind: "thumbs", value: "down" } });
+                  if (correction.trim()) {
+                    await send.mutateAsync({ messageId, body: { kind: "correction", correction: correction.trim() } });
+                  }
+                  setGiven("down");
+                  setCorrecting(false);
+                  setCorrection("");
+                } catch {
+                  // The hook already told the person; the dialog stays open so nothing typed is lost.
+                }
+              }}
             >
               {t("assistant.feedback.send")}
             </Button>

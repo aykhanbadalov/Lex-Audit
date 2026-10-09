@@ -1,114 +1,63 @@
-import { ShieldAlert, Wrench } from "lucide-react";
-import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Check, Loader2, ShieldAlert, Wrench, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { usePermission } from "@/shared/hooks/usePermission";
-import { useAuthStore } from "@/shared/stores/authStore";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { MIN_COMMENT_LENGTH, useDecide } from "@/features/approvals/api";
-import type { Approval, ToolRun } from "../chatReducer";
+import type { ToolStatus } from "../chatReducer";
 
-const TONE: Record<ToolRun["status"], BadgeTone> = {
-  proposed: "neutral",
-  approval_required: "warning",
+const TONE: Record<ToolStatus, BadgeTone> = {
   running: "info",
-  done: "success",
+  succeeded: "success",
+  rejected: "danger",
+  approval_required: "warning",
   failed: "danger",
-  denied: "danger",
 };
 
 interface ToolCardProps {
-  toolRun: ToolRun;
-  approval: Approval | undefined;
+  tool: string;
+  /** Not known for a tool listed from a stored message: only its name is kept there. */
+  status?: ToolStatus;
+  summary?: string | null;
+  approvalId?: string | null;
 }
 
-export function ToolCard({ toolRun, approval }: ToolCardProps) {
+/** One tool the assistant used. A tool that changes something stops at an approval, which another person must give. */
+export function ToolCard({ tool, status, summary, approvalId }: ToolCardProps) {
   const { t } = useTranslation();
+  const Icon =
+    status === "running"
+      ? Loader2
+      : status === "succeeded"
+        ? Check
+        : status === "approval_required"
+          ? ShieldAlert
+          : status
+            ? X
+            : Wrench;
   return (
-    <li className="space-y-2 rounded-lg border bg-card p-3 text-sm">
+    <li className="space-y-1 rounded-lg border bg-card p-3 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <Wrench className="size-4 text-muted-foreground" aria-hidden="true" />
-        <span className="font-medium">
-          {t(`assistant.tool.${toolRun.toolName}`, { defaultValue: toolRun.toolName })}
-        </span>
-        <Badge tone={TONE[toolRun.status]}>{t(`assistant.toolStatus.${toolRun.status}`)}</Badge>
-        {toolRun.riskLevel !== "read" ? <Badge tone="outline">{t(`assistant.risk.${toolRun.riskLevel}`)}</Badge> : null}
-      </div>
-      <p className="text-xs text-muted-foreground">{toolRun.argumentsSummary}</p>
-      {toolRun.resultSummary ? <p className="text-xs">{toolRun.resultSummary}</p> : null}
-      {approval ? <ApprovalSection approval={approval} /> : null}
-    </li>
-  );
-}
-
-/**
- * A write the assistant wants to make. It does nothing until a person other than the requester approves.
- * The buttons are hidden for the requester and for people without the permission; the server checks both again.
- */
-function ApprovalSection({ approval }: { approval: Approval }) {
-  const { t } = useTranslation();
-  const canDecide = usePermission("approvals:decide");
-  const me = useAuthStore((state) => state.user?.id);
-  const decide = useDecide();
-  const [comment, setComment] = useState("");
-  const ready = comment.trim().length >= MIN_COMMENT_LENGTH && !decide.isPending;
-
-  if (approval.status !== "pending") {
-    return (
-      <p className="text-xs text-muted-foreground">
-        {t(`assistant.approval.${approval.status}`)}
-        {approval.comment ? `: ${approval.comment}` : ""}
-      </p>
-    );
-  }
-  if (approval.requestedBy.id === me) {
-    return (
-      <p role="status" className="flex items-start gap-1.5 text-xs">
-        <ShieldAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-        {t("assistant.approval.waitingOther")}
-      </p>
-    );
-  }
-  if (!canDecide) {
-    return <p className="text-xs text-muted-foreground">{t("assistant.approval.waiting")}</p>;
-  }
-  return (
-    <div className="space-y-2 border-t pt-2">
-      <p className="text-xs">
-        {t("assistant.approval.request", { name: approval.requestedBy.name, target: approval.targetResource })}
-      </p>
-      <div className="space-y-1">
-        <Label htmlFor={`comment-${approval.id}`} className="text-xs">
-          {t("assistant.approval.comment")}
-        </Label>
-        <Input
-          id={`comment-${approval.id}`}
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          maxLength={500}
+        <Icon
+          className={`size-4 text-muted-foreground ${status === "running" ? "animate-spin" : ""}`}
+          aria-hidden="true"
         />
+        <span className="font-medium">{t(`assistant.tool.${tool.replaceAll(".", "_")}`, { defaultValue: tool })}</span>
+        {status ? <Badge tone={TONE[status]}>{t(`assistant.toolStatus.${status}`)}</Badge> : null}
       </div>
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          size="sm"
-          disabled={!ready}
-          onClick={() => decide.mutate({ id: approval.id, decision: "approved", comment })}
-        >
-          {t("assistant.approval.approve")}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={!ready}
-          onClick={() => decide.mutate({ id: approval.id, decision: "denied", comment })}
-        >
-          {t("assistant.approval.deny")}
-        </Button>
-      </div>
-    </div>
+      {summary ? <p className="text-xs text-muted-foreground">{summary}</p> : null}
+      {status === "approval_required" ? (
+        <p className="flex flex-wrap items-center gap-2 text-xs">
+          {t("assistant.approvalNote")}
+          {approvalId ? (
+            <Link
+              to="/approvals"
+              search={{ status: "pending" }}
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              {t("assistant.openApprovals")}
+            </Link>
+          ) : null}
+        </p>
+      ) : null}
+    </li>
   );
 }
