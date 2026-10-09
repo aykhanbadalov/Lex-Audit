@@ -409,6 +409,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/vat/periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** VAT periods, newest first */
+        get: operations["listVatPeriods"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{periodId}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Output VAT, deductible VAT and the result for a period, in the base currency. The server converts foreign currency invoices and decides which invoices are included. */
+        get: operations["getVatSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{periodId}/deposit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The VAT deposit account statement for the period, matched against invoices */
+        get: operations["getVatDeposit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/deposit-lines/{lineId}/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm which invoice a deposit account movement belongs to */
+        post: operations["matchDepositLine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{periodId}/draft-return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The current draft, or 404 when none has been prepared yet */
+        get: operations["getVatReturnDraft"];
+        put?: never;
+        /** Prepare (or prepare again) the draft from the invoices as they are now. This is not a filing. */
+        post: operations["createVatReturnDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{periodId}/draft-return/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The draft as a file */
+        get: operations["exportVatReturnDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Journal entries, newest first */
+        get: operations["listJournal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/journal/{id}": {
         parameters: {
             query?: never;
@@ -834,8 +954,12 @@ export interface components {
             name: string;
             /** @enum {string} */
             type: "asset" | "liability" | "equity" | "income" | "expense";
+            /** @description null for a top-level account. The UI nests children under their parent when it is present. */
+            parentCode: string | null;
         };
         TaxRate: {
+            /** @description The law this rate comes from, so a rate can always be traced back to its text */
+            legalSource: components["schemas"]["LegislationRef"] | null;
             /** @example AZ_VAT_STANDARD */
             code: string;
             label: string;
@@ -852,13 +976,18 @@ export interface components {
             credit: components["schemas"]["Money"];
             description: string;
         };
+        /** @enum {string} */
+        JournalStatus: "proposed" | "pending_approval" | "approved" | "posted" | "rejected";
         JournalEntry: {
             id: string;
             /** Format: date */
             date: string;
             description: string;
-            /** @enum {string} */
-            status: "proposed" | "pending_approval" | "approved" | "posted" | "rejected";
+            status: components["schemas"]["JournalStatus"];
+            /** @description The company's base currency. The ledger is always kept in it, whatever currency the invoice used. */
+            currency: string;
+            /** @description Official rate used to convert a foreign currency source into the base currency; null when no conversion was needed */
+            exchangeRate: string | null;
             /** @enum {string} */
             source: "invoice" | "manual" | "ai";
             sourceInvoiceId: string | null;
@@ -869,6 +998,118 @@ export interface components {
             balanced: boolean;
             /** Format: date-time */
             createdAt: string;
+        };
+        JournalEntrySummary: {
+            id: string;
+            /** Format: date */
+            date: string;
+            description: string;
+            status: components["schemas"]["JournalStatus"];
+            /** @enum {string} */
+            source: "invoice" | "manual" | "ai";
+            sourceInvoiceId: string | null;
+            currency: string;
+            totalDebit: components["schemas"]["Money"];
+            totalCredit: components["schemas"]["Money"];
+            balanced: boolean;
+        };
+        JournalPage: {
+            items: components["schemas"]["JournalEntrySummary"][];
+            nextCursor: string | null;
+        };
+        /**
+         * @description A line of the VAT summary an invoice list can be narrowed to
+         * @enum {string}
+         */
+        VatBucket: "output" | "input" | "zeroRated" | "exempt";
+        VatPeriod: {
+            /**
+             * @description YYYY-MM
+             * @example 2026-09
+             */
+            id: string;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            status: "open" | "filed";
+            /**
+             * Format: date
+             * @description From the tax calendar, never hard-coded in the UI
+             */
+            dueDate: string;
+        };
+        VatBreakdownItem: {
+            bucket: components["schemas"]["VatBucket"];
+            amount: components["schemas"]["Money"];
+            invoiceCount: number;
+        };
+        VatSummary: {
+            periodId: string;
+            /** @description Base currency; every amount below is in it */
+            currency: string;
+            outputVat: components["schemas"]["Money"];
+            inputVat: components["schemas"]["Money"];
+            result: components["schemas"]["Money"];
+            /**
+             * @description Decided by the server; the UI never compares amounts
+             * @enum {string}
+             */
+            resultKind: "payable" | "refundable" | "zero";
+            taxableTurnover: components["schemas"]["Money"];
+            zeroRatedTurnover: components["schemas"]["Money"];
+            exemptTurnover: components["schemas"]["Money"];
+            breakdown: components["schemas"]["VatBreakdownItem"][];
+            /** @description Invoices of the period left out because they are not validated yet. The UI must say so. */
+            excludedInvoiceCount: number;
+            /** @description Invoices converted from a foreign currency at the official rate */
+            convertedInvoiceCount: number;
+        };
+        DepositLine: {
+            id: string;
+            /** Format: date */
+            date: string;
+            description: string;
+            /** @enum {string} */
+            direction: "in" | "out";
+            amount: components["schemas"]["Money"];
+            /** @enum {string} */
+            matchStatus: "matched" | "unmatched";
+            matchedInvoiceId: string | null;
+            /** @description What people recognise an invoice by */
+            matchedInvoiceNumber: string | null;
+            /** @description The server's best guess for an unmatched line */
+            suggestedInvoiceId: string | null;
+            suggestedInvoiceNumber: string | null;
+        };
+        DepositReconciliation: {
+            periodId: string;
+            currency: string;
+            openingBalance: components["schemas"]["Money"];
+            closingBalance: components["schemas"]["Money"];
+            /** @description What the books explain, i.e. only matched movements */
+            ledgerBalance: components["schemas"]["Money"];
+            /** @description closingBalance minus ledgerBalance, computed by the server */
+            difference: components["schemas"]["Money"];
+            lines: components["schemas"]["DepositLine"][];
+            unmatchedCount: number;
+        };
+        VatReturnLine: {
+            /** @description A stable key for the line. Mapping it to a field of the official form is the backend's job. */
+            code: string;
+            amount: components["schemas"]["Money"];
+        };
+        VatReturnDraft: {
+            id: string;
+            periodId: string;
+            currency: string;
+            /** Format: date-time */
+            generatedAt: string;
+            generatedByName: string;
+            lines: components["schemas"]["VatReturnLine"][];
+            /** @description Invoices left out when the draft was prepared */
+            excludedInvoiceCount: number;
         };
     };
     responses: {
@@ -1475,6 +1716,10 @@ export interface operations {
                 direction?: components["schemas"]["InvoiceDirection"];
                 /** @description true = only invoices with at least one open issue */
                 hasIssues?: boolean;
+                /** @description Only invoices that fall in this VAT period (YYYY-MM) */
+                vatPeriod?: string;
+                /** @description With vatPeriod: only the invoices behind one line of the VAT summary */
+                vatBucket?: components["schemas"]["VatBucket"];
                 cursor?: string;
                 limit?: number;
             };
@@ -1650,6 +1895,206 @@ export interface operations {
             };
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+        };
+    };
+    listVatPeriods: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VatPeriod"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getVatSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VatSummary"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getVatDeposit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DepositReconciliation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    matchDepositLine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lineId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    invoiceId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The reconciliation after the change */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DepositReconciliation"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    getVatReturnDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VatReturnDraft"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createVatReturnDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The new draft */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VatReturnDraft"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    exportVatReturnDraft: {
+        parameters: {
+            query: {
+                format: "pdf" | "xlsx" | "xml";
+            };
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description File bytes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listJournal: {
+        parameters: {
+            query?: {
+                /** @description Matches the description */
+                q?: string;
+                status?: components["schemas"]["JournalStatus"];
+                from?: string;
+                to?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
         };
     };
     getJournalEntry: {

@@ -430,7 +430,8 @@
       "credit": "Kredit",
       "total": "Cəmi",
       "submit": "Təsdiqə göndər",
-      "waiting": "Yazılış baş mühasibin təsdiqini gözləyir."
+      "waiting": "Yazılış baş mühasibin təsdiqini gözləyir.",
+      "rate": "Bazis valyutaya çevirmə məzənnəsi: {{rate}} ({{currency}})"
     },
     "preview": {
       "title": "Sənəd",
@@ -444,6 +445,146 @@
     "saved": "Qaimə yadda saxlanıldı",
     "saveFailed": "Yadda saxlanmadı. Yenidən cəhd edin.",
     "revalidated": "Qaimə yenidən yoxlanıldı",
-    "actionFailed": "Əməliyyat alınmadı. Yenidən cəhd edin."
+    "actionFailed": "Əməliyyat alınmadı. Yenidən cəhd edin.",
+    "vatFilter": "ƏDV: {{period}} · {{bucket}}",
+    "vatFilterRemove": "Süzgəci götür"
+  },
+  "ledger": {
+    "navLabel": "Jurnal bölmələri",
+    "entries": "Yazılışlar",
+    "accounts": "Hesablar planı",
+    "searchPlaceholder": "Yazılışın təsviri",
+    "accountsSearch": "Hesabın kodu və ya adı",
+    "empty": "Hələ jurnal yazılışı yoxdur",
+    "emptyHint": "Qaimələrdən təklif olunan yazılışlar burada görünəcək.",
+    "back": "Jurnala qayıt",
+    "notFound": "Yazılış tapılmadı",
+    "notFoundHint": "Yazılış silinmiş və ya əlçatan olmaya bilər.",
+    "openInvoice": "Mənbə qaiməni aç",
+    "columns": {
+      "date": "Tarix",
+      "description": "Təsvir",
+      "status": "Status",
+      "total": "Məbləğ",
+      "code": "Kod",
+      "name": "Ad"
+    },
+    "source": {
+      "invoice": "Qaimədən",
+      "manual": "Əl ilə",
+      "ai": "AI təklifi"
+    },
+    "accountType": {
+      "asset": "Aktivlər",
+      "liability": "Öhdəliklər",
+      "equity": "Kapital",
+      "income": "Gəlirlər",
+      "expense": "Xərclər"
+    }
+  },
+  "vat": {
+    "period": "Dövr",
+    "tabsLabel": "ƏDV bölmələri",
+    "tab": {
+      "summary": "Xülasə",
+      "deposit": "Depozit hesabı",
+      "return": "Bəyannamə qaralaması",
+      "rates": "Dərəcələr"
+    },
+    "periodStatus": {
+      "open": "Açıq",
+      "filed": "Təqdim edilib"
+    },
+    "periodInfo": "{{from}} – {{to}} · təqdim müddəti: {{due}}",
+    "bucket": {
+      "all": "bütün qaimələr",
+      "output": "hesablanmış ƏDV",
+      "input": "əvəzləşdirilən ƏDV",
+      "zeroRated": "0% dərəcəli dövriyyə",
+      "exempt": "ƏDV-dən azad dövriyyə"
+    },
+    "summary": {
+      "outputVat": "Hesablanmış ƏDV",
+      "inputVat": "Əvəzləşdirilən ƏDV",
+      "resultPayable": "Ödəniləcək ƏDV",
+      "resultRefundable": "Qaytarılacaq ƏDV",
+      "resultZero": "Ödəniləcək fərq yoxdur",
+      "turnover": "Dövriyyə",
+      "taxable": "Vergiyə cəlb olunan",
+      "zeroRated": "0% dərəcəli",
+      "exempt": "ƏDV-dən azad",
+      "invoices": "Qaimələr: {{count}}",
+      "excluded": "{{count}} qaimə hələ yoxlanılmadığı üçün hesablamaya daxil edilməyib.",
+      "excludedLink": "Onlara bax",
+      "converted": "Xarici valyutadakı qaimələrin sayı: {{count}}. Onlar rəsmi məzənnə ilə manata çevrilib."
+    },
+    "deposit": {
+      "opening": "Əvvəlki qalıq",
+      "closing": "Çıxarışa görə qalıq",
+      "ledger": "Uçota görə qalıq",
+      "difference": "Fərq",
+      "reconciled": "Depozit hesabı uçotla tam uzlaşır.",
+      "unmatchedNote": "Qaimə ilə əlaqələndirilməmiş hərəkətlər: {{count}}. Fərq məhz onlardan yaranır.",
+      "empty": "Bu dövr üçün depozit hesabı çıxarışı yoxdur.",
+      "columns": {
+        "date": "Tarix",
+        "description": "Təsvir",
+        "direction": "İstiqamət",
+        "amount": "Məbləğ",
+        "status": "Status",
+        "action": "Əməliyyat"
+      },
+      "direction": {
+        "in": "Daxil olub",
+        "out": "Çıxıb"
+      },
+      "status": {
+        "matched": "Uyğunlaşdırılıb",
+        "unmatched": "Uyğunlaşdırılmayıb"
+      },
+      "invoice": "Qaimə {{number}}",
+      "match": "Uyğunlaşdır: {{number}}",
+      "confirmTitle": "Hərəkət uyğunlaşdırılsın?",
+      "confirmDescription": "Hərəkət {{number}} nömrəli qaimə ilə əlaqələndiriləcək. Bu əməliyyatı sonradan geri qaytarmaq mümkün deyil.",
+      "confirm": "Uyğunlaşdır",
+      "matched": "Hərəkət uyğunlaşdırıldı",
+      "failed": "Uyğunlaşdırmaq alınmadı"
+    },
+    "return": {
+      "disclaimer": "Bu, rəsmi bəyannamə deyil, qaralamadır. Rəsmi təqdimat e-taxes.gov.az portalında aparılır.",
+      "none": "Bu dövr üçün hələ qaralama hazırlanmayıb.",
+      "prepare": "Qaralama hazırla",
+      "prepareAgain": "Yenidən hazırla",
+      "filedNote": "Dövr təqdim edilib, qaralama hazırlamaq olmaz.",
+      "readerNote": "Qaralamanı hazırlamaq üçün icazəniz yoxdur.",
+      "generated": "Hazırlanıb: {{date}} · {{name}}",
+      "stale": "Hazırlanarkən {{count}} qaimə yoxlanılmadığı üçün daxil edilməyib. Yoxladıqdan sonra qaralamanı yenidən hazırlayın.",
+      "created": "Qaralama hazırlandı",
+      "failed": "Qaralama hazırlanmadı",
+      "export": {
+        "pdf": "PDF",
+        "xlsx": "Excel",
+        "xml": "XML",
+        "failed": "Fayl yüklənmədi"
+      },
+      "line": {
+        "TURNOVER_TAXABLE": "Vergiyə cəlb olunan dövriyyə",
+        "TURNOVER_ZERO_RATED": "0% dərəcəli dövriyyə",
+        "TURNOVER_EXEMPT": "ƏDV-dən azad dövriyyə",
+        "OUTPUT_VAT": "Hesablanmış ƏDV",
+        "INPUT_VAT": "Əvəzləşdirilən ƏDV",
+        "VAT_PAYABLE": "Ödəniləcək ƏDV",
+        "VAT_REFUNDABLE": "Qaytarılacaq ƏDV"
+      }
+    },
+    "rates": {
+      "intro": "Qüvvədə olan ƏDV dərəcələri. Hər dərəcə öz hüquqi mənbəyinə bağlıdır.",
+      "name": "Ad",
+      "code": "Kod",
+      "rate": "Dərəcə",
+      "valid": "Qüvvədədir",
+      "source": "Mənbə",
+      "now": "hazırda"
+    }
   }
 }

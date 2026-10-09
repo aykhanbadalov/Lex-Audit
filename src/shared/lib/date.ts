@@ -46,3 +46,12 @@ export function formatDateTime(iso: string, locale: string): string {
   const time = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
   return `${formatDate(iso, locale)}, ${time}`;
 }
+
+/** "sentyabr 2026" for a "YYYY-MM" period id, with the same Azerbaijani month names as formatDate. */
+export function formatMonth(periodId: string, locale: string): string {
+  const [year, month] = periodId.split("-").map(Number) as [number, number];
+  if (isAzerbaijani(locale)) return `${AZ_MONTHS[month - 1]} ${year}`;
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(
+    new Date(Date.UTC(year, month - 1, 1)),
+  );
+}

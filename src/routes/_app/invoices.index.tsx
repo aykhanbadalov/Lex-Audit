@@ -19,7 +19,7 @@ import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
 import { usePermission } from "@/shared/hooks/usePermission";
 import { useSearchText } from "@/shared/hooks/useSearchText";
-import { formatDate } from "@/shared/lib/date";
+import { formatDate, formatMonth } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
 import { UploadDropzone } from "@/shared/upload/UploadDropzone";
 import { Badge } from "@/shared/ui/badge";
@@ -129,6 +129,25 @@ function InvoicesPageContent() {
         <div className="mb-6">
           <UploadDropzone upload={(file, options) => uploadInvoice(file, options)} queryKey={invoiceKeys.all} />
         </div>
+      ) : null}
+
+      {search.vatPeriod ? (
+        <p className="mb-4 flex flex-wrap items-center gap-2 text-sm">
+          <Badge tone="info">
+            {t("invoices.vatFilter", {
+              period: formatMonth(search.vatPeriod, tag),
+              bucket: search.vatBucket ? t(`vat.bucket.${search.vatBucket}`) : t("vat.bucket.all"),
+            })}
+          </Badge>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => update({ vatPeriod: undefined, vatBucket: undefined })}
+          >
+            {t("invoices.vatFilterRemove")}
+          </Button>
+        </p>
       ) : null}
 
       <form

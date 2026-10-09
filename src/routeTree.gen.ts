@@ -17,12 +17,14 @@ import { Route as AppApprovalsRouteImport } from './routes/_app/approvals'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppExcelRouteImport } from './routes/_app/excel'
-import { Route as AppLedgerRouteImport } from './routes/_app/ledger'
 import { Route as AppVatRouteImport } from './routes/_app/vat'
 import { Route as AppFilesIndexRouteImport } from './routes/_app/files.index'
 import { Route as AppFilesIdRouteImport } from './routes/_app/files.$id'
 import { Route as AppInvoicesIndexRouteImport } from './routes/_app/invoices.index'
 import { Route as AppInvoicesIdRouteImport } from './routes/_app/invoices.$id'
+import { Route as AppLedgerIndexRouteImport } from './routes/_app/ledger.index'
+import { Route as AppLedgerIdRouteImport } from './routes/_app/ledger.$id'
+import { Route as AppLedgerAccountsRouteImport } from './routes/_app/ledger.accounts'
 import { Route as AppLegislationIndexRouteImport } from './routes/_app/legislation.index'
 import { Route as AppLegislationIdRouteImport } from './routes/_app/legislation.$id'
 import { Route as AppNewsIndexRouteImport } from './routes/_app/news.index'
@@ -67,11 +69,6 @@ const AppExcelRoute = AppExcelRouteImport.update({
   path: '/excel',
   getParentRoute: () => AppRoute,
 } as any)
-const AppLedgerRoute = AppLedgerRouteImport.update({
-  id: '/ledger',
-  path: '/ledger',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppVatRoute = AppVatRouteImport.update({
   id: '/vat',
   path: '/vat',
@@ -95,6 +92,21 @@ const AppInvoicesIndexRoute = AppInvoicesIndexRouteImport.update({
 const AppInvoicesIdRoute = AppInvoicesIdRouteImport.update({
   id: '/invoices/$id',
   path: '/invoices/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLedgerIndexRoute = AppLedgerIndexRouteImport.update({
+  id: '/ledger/',
+  path: '/ledger/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLedgerIdRoute = AppLedgerIdRouteImport.update({
+  id: '/ledger/$id',
+  path: '/ledger/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLedgerAccountsRoute = AppLedgerAccountsRouteImport.update({
+  id: '/ledger/accounts',
+  path: '/ledger/accounts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLegislationIndexRoute = AppLegislationIndexRouteImport.update({
@@ -126,14 +138,16 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
   '/excel': typeof AppExcelRoute
-  '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
   '/files/$id': typeof AppFilesIdRoute
   '/invoices/$id': typeof AppInvoicesIdRoute
+  '/ledger/$id': typeof AppLedgerIdRoute
+  '/ledger/accounts': typeof AppLedgerAccountsRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/files/': typeof AppFilesIndexRoute
   '/invoices/': typeof AppInvoicesIndexRoute
+  '/ledger/': typeof AppLedgerIndexRoute
   '/legislation/': typeof AppLegislationIndexRoute
   '/news/': typeof AppNewsIndexRoute
 }
@@ -145,14 +159,16 @@ export interface FileRoutesByTo {
   '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
   '/excel': typeof AppExcelRoute
-  '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
   '/files/$id': typeof AppFilesIdRoute
   '/invoices/$id': typeof AppInvoicesIdRoute
+  '/ledger/$id': typeof AppLedgerIdRoute
+  '/ledger/accounts': typeof AppLedgerAccountsRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/files': typeof AppFilesIndexRoute
   '/invoices': typeof AppInvoicesIndexRoute
+  '/ledger': typeof AppLedgerIndexRoute
   '/legislation': typeof AppLegislationIndexRoute
   '/news': typeof AppNewsIndexRoute
 }
@@ -166,14 +182,16 @@ export interface FileRoutesById {
   '/_app/assistant': typeof AppAssistantRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/excel': typeof AppExcelRoute
-  '/_app/ledger': typeof AppLedgerRoute
   '/_app/vat': typeof AppVatRoute
   '/_app/files/$id': typeof AppFilesIdRoute
   '/_app/invoices/$id': typeof AppInvoicesIdRoute
+  '/_app/ledger/$id': typeof AppLedgerIdRoute
+  '/_app/ledger/accounts': typeof AppLedgerAccountsRoute
   '/_app/legislation/$id': typeof AppLegislationIdRoute
   '/_app/news/$id': typeof AppNewsIdRoute
   '/_app/files/': typeof AppFilesIndexRoute
   '/_app/invoices/': typeof AppInvoicesIndexRoute
+  '/_app/ledger/': typeof AppLedgerIndexRoute
   '/_app/legislation/': typeof AppLegislationIndexRoute
   '/_app/news/': typeof AppNewsIndexRoute
 }
@@ -187,14 +205,16 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/excel'
-    | '/ledger'
     | '/vat'
     | '/files/$id'
     | '/invoices/$id'
+    | '/ledger/$id'
+    | '/ledger/accounts'
     | '/legislation/$id'
     | '/news/$id'
     | '/files/'
     | '/invoices/'
+    | '/ledger/'
     | '/legislation/'
     | '/news/'
   fileRoutesByTo: FileRoutesByTo
@@ -206,14 +226,16 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/excel'
-    | '/ledger'
     | '/vat'
     | '/files/$id'
     | '/invoices/$id'
+    | '/ledger/$id'
+    | '/ledger/accounts'
     | '/legislation/$id'
     | '/news/$id'
     | '/files'
     | '/invoices'
+    | '/ledger'
     | '/legislation'
     | '/news'
   id:
@@ -226,14 +248,16 @@ export interface FileRouteTypes {
     | '/_app/assistant'
     | '/_app/dashboard'
     | '/_app/excel'
-    | '/_app/ledger'
     | '/_app/vat'
     | '/_app/files/$id'
     | '/_app/invoices/$id'
+    | '/_app/ledger/$id'
+    | '/_app/ledger/accounts'
     | '/_app/legislation/$id'
     | '/_app/news/$id'
     | '/_app/files/'
     | '/_app/invoices/'
+    | '/_app/ledger/'
     | '/_app/legislation/'
     | '/_app/news/'
   fileRoutesById: FileRoutesById
@@ -302,13 +326,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppExcelRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/ledger': {
-      id: '/_app/ledger'
-      path: '/ledger'
-      fullPath: '/ledger'
-      preLoaderRoute: typeof AppLedgerRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/vat': {
       id: '/_app/vat'
       path: '/vat'
@@ -342,6 +359,27 @@ declare module '@tanstack/react-router' {
       path: '/invoices/$id'
       fullPath: '/invoices/$id'
       preLoaderRoute: typeof AppInvoicesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ledger/': {
+      id: '/_app/ledger/'
+      path: '/ledger'
+      fullPath: '/ledger/'
+      preLoaderRoute: typeof AppLedgerIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ledger/$id': {
+      id: '/_app/ledger/$id'
+      path: '/ledger/$id'
+      fullPath: '/ledger/$id'
+      preLoaderRoute: typeof AppLedgerIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ledger/accounts': {
+      id: '/_app/ledger/accounts'
+      path: '/ledger/accounts'
+      fullPath: '/ledger/accounts'
+      preLoaderRoute: typeof AppLedgerAccountsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/legislation/': {
@@ -381,14 +419,16 @@ interface AppRouteChildren {
   AppAssistantRoute: typeof AppAssistantRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppExcelRoute: typeof AppExcelRoute
-  AppLedgerRoute: typeof AppLedgerRoute
   AppVatRoute: typeof AppVatRoute
   AppFilesIdRoute: typeof AppFilesIdRoute
   AppInvoicesIdRoute: typeof AppInvoicesIdRoute
+  AppLedgerIdRoute: typeof AppLedgerIdRoute
+  AppLedgerAccountsRoute: typeof AppLedgerAccountsRoute
   AppLegislationIdRoute: typeof AppLegislationIdRoute
   AppNewsIdRoute: typeof AppNewsIdRoute
   AppFilesIndexRoute: typeof AppFilesIndexRoute
   AppInvoicesIndexRoute: typeof AppInvoicesIndexRoute
+  AppLedgerIndexRoute: typeof AppLedgerIndexRoute
   AppLegislationIndexRoute: typeof AppLegislationIndexRoute
   AppNewsIndexRoute: typeof AppNewsIndexRoute
 }
@@ -399,14 +439,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppAssistantRoute: AppAssistantRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppExcelRoute: AppExcelRoute,
-  AppLedgerRoute: AppLedgerRoute,
   AppVatRoute: AppVatRoute,
   AppFilesIdRoute: AppFilesIdRoute,
   AppInvoicesIdRoute: AppInvoicesIdRoute,
+  AppLedgerIdRoute: AppLedgerIdRoute,
+  AppLedgerAccountsRoute: AppLedgerAccountsRoute,
   AppLegislationIdRoute: AppLegislationIdRoute,
   AppNewsIdRoute: AppNewsIdRoute,
   AppFilesIndexRoute: AppFilesIndexRoute,
   AppInvoicesIndexRoute: AppInvoicesIndexRoute,
+  AppLedgerIndexRoute: AppLedgerIndexRoute,
   AppLegislationIndexRoute: AppLegislationIndexRoute,
   AppNewsIndexRoute: AppNewsIndexRoute,
 }

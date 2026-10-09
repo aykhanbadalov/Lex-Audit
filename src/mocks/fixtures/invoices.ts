@@ -3,6 +3,7 @@
 import type { components } from "@/api/schema";
 import { formatDec, mulDec, parseDec, roundCents } from "../decimal";
 import { processingMs } from "./files";
+import { BASE_CURRENCY, rateFor, toBase } from "./fx";
 
 type Invoice = components["schemas"]["Invoice"];
 type InvoiceDetail = components["schemas"]["InvoiceDetail"];
@@ -15,24 +16,45 @@ type TaxRate = components["schemas"]["TaxRate"];
 type Account = components["schemas"]["Account"];
 
 export const taxRates: TaxRate[] = [
-  { code: "AZ_VAT_STANDARD", label: "ƏDV 18%", rate: "0.18", validFrom: "2016-01-01", validTo: null },
-  { code: "AZ_VAT_ZERO", label: "ƏDV 0%", rate: "0", validFrom: "2016-01-01", validTo: null },
-  { code: "AZ_VAT_EXEMPT", label: "ƏDV-dən azad", rate: "0", validFrom: "2016-01-01", validTo: null },
+  {
+    code: "AZ_VAT_STANDARD",
+    label: "ƏDV 18%",
+    rate: "0.18",
+    validFrom: "2016-01-01",
+    validTo: null,
+    legalSource: { id: "leg-tax-code", title: "Vergi Məcəlləsi", articleRef: null },
+  },
+  {
+    code: "AZ_VAT_ZERO",
+    label: "ƏDV 0%",
+    rate: "0",
+    validFrom: "2016-01-01",
+    validTo: null,
+    legalSource: { id: "leg-tax-code", title: "Vergi Məcəlləsi", articleRef: null },
+  },
+  {
+    code: "AZ_VAT_EXEMPT",
+    label: "ƏDV-dən azad",
+    rate: "0",
+    validFrom: "2016-01-01",
+    validTo: null,
+    legalSource: { id: "leg-tax-code", title: "Vergi Məcəlləsi", articleRef: null },
+  },
 ];
 
 // Codes and names are placeholders for the demo, not the official chart of accounts.
 export const accounts: Account[] = [
-  { code: "201", name: "Material ehtiyatları", type: "asset" },
-  { code: "211", name: "Alıcıların borcları", type: "asset" },
-  { code: "221", name: "Kassa", type: "asset" },
-  { code: "223", name: "Bank hesabı", type: "asset" },
-  { code: "241", name: "Əvəzləşdirilən ƏDV", type: "asset" },
-  { code: "521", name: "Təchizatçılara borclar", type: "liability" },
-  { code: "531", name: "Hesablanmış ƏDV", type: "liability" },
-  { code: "601", name: "Satışdan gəlir", type: "income" },
-  { code: "711", name: "Satılmış məhsulun maya dəyəri", type: "expense" },
-  { code: "721", name: "İnzibati xərclər", type: "expense" },
-  { code: "731", name: "Kommersiya xərcləri", type: "expense" },
+  { code: "201", name: "Material ehtiyatları", type: "asset", parentCode: null },
+  { code: "211", name: "Alıcıların borcları", type: "asset", parentCode: null },
+  { code: "221", name: "Kassa", type: "asset", parentCode: null },
+  { code: "223", name: "Bank hesabı", type: "asset", parentCode: null },
+  { code: "241", name: "Əvəzləşdirilən ƏDV", type: "asset", parentCode: null },
+  { code: "521", name: "Təchizatçılara borclar", type: "liability", parentCode: null },
+  { code: "531", name: "Hesablanmış ƏDV", type: "liability", parentCode: null },
+  { code: "601", name: "Satışdan gəlir", type: "income", parentCode: null },
+  { code: "711", name: "Satılmış məhsulun maya dəyəri", type: "expense", parentCode: null },
+  { code: "721", name: "İnzibati xərclər", type: "expense", parentCode: null },
+  { code: "731", name: "Kommersiya xərcləri", type: "expense", parentCode: null },
 ];
 
 const accountName = (code: string) => accounts.find((account) => account.code === code)?.name ?? code;
@@ -561,63 +583,39 @@ function buildEntry(stored: StoredInvoice, id: string, status: JournalEntry["sta
   const lines: JournalEntry["lines"] = [];
   const codeOf = (source: InvoiceLine, fallback: string) =>
     source.accountFinal ?? source.accountSuggestion?.code ?? fallback;
+  // The ledger is kept in the base currency, whatever currency the invoice used.
+  const base = (amount: string) => toBase(amount, stored.currency);
+  const line = (code: string, debit: string, credit: string, description: string) =>
+    lines.push({
+      accountCode: code,
+      accountName: accountName(code),
+      debit: base(debit),
+      credit: base(credit),
+      description,
+    });
 
   if (purchase) {
-    for (const source of totals.lines) {
-      const code = codeOf(source, "201");
-      lines.push({
-        accountCode: code,
-        accountName: accountName(code),
-        debit: source.net,
-        credit: "0.00",
-        description: source.description,
-      });
-    }
-    if (totals.vat !== "0.00")
-      lines.push({
-        accountCode: "241",
-        accountName: accountName("241"),
-        debit: totals.vat,
-        credit: "0.00",
-        description: "Əvəzləşdirilən ƏDV",
-      });
-    lines.push({
-      accountCode: "521",
-      accountName: accountName("521"),
-      debit: "0.00",
-      credit: totals.gross,
-      description: stored.counterpartyName ?? "",
-    });
+    for (const source of totals.lines) line(codeOf(source, "201"), source.net, "0.00", source.description);
+    if (totals.vat !== "0.00") line("241", totals.vat, "0.00", "Əvəzləşdirilən ƏDV");
+    line("521", "0.00", totals.gross, stored.counterpartyName ?? "");
   } else {
-    lines.push({
-      accountCode: "211",
-      accountName: accountName("211"),
-      debit: totals.gross,
-      credit: "0.00",
-      description: stored.counterpartyName ?? "",
-    });
-    for (const source of totals.lines) {
-      const code = codeOf(source, "601");
-      lines.push({
-        accountCode: code,
-        accountName: accountName(code),
-        debit: "0.00",
-        credit: source.net,
-        description: source.description,
-      });
-    }
-    if (totals.vat !== "0.00")
-      lines.push({
-        accountCode: "531",
-        accountName: accountName("531"),
-        debit: "0.00",
-        credit: totals.vat,
-        description: "Hesablanmış ƏDV",
-      });
+    line("211", totals.gross, "0.00", stored.counterpartyName ?? "");
+    for (const source of totals.lines) line(codeOf(source, "601"), "0.00", source.net, source.description);
+    if (totals.vat !== "0.00") line("531", "0.00", totals.vat, "Hesablanmış ƏDV");
   }
 
-  const debit = lines.reduce((sum, entry) => sum + parseDec(entry.debit), 0n);
-  const credit = lines.reduce((sum, entry) => sum + parseDec(entry.credit), 0n);
+  // Converting each line separately can leave a cent of rounding difference. It is put on the last line of the
+  // lighter side so the entry still balances. (The real policy is the backend's to decide: see BACKEND_REQUIREMENTS.)
+  const sum = (key: "debit" | "credit") => lines.reduce((total, entry) => total + parseDec(entry[key]), 0n);
+  const gap = sum("debit") - sum("credit");
+  if (gap !== 0n) {
+    const key = gap > 0n ? "credit" : "debit";
+    const last = [...lines].reverse().find((entry) => parseDec(entry[key]) > 0n) ?? lines[lines.length - 1]!;
+    last[key] = formatDec(parseDec(last[key]) + (gap > 0n ? gap : -gap));
+  }
+
+  const debit = sum("debit");
+  const credit = sum("credit");
   return {
     id,
     date: stored.issueDate ?? new Date().toISOString().slice(0, 10),
@@ -625,6 +623,8 @@ function buildEntry(stored: StoredInvoice, id: string, status: JournalEntry["sta
     status,
     source: "invoice",
     sourceInvoiceId: stored.id,
+    currency: BASE_CURRENCY,
+    exchangeRate: rateFor(stored.currency),
     lines,
     totalDebit: formatDec(debit),
     totalCredit: formatDec(credit),
@@ -633,10 +633,58 @@ function buildEntry(stored: StoredInvoice, id: string, status: JournalEntry["sta
   };
 }
 
+function manualEntry(
+  id: string,
+  date: string,
+  description: string,
+  status: JournalEntry["status"],
+  source: JournalEntry["source"],
+  debitCode: string,
+  creditCode: string,
+  amount: string,
+): JournalEntry {
+  return {
+    id,
+    date,
+    description,
+    status,
+    source,
+    sourceInvoiceId: null,
+    currency: BASE_CURRENCY,
+    exchangeRate: null,
+    lines: [
+      { accountCode: debitCode, accountName: accountName(debitCode), debit: amount, credit: "0.00", description },
+      { accountCode: creditCode, accountName: accountName(creditCode), debit: "0.00", credit: amount, description },
+    ],
+    totalDebit: amount,
+    totalCredit: amount,
+    balanced: true,
+    createdAt: `${date}T09:00:00Z`,
+  };
+}
+
 /** Invoices that start out posted already have their entry, so opening one shows it. */
 function seedPostedEntries(): void {
   for (const stored of db) {
     if (stored.journalEntryId) journal.set(stored.journalEntryId, buildEntry(stored, stored.journalEntryId, "posted"));
+  }
+  // Entries that did not come from an invoice, in every state, so the ledger screens have something to show.
+  for (const entry of [
+    manualEntry("je-seed-1", "2026-10-01", "Ofis icarəsi — oktyabr", "posted", "manual", "721", "223", "1200.00"),
+    manualEntry(
+      "je-seed-2",
+      "2026-09-30",
+      "Əmək haqqı hesablanması — sentyabr",
+      "pending_approval",
+      "manual",
+      "721",
+      "223",
+      "8500.00",
+    ),
+    manualEntry("je-seed-3", "2026-09-30", "Amortizasiya — sentyabr", "proposed", "ai", "721", "201", "640.00"),
+    manualEntry("je-seed-4", "2026-09-15", "Düzəliş yazılışı", "rejected", "manual", "731", "223", "99.00"),
+  ]) {
+    journal.set(entry.id, entry);
   }
 }
 
@@ -646,6 +694,10 @@ export function proposeEntries(stored: StoredInvoice): JournalEntry | "conflict"
   journal.set(entry.id, entry);
   stored.journalEntryId = entry.id;
   return entry;
+}
+
+export function allJournalEntries(): JournalEntry[] {
+  return [...journal.values()];
 }
 
 export function findJournalEntry(id: string): JournalEntry | undefined {

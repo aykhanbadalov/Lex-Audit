@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { formatDate, formatDateTime } from "./date";
+import { formatDate, formatDateTime, formatMonth } from "./date";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -56,5 +56,22 @@ describe("formatDateTime", () => {
     expect(text).toContain("oktyabr 2026");
     expect(text).not.toMatch(/\bat\b/);
     expect(text).toMatch(/\d{2}:\d{2}$/);
+  });
+});
+
+describe("formatMonth", () => {
+  it("names the month in each language", () => {
+    expect(formatMonth("2026-09", "az-Latn-AZ")).toBe("sentyabr 2026");
+    expect(formatMonth("2026-01", "az")).toBe("yanvar 2026");
+    expect(formatMonth("2026-12", "az-Latn-AZ")).toBe("dekabr 2026");
+    expect(formatMonth("2026-09", "en-US")).toBe("September 2026");
+    expect(formatMonth("2026-09", "ru-RU").toLowerCase()).toContain("сентябрь");
+  });
+
+  it("does not drift into the neighbouring month in any time zone", () => {
+    vi.stubEnv("TZ", "Pacific/Kiritimati");
+    expect(formatMonth("2026-03", "en-US")).toBe("March 2026");
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    expect(formatMonth("2026-03", "en-US")).toBe("March 2026");
   });
 });

@@ -335,7 +335,8 @@ features/invoices/
 | F5 Xəbərlər + qanunvericilik | tamamlanıb (filtrlər URL-də, əlfəcin, AI bölməsi ayrıca, versiya müqayisəsi) |
 | F6 Fayllar | tamamlanıb (yükləmə növbəsi və irəliləyiş, avtomatik status yenilənməsi, redaktə, arxivləmə, yenidən işləmə, yükləmə) |
 | F7 Qaimələr | tamamlanıb (siyahı, yükləmə, mənbə sənədi ilə yanaşı redaktə, serverdə yenidən hesablama, problemlər, saxlanmamış dəyişikliklərdən qoruma, jurnal təklifi) |
-| F8–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
+| F8 ƏDV + jurnal | tamamlanıb (dövr xülasəsi və drill-down, depozit hesabı uzlaşdırması, bəyannamə qaralaması, dərəcələr, jurnal siyahısı və detalı, hesablar planı) |
+| F9–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
 
 **Səhifələr yenilənmir, "Ask AI" düyməsi yoxdur:** AI Assistent (F10) hazır olmadığı üçün xəbər detalında "AI-dan soruş" düyməsi qəsdən əlavə olunmayıb.
 

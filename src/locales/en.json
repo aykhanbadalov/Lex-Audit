@@ -430,7 +430,8 @@
       "credit": "Credit",
       "total": "Total",
       "submit": "Send for approval",
-      "waiting": "The entry is waiting for the chief accountant's approval."
+      "waiting": "The entry is waiting for the chief accountant's approval.",
+      "rate": "Rate used to convert to the base currency: {{rate}} ({{currency}})"
     },
     "preview": {
       "title": "Document",
@@ -444,6 +445,146 @@
     "saved": "Invoice saved",
     "saveFailed": "Could not save. Please try again.",
     "revalidated": "Invoice validated again",
-    "actionFailed": "The action failed. Please try again."
+    "actionFailed": "The action failed. Please try again.",
+    "vatFilter": "VAT: {{period}} · {{bucket}}",
+    "vatFilterRemove": "Remove filter"
+  },
+  "ledger": {
+    "navLabel": "Ledger sections",
+    "entries": "Entries",
+    "accounts": "Chart of accounts",
+    "searchPlaceholder": "Entry description",
+    "accountsSearch": "Account code or name",
+    "empty": "No journal entries yet",
+    "emptyHint": "Entries suggested from invoices will appear here.",
+    "back": "Back to the journal",
+    "notFound": "Entry not found",
+    "notFoundHint": "It may have been removed or is not available to you.",
+    "openInvoice": "Open the source invoice",
+    "columns": {
+      "date": "Date",
+      "description": "Description",
+      "status": "Status",
+      "total": "Amount",
+      "code": "Code",
+      "name": "Name"
+    },
+    "source": {
+      "invoice": "From invoice",
+      "manual": "Manual",
+      "ai": "AI suggestion"
+    },
+    "accountType": {
+      "asset": "Assets",
+      "liability": "Liabilities",
+      "equity": "Equity",
+      "income": "Income",
+      "expense": "Expenses"
+    }
+  },
+  "vat": {
+    "period": "Period",
+    "tabsLabel": "VAT sections",
+    "tab": {
+      "summary": "Summary",
+      "deposit": "Deposit account",
+      "return": "Return draft",
+      "rates": "Rates"
+    },
+    "periodStatus": {
+      "open": "Open",
+      "filed": "Filed"
+    },
+    "periodInfo": "{{from}} – {{to}} · due {{due}}",
+    "bucket": {
+      "all": "all invoices",
+      "output": "output VAT",
+      "input": "deductible VAT",
+      "zeroRated": "zero-rated turnover",
+      "exempt": "exempt turnover"
+    },
+    "summary": {
+      "outputVat": "Output VAT",
+      "inputVat": "Deductible VAT",
+      "resultPayable": "VAT payable",
+      "resultRefundable": "VAT refundable",
+      "resultZero": "Nothing to pay",
+      "turnover": "Turnover",
+      "taxable": "Taxable",
+      "zeroRated": "Zero-rated",
+      "exempt": "Exempt",
+      "invoices": "Invoices: {{count}}",
+      "excluded": "Invoices left out because they are not validated yet: {{count}}.",
+      "excludedLink": "See them",
+      "converted": "Foreign-currency invoices: {{count}}. They were converted to manat at the official rate."
+    },
+    "deposit": {
+      "opening": "Opening balance",
+      "closing": "Balance per statement",
+      "ledger": "Balance per books",
+      "difference": "Difference",
+      "reconciled": "The deposit account fully agrees with the books.",
+      "unmatchedNote": "Movements not matched to an invoice: {{count}}. The difference comes from exactly these.",
+      "empty": "There is no deposit account statement for this period.",
+      "columns": {
+        "date": "Date",
+        "description": "Description",
+        "direction": "Direction",
+        "amount": "Amount",
+        "status": "Status",
+        "action": "Action"
+      },
+      "direction": {
+        "in": "Received",
+        "out": "Paid"
+      },
+      "status": {
+        "matched": "Matched",
+        "unmatched": "Not matched"
+      },
+      "invoice": "Invoice {{number}}",
+      "match": "Match: {{number}}",
+      "confirmTitle": "Match this movement?",
+      "confirmDescription": "The movement will be linked to invoice {{number}}. This cannot be undone later.",
+      "confirm": "Match",
+      "matched": "Movement matched",
+      "failed": "Could not match"
+    },
+    "return": {
+      "disclaimer": "This is a draft, not the official return. The official filing is made on the e-taxes.gov.az portal.",
+      "none": "No draft has been prepared for this period yet.",
+      "prepare": "Prepare draft",
+      "prepareAgain": "Prepare again",
+      "filedNote": "The period is filed, so a draft cannot be prepared.",
+      "readerNote": "You are not allowed to prepare a draft.",
+      "generated": "Prepared: {{date}} · {{name}}",
+      "stale": "When it was prepared, invoices left out because they were not validated: {{count}}. Prepare the draft again after validating them.",
+      "created": "Draft prepared",
+      "failed": "The draft could not be prepared",
+      "export": {
+        "pdf": "PDF",
+        "xlsx": "Excel",
+        "xml": "XML",
+        "failed": "The file could not be downloaded"
+      },
+      "line": {
+        "TURNOVER_TAXABLE": "Taxable turnover",
+        "TURNOVER_ZERO_RATED": "Zero-rated turnover",
+        "TURNOVER_EXEMPT": "Exempt turnover",
+        "OUTPUT_VAT": "Output VAT",
+        "INPUT_VAT": "Deductible VAT",
+        "VAT_PAYABLE": "VAT payable",
+        "VAT_REFUNDABLE": "VAT refundable"
+      }
+    },
+    "rates": {
+      "intro": "VAT rates in force. Every rate is tied to the law it comes from.",
+      "name": "Name",
+      "code": "Code",
+      "rate": "Rate",
+      "valid": "In force",
+      "source": "Source",
+      "now": "present"
+    }
   }
 }

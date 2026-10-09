@@ -19,6 +19,8 @@ const ACCOUNTANT_PERMISSIONS = [
   "legislation:read",
   "files:read",
   "files:write",
+  "vat:write",
+  "ledger:write",
   "assistant:use",
 ];
 
@@ -90,6 +92,13 @@ export function authorize(request: Request, permission: string): { user: User } 
     return { response: apiError(403, "FORBIDDEN", `Missing permission ${permission}`) };
   }
   return { user };
+}
+
+/** Like `authorize`, but any one of the permissions is enough. */
+export function authorizeAny(request: Request, permissions: string[]): { user: User } | { response: Response } {
+  const attempts = permissions.map((permission) => authorize(request, permission));
+  const allowed = attempts.find((attempt) => "user" in attempt);
+  return allowed ?? attempts[attempts.length - 1]!;
 }
 
 export const authHandlers = [

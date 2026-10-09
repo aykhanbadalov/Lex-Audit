@@ -114,3 +114,31 @@ grossTotal` are recalculated from the lines. A difference produces a `TOTAL_MISM
   able to approve it (see §2); approval itself belongs to phase F11.
 - ❓ Concurrent edits: two people editing one invoice. The mock does not detect it. Suggest an `If-Match` / `version`
   field so the second save gets **409** instead of silently overwriting.
+
+## 8. VAT and ledger (phase F8)
+
+See `openapi.yaml` (`/vat/...`, `/journal`). Again the server computes; the screens only show.
+
+- ✅ **The summary decides what counts.** Only `validated` and `posted` invoices are included; everything else of the
+  period is reported in `excludedInvoiceCount` and the UI says so in a warning. A figure must never look complete when it is
+  not. ❓ Confirm the rule (which statuses count, and by which date: issue date was assumed).
+- ✅ **Foreign currency is converted by the server** at the official Central Bank rate (`convertedInvoiceCount` tells the UI
+  to mention it). ❓ Confirm with an accountant which date's rate applies to VAT (date of supply was assumed), and the rounding
+  policy (the mock converts each line, then puts any cent of difference on the last line of the lighter side so the entry balances).
+- ✅ `resultKind` (`payable` / `refundable` / `zero`) is decided by the server; the UI never compares amounts.
+- ✅ **Deposit account:** movements come from the bank statement and are matched to invoices. The server suggests a match
+  (`suggestedInvoiceId` + number). Confirming is `POST /vat/deposit-lines/{id}/match`; the UI asks first because there is **no
+  undo** in the contract. ❓ Add `unmatch` if the business needs it. `difference` is `closingBalance - ledgerBalance` and
+  `ledgerBalance` counts only matched movements.
+- ✅ **Draft return** is a draft, never a filing; the UI says so and points to e-taxes.gov.az. A filed period must answer **409**
+  to `POST .../draft-return`. Lines are stable codes (`OUTPUT_VAT`, `INPUT_VAT`, `VAT_PAYABLE`, …). ❓ Mapping them to the fields
+  of the official form, and producing real PDF/XLSX/XML, is the backend's job. The mock returns placeholder files.
+- ✅ **Tax calendar:** `dueDate` per period comes from the server (a calendar table), never hard-coded in the UI.
+- ✅ **Ledger is kept in the base currency.** `JournalEntry.currency` is the base currency and `exchangeRate` says what was used.
+  The invoice screen used to show an entry in the invoice's currency; it now shows what the server sends.
+- ✅ **Permissions:** `vat:write` (prepare draft, match movements) and `ledger:write` (send an entry for approval) are separate
+  from the read permissions. ❓ Names to be confirmed (see §2).
+- ❓ `GET /accounts` has `parentCode`. The UI nests children under their parent when it is present and shows a flat list
+  grouped by type otherwise. The mock has no hierarchy because inventing one would mean inventing the chart of accounts.
+- ❓ `GET /invoices` now takes `vatPeriod` and `vatBucket` so a figure on the VAT screen can be traced to its invoices. The
+  server must use the same inclusion rule there as in the summary, or the counts will not match.

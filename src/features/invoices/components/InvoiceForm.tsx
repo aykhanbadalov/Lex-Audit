@@ -14,7 +14,8 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Select } from "@/shared/ui/select";
-import { useAccounts, useTaxRates, useUpdateInvoice, useValidateInvoice, type InvoiceDetail } from "../api";
+import { useAccounts, useTaxRates } from "@/shared/api/referenceData";
+import { useUpdateInvoice, useValidateInvoice, type InvoiceDetail } from "../api";
 import { DECIMAL_INPUT, toFormValues, toUpdate, type InvoiceFormValues } from "../form";
 
 const CURRENCIES: Currency[] = ["AZN", "USD", "EUR", "RUB", "TRY"];

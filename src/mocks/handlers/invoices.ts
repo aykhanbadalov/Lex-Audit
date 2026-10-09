@@ -4,6 +4,7 @@ import type { components } from "@/api/schema";
 import {
   accounts,
   allInvoices,
+  allJournalEntries,
   createFromUpload,
   findInvoice,
   findJournalEntry,
@@ -15,8 +16,9 @@ import {
   updateInvoice,
 } from "../fixtures/invoices";
 import { demoPdf } from "../fixtures/pdf";
+import { invoicesInBucket } from "../fixtures/vat";
 import { parseMultipart } from "../multipart";
-import { apiError, authorize } from "./auth";
+import { apiError, authorize, authorizeAny } from "./auth";
 import { apiPath } from "./base";
 
 type InvoiceUpdate = components["schemas"]["InvoiceUpdate"];
@@ -46,6 +48,11 @@ export const invoicesHandlers = [
     const status = params.get("status");
     const direction = params.get("direction");
     const hasIssues = params.get("hasIssues");
+    const vatPeriod = params.get("vatPeriod");
+    const vatBucket = params.get("vatBucket") as "output" | "input" | "zeroRated" | "exempt" | null;
+    // "Show me the invoices behind this line of the VAT summary".
+    const behindBucket =
+      vatPeriod && vatBucket ? new Set(invoicesInBucket(vatPeriod, vatBucket).map((invoice) => invoice.id)) : null;
     const limit = Math.min(Number(params.get("limit") ?? 20) || 20, 100);
     const offset = Number(params.get("cursor") ?? 0) || 0;
 
@@ -56,7 +63,9 @@ export const invoicesHandlers = [
           (!q || matches(`${item.number ?? ""} ${item.counterpartyName ?? ""} ${item.counterpartyVoen ?? ""}`, q)) &&
           (!status || item.status === status) &&
           (!direction || item.direction === direction) &&
-          (hasIssues === null || (hasIssues === "true" ? item.issueCount > 0 : item.issueCount === 0)),
+          (hasIssues === null || (hasIssues === "true" ? item.issueCount > 0 : item.issueCount === 0)) &&
+          (!vatPeriod || item.issueDate?.slice(0, 7) === vatPeriod) &&
+          (!behindBucket || behindBucket.has(item.id)),
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const next = offset + limit;
@@ -157,15 +166,49 @@ export const invoicesHandlers = [
     return HttpResponse.json(toDetail(found));
   }),
 
+  http.get(apiPath("/journal"), ({ request }) => {
+    const auth = authorize(request, "ledger:read");
+    if ("response" in auth) return auth.response;
+    const params = new URL(request.url).searchParams;
+    const q = params.get("q")?.trim();
+    const status = params.get("status");
+    const from = params.get("from");
+    const to = params.get("to");
+    const limit = Math.min(Number(params.get("limit") ?? 20) || 20, 100);
+    const offset = Number(params.get("cursor") ?? 0) || 0;
+
+    const filtered = allJournalEntries()
+      .filter(
+        (entry) =>
+          (!q || matches(entry.description, q)) &&
+          (!status || entry.status === status) &&
+          (!from || entry.date >= from) &&
+          (!to || entry.date <= to),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
+      .map(({ lines: _lines, exchangeRate: _rate, createdAt: _created, ...summary }) => {
+        void _lines;
+        void _rate;
+        void _created;
+        return summary;
+      });
+    const next = offset + limit;
+    return HttpResponse.json({
+      items: filtered.slice(offset, next),
+      nextCursor: next < filtered.length ? String(next) : null,
+    });
+  }),
+
   http.get(apiPath("/journal/:id"), ({ request, params }) => {
-    const auth = authorize(request, "invoices:read");
+    // The invoice screen shows the entry too, so a person who may read either module may open it.
+    const auth = authorizeAny(request, ["ledger:read", "invoices:read"]);
     if ("response" in auth) return auth.response;
     const entry = findJournalEntry(String(params.id));
     return entry ? HttpResponse.json(entry) : apiError(404, "NOT_FOUND", "Journal entry not found");
   }),
 
   http.post(apiPath("/journal/:id/submit"), ({ request, params }) => {
-    const auth = authorize(request, "invoices:write");
+    const auth = authorize(request, "ledger:write");
     if ("response" in auth) return auth.response;
     const entry = findJournalEntry(String(params.id));
     if (!entry) return apiError(404, "NOT_FOUND", "Journal entry not found");

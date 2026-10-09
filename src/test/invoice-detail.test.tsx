@@ -401,4 +401,17 @@ describe("journal entry", () => {
     await heading();
     expect(screen.queryByRole("button", { name: "Jurnal yazılışı təklif et" })).not.toBeInTheDocument();
   });
+
+  it("keeps the ledger in the base currency when the invoice is in a foreign one, and shows the rate used", async () => {
+    signInAs();
+    renderApp("/invoices/inv-1008"); // 2400.00 USD
+    await heading();
+
+    await userEvent.click(screen.getByRole("button", { name: "Jurnal yazılışı təklif et" }));
+
+    const journal = section("Jurnal yazılışı");
+    expect(await within(journal).findByText("Balanslıdır")).toBeInTheDocument();
+    expect(within(journal).getByText(/məzənnəsi: 1,70/)).toBeInTheDocument();
+    expect(journal.querySelector("tfoot")).toHaveTextContent("4.080,00 ₼"); // 2400.00 x 1.70, not "2.400,00 $"
+  });
 });

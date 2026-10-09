@@ -1,6 +1,7 @@
 import { setMockRefreshUser } from "./refreshCookie";
 import { resetFilesDb } from "./fixtures/files";
 import { resetInvoicesDb } from "./fixtures/invoices";
+import { resetVat } from "./fixtures/vat";
 import { resetNewsDb } from "./fixtures/news";
 import { resetUploadKeys } from "./handlers/files";
 import { resetInvoiceUploadKeys } from "./handlers/invoices";
@@ -11,6 +12,7 @@ export function resetMocks(): void {
   resetFilesDb();
   resetUploadKeys();
   resetInvoicesDb();
+  resetVat();
   resetInvoiceUploadKeys();
   setMockRefreshUser(null);
 }

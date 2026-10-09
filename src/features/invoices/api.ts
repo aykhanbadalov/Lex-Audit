@@ -4,13 +4,13 @@ import { api } from "@/api/client";
 import type { components } from "@/api/schema";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
+import { ledgerKeys } from "@/features/ledger/api";
 import { isProcessing, type InvoicesSearch } from "./filters";
 
 export type Invoice = components["schemas"]["Invoice"];
 export type InvoiceDetail = components["schemas"]["InvoiceDetail"];
 export type InvoiceIssue = components["schemas"]["InvoiceIssue"];
 export type InvoiceUpdate = components["schemas"]["InvoiceUpdate"];
-export type JournalEntry = components["schemas"]["JournalEntry"];
 
 export const PAGE_SIZE = 10;
 
@@ -23,9 +23,6 @@ export const invoiceKeys = {
   list: (filters: InvoicesSearch) => ["invoices", "list", filters] as const,
   detail: (id: string) => ["invoices", "detail", id] as const,
   source: (id: string) => ["invoices", "source", id] as const,
-  journal: (id: string) => ["journal", id] as const,
-  accounts: ["accounts"] as const,
-  taxRates: ["tax-rates"] as const,
 };
 
 export function useInvoiceList(filters: InvoicesSearch) {
@@ -42,6 +39,8 @@ export function useInvoiceList(filters: InvoicesSearch) {
               status: filters.status,
               direction: filters.direction,
               hasIssues: filters.hasIssues || undefined,
+              vatPeriod: filters.vatPeriod,
+              vatBucket: filters.vatPeriod ? filters.vatBucket : undefined,
               cursor: pageParam,
               limit: PAGE_SIZE,
             },
@@ -77,32 +76,6 @@ export function useInvoiceSource(id: string, enabled: boolean) {
     enabled,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
-  });
-}
-
-export function useAccounts() {
-  return useQuery({
-    queryKey: invoiceKeys.accounts,
-    queryFn: async ({ signal }) => unwrap(await api.GET("/accounts", { signal })),
-    staleTime: 10 * 60_000,
-  });
-}
-
-export function useTaxRates() {
-  return useQuery({
-    queryKey: invoiceKeys.taxRates,
-    queryFn: async ({ signal }) => unwrap(await api.GET("/tax-rates", { signal, params: { query: { type: "VAT" } } })),
-    staleTime: 10 * 60_000,
-  });
-}
-
-export function useJournalEntry(id: string | null) {
-  return useQuery({
-    queryKey: invoiceKeys.journal(id ?? ""),
-    queryFn: async ({ signal }) =>
-      unwrap(await api.GET("/journal/{id}", { signal, params: { path: { id: id ?? "" } } })),
-    enabled: Boolean(id),
-    retry: false,
   });
 }
 
@@ -148,23 +121,9 @@ export function useProposeEntries(id: string) {
   return useMutation({
     mutationFn: async () => unwrap(await api.POST("/invoices/{id}/propose-entries", { params: { path: { id } } })),
     onSuccess: async (entry) => {
-      queryClient.setQueryData(invoiceKeys.journal(entry.id), entry);
+      queryClient.setQueryData(ledgerKeys.entry(entry.id), entry);
       await queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(id) });
       toast.success(i18n.t("invoices.journal.proposed"));
-    },
-    onError: () => {
-      toast.error(i18n.t("invoices.actionFailed"));
-    },
-  });
-}
-
-export function useSubmitJournal(entryId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => unwrap(await api.POST("/journal/{id}/submit", { params: { path: { id: entryId } } })),
-    onSuccess: async (entry) => {
-      queryClient.setQueryData(invoiceKeys.journal(entryId), entry);
-      toast.success(i18n.t("invoices.journal.submitted"));
     },
     onError: () => {
       toast.error(i18n.t("invoices.actionFailed"));

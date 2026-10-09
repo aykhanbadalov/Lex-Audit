@@ -22,12 +22,19 @@ export const invoicesSearchSchema = z.object({
   status: z.enum(INVOICE_STATUSES).optional().catch(undefined),
   direction: z.enum(INVOICE_DIRECTIONS).optional().catch(undefined),
   hasIssues: z.boolean().optional().catch(undefined),
+  // Set by the VAT screen: "the invoices behind this line of the summary".
+  vatPeriod: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .optional()
+    .catch(undefined),
+  vatBucket: z.enum(["output", "input", "zeroRated", "exempt"]).optional().catch(undefined),
 });
 
 export type InvoicesSearch = z.infer<typeof invoicesSearchSchema>;
 
 export function hasActiveInvoiceFilters(search: InvoicesSearch): boolean {
-  return Boolean(search.q?.trim() || search.status || search.direction || search.hasIssues);
+  return Boolean(search.q?.trim() || search.status || search.direction || search.hasIssues || search.vatPeriod);
 }
 
 /** Still being read by the model: the screen refreshes on its own. */
