@@ -3,15 +3,17 @@ import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const dist = new URL("../dist/", import.meta.url).pathname;
+const demo = process.argv.includes("--demo"); // a demo build is meant to carry the mocks
 const problems = [];
 
-if (existsSync(join(dist, "mockServiceWorker.js"))) problems.push("dist/mockServiceWorker.js must not be deployed");
+if (!demo && existsSync(join(dist, "mockServiceWorker.js")))
+  problems.push("dist/mockServiceWorker.js must not be deployed");
 
 const assets = readdirSync(join(dist, "assets"));
 for (const name of assets) {
   if (!/\.(js|mjs|css)$/.test(name)) continue;
   const text = readFileSync(join(dist, "assets", name), "utf8");
-  for (const marker of ["lexaudit.test", "mockServiceWorker", "demo1234"]) {
+  for (const marker of demo ? [] : ["lexaudit.test", "mockServiceWorker", "demo1234"]) {
     if (text.includes(marker)) problems.push(`assets/${name} contains "${marker}" (mock data leaked into the build)`);
   }
 }
