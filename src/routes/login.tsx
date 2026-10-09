@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { api } from "@/api/client";
 import { ApiError } from "@/api/errors";
+import { isMfaRequired, login } from "@/api/session";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
-import { isAuthenticated, useAuthStore } from "@/shared/stores/authStore";
+import { isAuthenticated } from "@/shared/stores/authStore";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
@@ -28,10 +28,12 @@ function LoginPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const [formError, setFormError] = useState<string | null>(null);
+  const [needsCode, setNeedsCode] = useState(false);
 
   const schema = z.object({
     email: z.email({ error: t("auth.emailInvalid") }),
     password: z.string().min(1, { error: t("auth.fieldRequired") }),
+    mfaCode: z.string().optional(),
   });
   type FormValues = z.infer<typeof schema>;
 
@@ -44,16 +46,25 @@ function LoginPage() {
   async function onSubmit(values: FormValues) {
     setFormError(null);
     try {
-      const { data } = await api.POST("/auth/login", { body: values });
-      if (!data) throw new ApiError("INTERNAL", "Empty response", 500);
-      useAuthStore.getState().setSession(data);
+      await login(values);
       // Only same-origin paths are honoured, to avoid open redirects.
       const target =
         search.redirect?.startsWith("/") && !search.redirect.startsWith("//") ? search.redirect : "/dashboard";
       await navigate({ to: target });
     } catch (error) {
+      if (isMfaRequired(error)) {
+        setNeedsCode(true);
+        setFormError(null);
+        return;
+      }
       const unauthenticated = error instanceof ApiError && error.code === "UNAUTHENTICATED";
-      setFormError(unauthenticated ? t("auth.invalidCredentials") : t("auth.networkError"));
+      setFormError(
+        unauthenticated
+          ? t(needsCode ? "auth.invalidCode" : "auth.invalidCredentials")
+          : error instanceof ApiError && error.code === "RATE_LIMITED"
+            ? t("auth.tooManyAttempts")
+            : t("auth.networkError"),
+      );
     }
   }
 
@@ -95,6 +106,22 @@ function LoginPage() {
             />
             {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
           </div>
+          {needsCode ? (
+            <div className="space-y-1">
+              <label htmlFor="mfaCode" className="text-sm font-medium">
+                {t("auth.mfaCode")}
+              </label>
+              <Input
+                id="mfaCode"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={10}
+                autoFocus
+                {...register("mfaCode")}
+              />
+              <p className="text-xs text-muted-foreground">{t("auth.mfaHint")}</p>
+            </div>
+          ) : null}
           {formError ? (
             <p role="alert" className="text-sm text-destructive">
               {formError}

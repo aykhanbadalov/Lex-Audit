@@ -82,12 +82,34 @@ export function apiError(status: number, code: ErrorCode, message: string): Resp
   return HttpResponse.json({ error: { code, message, requestId: crypto.randomUUID() } }, { status });
 }
 
-function newSession(user: User): components["schemas"]["Session"] {
-  return {
-    accessToken: `mock-token-${user.id}`,
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-    user,
-  };
+/** The backend's own permission names, derived from the finer-grained ones the mock users are written with. */
+function toBackendPermissions(user: User): string[] {
+  const out = new Set<string>();
+  for (const permission of user.permissions) {
+    if (permission === "dashboard:view") continue;
+    if (permission.startsWith("ledger:")) out.add(permission.replace("ledger:", "journal:"));
+    else if (/^(excel|reconciliation):/.test(permission)) out.add("excel:use");
+    else if (permission === "integrations:write") out.add("imports:commit");
+    else if (permission === "integrations:read") out.add("files:read");
+    else if (permission === "admin:manage")
+      ["users:read", "users:write", "roles:read", "roles:write", "platform:admin"].forEach((p) => out.add(p));
+    else out.add(permission);
+  }
+  return [...out];
+}
+
+const BACKEND_ROLE: Record<User["role"], string> = {
+  viewer: "viewer",
+  accountant: "accountant",
+  chief_accountant: "approver",
+  auditor: "viewer",
+  admin: "admin",
+};
+
+const csrfFor = (user: User) => `mock-csrf-${user.id}`;
+
+function tokens(user: User) {
+  return { accessToken: `mock-token-${user.id}`, csrfToken: csrfFor(user), expiresInSeconds: 15 * 60 };
 }
 
 /** Mirrors what the real backend must do on every protected route: authenticate, then authorize. */
@@ -120,20 +142,52 @@ export const authHandlers = [
       return apiError(401, "UNAUTHENTICATED", "Invalid credentials");
     }
     setMockRefreshUser(user.email);
-    return HttpResponse.json(newSession(user));
+    return HttpResponse.json(tokens(user));
   }),
 
-  http.post(apiPath("/auth/refresh"), () => {
+  // After a page reload the CSRF token is gone from memory; the backend derives it again from the refresh cookie.
+  http.get(apiPath("/auth/csrf"), () => {
+    const email = getMockRefreshUser();
+    const user = email ? mockUsers[email] : undefined;
+    return user
+      ? HttpResponse.json({ csrfToken: csrfFor(user) })
+      : apiError(401, "UNAUTHENTICATED", "Missing refresh token cookie");
+  }),
+
+  http.post(apiPath("/auth/refresh"), ({ request }) => {
     const email = getMockRefreshUser();
     const user = email ? mockUsers[email] : undefined;
     if (!user) {
-      return apiError(401, "UNAUTHENTICATED", "No valid refresh token");
+      return apiError(401, "UNAUTHENTICATED", "Missing refresh token cookie");
     }
-    return HttpResponse.json(newSession(user));
+    if (request.headers.get("X-CSRF-Token") !== csrfFor(user)) {
+      return apiError(403, "FORBIDDEN", "Missing or invalid CSRF token");
+    }
+    return HttpResponse.json(tokens(user));
   }),
 
-  http.post(apiPath("/auth/logout"), () => {
+  http.get(apiPath("/me"), ({ request }) => {
+    const token = /^Bearer (.+)$/.exec(request.headers.get("Authorization") ?? "")?.[1];
+    const user = Object.values(mockUsers).find((candidate) => `mock-token-${candidate.id}` === token);
+    if (!user) return apiError(401, "UNAUTHENTICATED", "Missing or expired access token");
+    return HttpResponse.json({
+      id: user.id,
+      email: user.email,
+      status: "active",
+      companyId: user.companyId,
+      companyName: "Demo MMC",
+      roles: [BACKEND_ROLE[user.role]],
+      permissions: toBackendPermissions(user),
+    });
+  }),
+
+  http.post(apiPath("/auth/logout"), ({ request }) => {
+    const email = getMockRefreshUser();
+    const user = email ? mockUsers[email] : undefined;
+    if (user && request.headers.get("X-CSRF-Token") !== csrfFor(user)) {
+      return apiError(403, "FORBIDDEN", "Missing or invalid CSRF token");
+    }
     setMockRefreshUser(null);
-    return new HttpResponse(null, { status: 204 });
+    return HttpResponse.json({ status: "ok" });
   }),
 ];

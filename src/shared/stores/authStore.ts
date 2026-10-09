@@ -9,7 +9,9 @@ interface AuthState {
   accessToken: string | null;
   expiresAt: string | null;
   user: SessionUser | null;
-  setSession: (session: Session) => void;
+  /** Pairs with the refresh cookie; the backend requires it on refresh and logout. Memory only, like the access token. */
+  csrfToken: string | null;
+  setSession: (session: Session, csrfToken?: string) => void;
   clear: () => void;
 }
 
@@ -17,8 +19,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   expiresAt: null,
   user: null,
-  setSession: (session) => set({ accessToken: session.accessToken, expiresAt: session.expiresAt, user: session.user }),
-  clear: () => set({ accessToken: null, expiresAt: null, user: null }),
+  csrfToken: null,
+  setSession: (session, csrfToken) =>
+    set((state) => ({
+      accessToken: session.accessToken,
+      expiresAt: session.expiresAt,
+      user: session.user,
+      csrfToken: csrfToken ?? state.csrfToken,
+    })),
+  clear: () => set({ accessToken: null, expiresAt: null, user: null, csrfToken: null }),
 }));
 
 export function isAuthenticated(): boolean {

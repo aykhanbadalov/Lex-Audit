@@ -35,7 +35,7 @@ describe("auth flow", () => {
     await user.click(screen.getByRole("button", { name: "Daxil ol" }));
 
     await waitFor(() => expect(router.state.location.pathname).toBe("/dashboard"));
-    expect(await screen.findByText("Xoş gəldiniz, Aygün Məmmədova")).toBeInTheDocument();
+    expect(await screen.findByText("Xoş gəldiniz, muhasib@lexaudit.test")).toBeInTheDocument();
   });
 
   it("shows field errors instead of calling the API when the form is empty", async () => {

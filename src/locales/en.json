@@ -36,7 +36,11 @@
     "invalidCredentials": "Incorrect email or password.",
     "networkError": "Could not reach the server. Please try again.",
     "fieldRequired": "This field is required",
-    "emailInvalid": "Enter a valid email address"
+    "emailInvalid": "Enter a valid email address",
+    "mfaCode": "Verification code",
+    "mfaHint": "Enter the 6-digit code from your authenticator app.",
+    "invalidCode": "The code is wrong",
+    "tooManyAttempts": "Too many attempts. Wait a minute and try again."
   },
   "dashboard": {
     "title": "Today",

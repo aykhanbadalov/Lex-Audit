@@ -36,7 +36,11 @@
     "invalidCredentials": "E-poçt və ya şifrə yanlışdır.",
     "networkError": "Serverə qoşulmaq mümkün olmadı. Yenidən cəhd edin.",
     "fieldRequired": "Bu sahə məcburidir",
-    "emailInvalid": "E-poçt ünvanı düzgün deyil"
+    "emailInvalid": "E-poçt ünvanı düzgün deyil",
+    "mfaCode": "Təsdiq kodu",
+    "mfaHint": "Autentifikator tətbiqindəki 6 rəqəmli kodu daxil edin.",
+    "invalidCode": "Kod yanlışdır",
+    "tooManyAttempts": "Çox cəhd edildi. Bir dəqiqə gözləyib yenidən yoxlayın."
   },
   "dashboard": {
     "title": "Bu gün",

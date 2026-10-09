@@ -16,7 +16,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "api:gen": "openapi-typescript ../backend/openapi.yaml -o src/api/schema.d.ts"
+    "e2e:real": "playwright test -c playwright.real.config.ts",
+    "api:gen": "openapi-typescript ../backend/openapi.yaml -o src/api/schema.d.ts",
+    "api:gen:real": "openapi-typescript contract/openapi.json -o src/api/real/schema.d.ts",
+    "api:sync": "cp ${BACKEND_DIR:-../../invoice_backend/backend}/openapi.json contract/openapi.json && pnpm api:gen:real"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
