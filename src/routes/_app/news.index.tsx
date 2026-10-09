@@ -77,8 +77,9 @@ function NewsPageContent() {
               <li key={item.id}>
                 <NewsListItem
                   item={item}
+                  sourceName={sources.data?.find((source) => source.id === item.sourceId)?.name}
                   listSearch={search}
-                  onToggleBookmark={(target) => setBookmark({ id: target.id, value: !target.isBookmarked })}
+                  onToggleBookmark={(target) => setBookmark({ id: target.id, value: !target.bookmarked })}
                 />
               </li>
             ))}

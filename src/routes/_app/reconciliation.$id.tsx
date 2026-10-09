@@ -41,7 +41,7 @@ const TONE: Record<RowStatus, BadgeTone> = {
 function ReconciliationDetailPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="reconciliation:read">
+    <RequirePermission permission="excel:use">
       <ReconciliationDetailContent />
     </RequirePermission>
   );
@@ -52,7 +52,7 @@ function ReconciliationDetailContent() {
   const { id } = Route.useParams();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const canWrite = usePermission("reconciliation:write");
+  const canWrite = usePermission("excel:use");
   const recon = useReconciliation(id);
   const ready = recon.data?.status === "ready";
   const rows = useReconciliationRows(id, search.status, ready);

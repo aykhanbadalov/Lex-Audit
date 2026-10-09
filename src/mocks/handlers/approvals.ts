@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
-import { decideRequest, findApproval, listApprovals, pendingCountFor, present, runEffect } from "../fixtures/approvals";
+import { decideRequest, findApproval, listApprovals, runEffect } from "../fixtures/approvals";
+import { wireApproval } from "../wire";
 import { syncToolApproval } from "../fixtures/assistant";
 import { auditCsv, queryAudit, recordAudit } from "../fixtures/audit";
 import { addUploadedFile, toRecord } from "../fixtures/files";
@@ -24,34 +25,30 @@ const filtersFrom = (params: URLSearchParams) => ({
 });
 
 export const approvalsHandlers = [
+  // A plain array, newest first; the backend has no filters or paging here.
   http.get(apiPath("/approvals"), ({ request }) => {
     const auth = authorize(request, "approvals:read");
     if ("response" in auth) return auth.response;
-    const params = new URL(request.url).searchParams;
-    const rows = listApprovals({ status: params.get("status"), kind: params.get("kind") });
-    const result = page(request, rows);
-    return HttpResponse.json({
-      items: result.items.map((item) => present(item, auth.user)),
-      nextCursor: result.nextCursor,
-      pendingCount: pendingCountFor(auth.user),
-    });
+    const items = listApprovals({}).sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
+    return HttpResponse.json(items.map(wireApproval));
   }),
 
   http.get(apiPath("/approvals/:id"), ({ request, params }) => {
     const auth = authorize(request, "approvals:read");
     if ("response" in auth) return auth.response;
     const item = findApproval(String(params.id));
-    return item ? HttpResponse.json(present(item, auth.user)) : apiError(404, "NOT_FOUND", "Approval not found");
+    return item ? HttpResponse.json(wireApproval(item)) : apiError(404, "NOT_FOUND", "Approval not found");
   }),
 
   http.post(apiPath("/approvals/:id/decide"), async ({ request, params }) => {
     const auth = authorize(request, "approvals:decide");
     if ("response" in auth) return auth.response;
     const body = (await request.json()) as { decision?: string; comment?: string };
-    if (body.decision !== "approved" && body.decision !== "denied")
+    if (body.decision !== "approve" && body.decision !== "reject")
       return apiError(422, "VALIDATION_FAILED", "Invalid decision");
+    const decision = body.decision === "approve" ? "approved" : "denied";
     const id = String(params.id);
-    const result = decideRequest(id, body.decision, body.comment, auth.user);
+    const result = decideRequest(id, decision, body.comment, auth.user);
     const label = findApproval(id)?.title ?? id;
     const audit = (outcome: "success" | "denied" | "failed") =>
       recordAudit(auth.user, {
@@ -64,17 +61,16 @@ export const approvalsHandlers = [
 
     if (result.ok) {
       audit("success");
-      runEffect(id, body.decision);
-      syncToolApproval(id, body.decision, result.approval.comment);
-      return HttpResponse.json(present(result.approval, auth.user));
+      runEffect(id, decision);
+      syncToolApproval(id, decision, result.approval.comment);
+      return HttpResponse.json(wireApproval(result.approval));
     }
     if (result.reason === "not-found") return apiError(404, "NOT_FOUND", "Approval not found");
     if (result.reason === "own-request") {
       audit("denied");
       return apiError(403, "FORBIDDEN", "You cannot decide your own request");
     }
-    if (result.reason === "conflict") return apiError(409, "CONFLICT", "Already decided or expired");
-    return apiError(422, "VALIDATION_FAILED", "A comment is required");
+    return apiError(409, "CONFLICT", "Already decided or expired");
   }),
 
   http.get(apiPath("/audit-events"), ({ request }) => {

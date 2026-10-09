@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_app/ledger/$id")({
 function JournalDetailPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="ledger:read">
+    <RequirePermission permission="journal:read">
       <JournalDetailContent />
     </RequirePermission>
   );
@@ -30,7 +30,7 @@ function JournalDetailContent() {
   const { t, i18n } = useTranslation();
   const { id } = Route.useParams();
   const entry = useJournalEntry(id);
-  const canSubmit = usePermission("ledger:write");
+  const canSubmit = usePermission("journal:write");
 
   return (
     <>

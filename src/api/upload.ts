@@ -1,10 +1,10 @@
-import type { components } from "./schema";
+import type { Json } from "./types";
 import { ApiError, toApiError } from "./errors";
 import { API_BASE_URL, refreshSession } from "./session";
 import { useAuthStore } from "@/shared/stores/authStore";
 
-export type FileRecord = components["schemas"]["File"];
-export type InvoiceUploadResult = components["schemas"]["InvoiceUploadResult"];
+export type FileRecord = Json<"/files", "post">;
+export type InvoiceUploadResult = Json<"/invoices/upload", "post">;
 
 export type UploadFields = Record<string, string | string[] | undefined>;
 
@@ -93,7 +93,13 @@ export function uploadFile(
   fields: { folder?: string; tags?: string[] } = {},
   options: UploadOptions = {},
 ): Promise<FileRecord> {
-  return uploadMultipart<FileRecord>("/files", file, fields, options);
+  // The backend reads tags as a JSON array in a single field.
+  return uploadMultipart<FileRecord>(
+    "/files",
+    file,
+    { folder: fields.folder, tags: fields.tags?.length ? JSON.stringify(fields.tags) : undefined },
+    options,
+  );
 }
 
 export function uploadInvoice(file: File, options: UploadOptions = {}): Promise<InvoiceUploadResult> {

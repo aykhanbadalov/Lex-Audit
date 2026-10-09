@@ -9,7 +9,9 @@ import { resetImports } from "./fixtures/imports";
 import { resetInvoicesDb } from "./fixtures/invoices";
 import { resetReconciliation } from "./fixtures/reconciliation";
 import { resetVat } from "./fixtures/vat";
+import { resetVatVersions } from "./handlers/vat";
 import { resetWorkUploadKeys } from "./handlers/work";
+import { resetImpact } from "./handlers/impact";
 import { resetNewsDb } from "./fixtures/news";
 import { resetUploadKeys } from "./handlers/files";
 import { resetInvoiceUploadKeys } from "./handlers/invoices";
@@ -17,10 +19,12 @@ import { resetInvoiceUploadKeys } from "./handlers/invoices";
 /** Returns every piece of mock state to its starting point. Call between tests. */
 export function resetMocks(): void {
   resetNewsDb();
+  resetImpact();
   resetFilesDb();
   resetUploadKeys();
   resetInvoicesDb();
   resetVat();
+  resetVatVersions();
   resetAssistant();
   resetApprovals();
   resetAdmin();

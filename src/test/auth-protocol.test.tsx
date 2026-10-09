@@ -28,7 +28,7 @@ describe("the sign-in protocol of the real backend", () => {
     expect(csrfToken).toBeTruthy();
     expect(user).toMatchObject({ email: "bas.muhasib@lexaudit.test", role: "chief_accountant" });
     // The backend's journal:write arrives as the name the screens use.
-    expect(user?.permissions).toEqual(expect.arrayContaining(["approvals:decide", "ledger:write"]));
+    expect(user?.permissions).toEqual(expect.arrayContaining(["approvals:decide", "journal:write"]));
   });
 
   it("restores a session after a reload: fetches the CSRF token, then refreshes with it", async () => {

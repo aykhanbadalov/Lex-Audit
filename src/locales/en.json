@@ -144,7 +144,8 @@
       "file": "File",
       "invoice": "Invoice",
       "audit_finding": "Audit finding",
-      "record": "Record"
+      "record": "Record",
+      "audit": "Audit"
     },
     "filters": {
       "label": "News filters",
@@ -171,7 +172,8 @@
       "type": "Type",
       "status": "Status",
       "adopted": "Adopted",
-      "version": "Version"
+      "version": "Version",
+      "number": "Number"
     },
     "type": {
       "code": "Code",
@@ -237,7 +239,7 @@
       "label": "Archive",
       "active": "Active files",
       "archived": "Archived only",
-      "all": "All"
+      "all": "All, including archived"
     },
     "back": "Back to files",
     "notFound": "File not found",
@@ -289,7 +291,9 @@
       "folderInvalid": "The folder path is not valid",
       "tagsTooMany": "No more than 10 tags",
       "tagTooLong": "A tag cannot be longer than 30 characters"
-    }
+    },
+    "detectedKind": "Detected type",
+    "textReady": "Text extracted ({{count}} characters). Used in search."
   },
   "upload": {
     "title": "Upload files",
@@ -317,11 +321,12 @@
     "status": {
       "uploaded": "Queued",
       "extracting": "Being read",
-      "extracted": "Needs review",
+      "extracted": "Read",
       "validated": "Validated",
       "posted": "Posted",
       "rejected": "Rejected",
-      "failed": "Failed"
+      "failed": "Failed",
+      "needs_review": "Needs review"
     },
     "direction": {
       "purchase": "Purchase",
@@ -372,11 +377,18 @@
     },
     "issue": {
       "MISSING_FIELD": "The \"{{field}}\" field is empty.",
-      "INVALID_TAX_ID": "The tax ID must be 10 digits (entered: {{value}}).",
-      "TOTAL_MISMATCH": "The total printed on the document ({{declared}}) differs from the recalculated total ({{computed}}).",
-      "DUPLICATE_INVOICE": "Invoice {{number}} from this counterparty already exists.",
-      "LOW_CONFIDENCE": "The \"{{field}}\" field was read with low confidence ({{percent}}%). Check it against the document.",
-      "DATE_IN_FUTURE": "The invoice date is in the future."
+      "INVALID_TAX_ID": "The tax ID is not valid",
+      "TOTAL_MISMATCH": "The totals do not match the sum of the lines",
+      "DUPLICATE_INVOICE": "An invoice with this number already exists",
+      "LOW_CONFIDENCE": "The model is not sure about this value, please check it",
+      "DATE_IN_FUTURE": "The invoice date is in the future.",
+      "INVALID_DATE": "The date is not valid",
+      "FUTURE_DATE": "The date is in the future",
+      "NO_LINES": "The invoice has no lines",
+      "INVALID_AMOUNT": "An amount is not valid",
+      "LINE_NET_MISMATCH": "A line amount does not match quantity and price",
+      "VAT_RATE_MISMATCH": "The VAT rate does not match the VAT of a line",
+      "VAT_FROM_NON_PAYER": "VAT is shown by someone who is not a VAT payer"
     },
     "form": {
       "label": "Invoice details",
@@ -388,9 +400,10 @@
       "rateRequired": "Choose a VAT rate",
       "accountUnknown": "This account is not in the chart of accounts",
       "linesRequired": "There must be at least one line",
-      "checkThis": "Check · {{percent}}%",
+      "checkThis": "Check",
       "discard": "Discard changes",
-      "revalidate": "Validate again"
+      "revalidate": "Validate again",
+      "numberRequired": "The number cannot be empty"
     },
     "lines": {
       "title": "Lines",
@@ -413,7 +426,8 @@
       "vat": "VAT",
       "gross": "Total",
       "printed": "Total printed on the document",
-      "stale": "Amounts are out of date: save your changes."
+      "stale": "Amounts are out of date: save your changes.",
+      "hint": "Amounts are sent as they are. When you save, the system checks them against the lines again."
     },
     "leave": {
       "title": "Changes will be lost",
@@ -443,7 +457,8 @@
       "total": "Total",
       "submit": "Send for approval",
       "waiting": "The entry is waiting for the chief accountant's approval.",
-      "rate": "Rate used to convert to the base currency: {{rate}} ({{currency}})"
+      "rate": "Rate used to convert to the base currency: {{rate}} ({{currency}})",
+      "open": "Open in the journal"
     },
     "preview": {
       "title": "Document",
@@ -526,9 +541,20 @@
       "zeroRated": "Zero-rated",
       "exempt": "Exempt",
       "invoices": "Invoices: {{count}}",
-      "excluded": "Invoices left out because they are not validated yet: {{count}}.",
+      "excluded": "Invoices left out of the calculation: {{count}}",
       "excludedLink": "See them",
-      "converted": "Foreign-currency invoices: {{count}}. They were converted to manat at the official rate."
+      "converted": "Foreign-currency invoices: {{count}}. They were converted to manat at the official rate.",
+      "incomplete": "The calculation is incomplete: the invoices below may make the total inexact.",
+      "depositBalance": "Deposit account balance",
+      "byRate": "By rate",
+      "how": "How it was calculated",
+      "col": {
+        "rate": "Rate",
+        "salesNet": "Sales (net)",
+        "salesVat": "Sales VAT",
+        "purchaseNet": "Purchases (net)",
+        "purchaseVat": "Purchase VAT"
+      }
     },
     "deposit": {
       "opening": "Opening balance",
@@ -544,7 +570,9 @@
         "direction": "Direction",
         "amount": "Amount",
         "status": "Status",
-        "action": "Action"
+        "action": "Action",
+        "operation": "Operation",
+        "reference": "Reference"
       },
       "direction": {
         "in": "Received",
@@ -560,7 +588,21 @@
       "confirmDescription": "The movement will be linked to invoice {{number}}. This cannot be undone later.",
       "confirm": "Match",
       "matched": "Movement matched",
-      "failed": "Could not match"
+      "failed": "Could not match",
+      "hint": "You can upload the rows of a statement. The balance is calculated from the rows the system holds.",
+      "formLabel": "Deposit statement",
+      "importTitle": "Upload a statement",
+      "addRow": "Add a row",
+      "removeRow": "Remove row {{number}}",
+      "import": "Upload",
+      "imported": "Statement uploaded: {{count}} rows",
+      "operation": {
+        "top_up": "Top-up",
+        "vat_payment": "VAT payment",
+        "refund": "Refund",
+        "withdrawal": "Withdrawal",
+        "other": "Other"
+      }
     },
     "return": {
       "disclaimer": "This is a draft, not the official return. The official filing is made on the e-taxes.gov.az portal.",
@@ -577,7 +619,8 @@
         "pdf": "PDF",
         "xlsx": "Excel",
         "xml": "XML",
-        "failed": "The file could not be downloaded"
+        "failed": "The file could not be downloaded",
+        "csv": "Download CSV"
       },
       "line": {
         "TURNOVER_TAXABLE": "Taxable turnover",
@@ -587,7 +630,9 @@
         "INPUT_VAT": "Deductible VAT",
         "VAT_PAYABLE": "VAT payable",
         "VAT_REFUNDABLE": "VAT refundable"
-      }
+      },
+      "latest": "Latest draft: version {{version}}",
+      "version": "Draft, version {{version}}"
     },
     "rates": {
       "intro": "VAT rates in force. Every rate is tied to the law it comes from.",
@@ -596,8 +641,21 @@
       "rate": "Rate",
       "valid": "In force",
       "source": "Source",
-      "now": "present"
-    }
+      "now": "present",
+      "treatment": "Treatment",
+      "status": "Status",
+      "openSource": "Open the source",
+      "treatments": {
+        "taxable": "Taxable",
+        "zero_rated": "Zero-rated",
+        "exempt": "Exempt"
+      },
+      "statuses": {
+        "active": "In force",
+        "proposed": "Waiting for approval"
+      }
+    },
+    "invoicesCount": "{{count}} invoices"
   },
   "excel": {
     "columns": {
@@ -1077,5 +1135,8 @@
       },
       "dialogDescription": "The request goes to the approval queue. You cannot approve it yourself."
     }
+  },
+  "impact": {
+    "failed": "The change was not saved"
   }
 }

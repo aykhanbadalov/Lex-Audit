@@ -1,16 +1,16 @@
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
-import type { components } from "@/api/schema";
 import { useSearchText } from "@/shared/hooks/useSearchText";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Select } from "@/shared/ui/select";
-import { NEWS_CATEGORIES, READ_FILTERS, RISK_LEVELS, type NewsSearch } from "../filters";
+import type { NewsSource } from "../api";
+import { READ_FILTERS, type NewsSearch } from "../filters";
 
 interface NewsFiltersProps {
   search: NewsSearch;
-  sources: components["schemas"]["NewsSource"][] | undefined;
+  sources: NewsSource[] | undefined;
   hasActiveFilters: boolean;
   onChange: (patch: Partial<NewsSearch>) => void;
   onReset: () => void;
@@ -58,36 +58,6 @@ export function NewsFilters({ search, sources, hasActiveFilters, onChange, onRes
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={field("category")}>{t("news.filters.category")}</Label>
-          <Select
-            id={field("category")}
-            value={search.category ?? ""}
-            onChange={(event) => onChange({ category: (event.target.value || undefined) as NewsSearch["category"] })}
-          >
-            <option value="">{t("common.all")}</option>
-            {NEWS_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {t(`category.${category}`)}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={field("risk")}>{t("news.filters.risk")}</Label>
-          <Select
-            id={field("risk")}
-            value={search.riskLevel ?? ""}
-            onChange={(event) => onChange({ riskLevel: (event.target.value || undefined) as NewsSearch["riskLevel"] })}
-          >
-            <option value="">{t("common.all")}</option>
-            {RISK_LEVELS.map((level) => (
-              <option key={level} value={level}>
-                {t(`risk.${level}`)}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className="space-y-1.5">
           <Label htmlFor={field("read")}>{t("news.filters.readState")}</Label>
           <Select
             id={field("read")}
@@ -100,26 +70,6 @@ export function NewsFilters({ search, sources, hasActiveFilters, onChange, onRes
               </option>
             ))}
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={field("from")}>{t("news.filters.from")}</Label>
-          <Input
-            id={field("from")}
-            type="date"
-            value={search.from ?? ""}
-            max={search.to}
-            onChange={(event) => onChange({ from: event.target.value || undefined })}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={field("to")}>{t("news.filters.to")}</Label>
-          <Input
-            id={field("to")}
-            type="date"
-            value={search.to ?? ""}
-            min={search.from}
-            onChange={(event) => onChange({ to: event.target.value || undefined })}
-          />
         </div>
         <div className="flex items-end gap-4">
           <label className="flex h-9 items-center gap-2 text-sm">

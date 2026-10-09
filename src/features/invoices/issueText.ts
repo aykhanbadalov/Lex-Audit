@@ -1,38 +1,19 @@
 import type { TFunction } from "i18next";
-import { formatMoney, isDecimalString, type Currency } from "@/shared/lib/money";
 import type { InvoiceIssue } from "./api";
 
 /**
- * The server sends a stable `code` plus plain `params`; the wording belongs to the UI so it follows the user's
- * language. A code this version does not know falls back to the server's English `message` instead of showing nothing.
+ * The backend sends a stable `code` and an English `detail` with the numbers in it. The headline follows the user's
+ * language; the detail is kept below it so nothing the backend found is hidden. A code this version does not know is
+ * shown with its English detail instead of nothing.
  */
-export function describeIssue(t: TFunction, issue: InvoiceIssue, currency: Currency, locale: string): string {
-  const p = issue.params;
-  const money = (value: string | undefined) =>
-    value && isDecimalString(value) ? formatMoney(value, currency, locale) : (value ?? "");
-  const field = (name: string | undefined) => (name ? t(`invoices.fields.${name}`, { defaultValue: name }) : "");
-
-  switch (issue.code) {
-    case "MISSING_FIELD":
-      return t("invoices.issue.MISSING_FIELD", { field: field(p.field) });
-    case "INVALID_TAX_ID":
-      return t("invoices.issue.INVALID_TAX_ID", { value: p.value ?? "" });
-    case "TOTAL_MISMATCH":
-      return t("invoices.issue.TOTAL_MISMATCH", { declared: money(p.declared), computed: money(p.computed) });
-    case "DUPLICATE_INVOICE":
-      return t("invoices.issue.DUPLICATE_INVOICE", { number: p.number ?? "" });
-    case "LOW_CONFIDENCE":
-      return t("invoices.issue.LOW_CONFIDENCE", { field: field(p.field), percent: p.percent ?? "" });
-    case "DATE_IN_FUTURE":
-      return t("invoices.issue.DATE_IN_FUTURE");
-    default:
-      return issue.message;
-  }
+export function describeIssue(t: TFunction, issue: InvoiceIssue): { title: string; detail: string | null } {
+  const known = t(`invoices.issue.${issue.code}`, { defaultValue: "" });
+  return known ? { title: known, detail: issue.detail || null } : { title: issue.detail || issue.code, detail: null };
 }
 
-const ORDER = { error: 0, warning: 1, info: 2 } as const;
+const ORDER = { error: 0, warning: 1 } as const;
 
 /** Errors first, so the thing that blocks the invoice is never below the fold. */
 export function sortIssues(issues: readonly InvoiceIssue[]): InvoiceIssue[] {
-  return [...issues].filter((issue) => !issue.resolved).sort((a, b) => ORDER[a.severity] - ORDER[b.severity]);
+  return [...issues].sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || (a.lineNo ?? 0) - (b.lineNo ?? 0));
 }

@@ -12,13 +12,10 @@ import {
   type JournalSearch,
 } from "@/features/ledger/filters";
 import { DataTable } from "@/shared/components/DataTable";
-import { MoneyText } from "@/shared/components/MoneyText";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { useSearchText } from "@/shared/hooks/useSearchText";
 import { formatDate } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
-import type { Currency } from "@/shared/lib/money";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -33,7 +30,7 @@ export const Route = createFileRoute("/_app/ledger/")({
 function LedgerPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="ledger:read">
+    <RequirePermission permission="journal:read">
       <LedgerPageContent />
     </RequirePermission>
   );
@@ -48,10 +45,6 @@ function LedgerPageContent() {
   const tag = localeTag(i18n.language);
   const active = hasActiveJournalFilters(search);
 
-  const { text, onTextChange } = useSearchText(
-    search.q,
-    (q) => void navigate({ search: (previous) => ({ ...previous, q }), replace: true }),
-  );
   const update = (patch: Partial<JournalSearch>) =>
     void navigate({ search: (previous) => ({ ...previous, ...patch }), replace: true });
 
@@ -73,17 +66,7 @@ function LedgerPageContent() {
       {
         accessorKey: "status",
         header: t("ledger.columns.status"),
-        cell: ({ row }) => <JournalStatusBadge status={row.original.status} />,
-      },
-      {
-        accessorKey: "totalDebit",
-        header: t("ledger.columns.total"),
-        cell: ({ row }) => (
-          <span className="flex flex-wrap items-center gap-2">
-            <MoneyText amount={row.original.totalDebit} currency={row.original.currency as Currency} />
-            {!row.original.balanced ? <Badge tone="danger">{t("invoices.journal.unbalanced")}</Badge> : null}
-          </span>
-        ),
+        cell: ({ row }) => <JournalStatusBadge entry={row.original} />,
       },
     ],
     [t, tag],
@@ -95,19 +78,9 @@ function LedgerPageContent() {
       <LedgerNav />
       <form
         role="search"
-        className="mb-6 grid gap-3 sm:grid-cols-[1fr_12rem_10rem_10rem_auto] sm:items-end"
+        className="mb-6 grid gap-3 sm:grid-cols-[12rem_10rem_10rem_auto] sm:items-end"
         onSubmit={(event) => event.preventDefault()}
       >
-        <div className="space-y-1.5">
-          <Label htmlFor="je-q">{t("news.filters.search")}</Label>
-          <Input
-            id="je-q"
-            type="search"
-            value={text}
-            placeholder={t("ledger.searchPlaceholder")}
-            onChange={(event) => onTextChange(event.target.value)}
-          />
-        </div>
         <div className="space-y-1.5">
           <Label htmlFor="je-status">{t("ledger.columns.status")}</Label>
           <Select

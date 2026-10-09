@@ -1,22 +1,24 @@
 import type { InvoiceDetail, InvoiceUpdate } from "./api";
 
 export interface LineFormValues {
-  /** The server's line id, or null for a line added in the form and not saved yet. Not called `id`: react-hook-form reserves that name. */
-  lineId: string | null;
+  /** The server's line id. Not called `id`: react-hook-form reserves that name. */
+  lineId: string;
   description: string;
   quantity: string;
   unitPrice: string;
   vatRateCode: string;
+  net: string;
+  vat: string;
   accountFinal: string;
 }
 
 export interface InvoiceFormValues {
-  direction: InvoiceDetail["direction"];
   number: string;
   issueDate: string;
-  counterpartyName: string;
-  counterpartyVoen: string;
-  currency: InvoiceDetail["currency"];
+  currency: string;
+  net: string;
+  vat: string;
+  gross: string;
   lines: LineFormValues[];
 }
 
@@ -29,48 +31,58 @@ export function normalizeDecimal(input: string): string {
 
 export function toFormValues(detail: InvoiceDetail): InvoiceFormValues {
   return {
-    direction: detail.direction,
     number: detail.number ?? "",
     issueDate: detail.issueDate ?? "",
-    counterpartyName: detail.counterpartyName ?? "",
-    counterpartyVoen: detail.counterpartyVoen ?? "",
     currency: detail.currency,
+    net: detail.net,
+    vat: detail.vat,
+    gross: detail.gross,
     lines: detail.lines.map((line) => ({
       lineId: line.id,
       description: line.description,
-      quantity: line.quantity,
+      quantity: line.qty,
       unitPrice: line.unitPrice,
       vatRateCode: line.vatRateCode,
+      net: line.net,
+      vat: line.vat,
       accountFinal: line.accountFinal ?? "",
     })),
   };
 }
 
 /**
- * What is sent when saving. Only strings travel: the totals and VAT are never computed here, the server
- * recalculates them and returns the result.
+ * What is sent when saving. Money travels as strings only and is never computed here: the backend checks the
+ * totals against the lines and reports a mismatch as an issue instead of silently "fixing" it.
  */
 export function toUpdate(values: InvoiceFormValues): InvoiceUpdate {
   return {
-    direction: values.direction,
     number: values.number.trim(),
-    issueDate: values.issueDate,
-    counterpartyName: values.counterpartyName.trim(),
-    counterpartyVoen: values.counterpartyVoen.trim(),
+    issueDate: values.issueDate || undefined,
     currency: values.currency,
+    net: normalizeDecimal(values.net),
+    vat: normalizeDecimal(values.vat),
+    gross: normalizeDecimal(values.gross),
     lines: values.lines.map((line) => ({
       id: line.lineId,
       description: line.description.trim(),
-      quantity: normalizeDecimal(line.quantity),
+      qty: normalizeDecimal(line.quantity),
       unitPrice: normalizeDecimal(line.unitPrice),
       vatRateCode: line.vatRateCode,
+      net: normalizeDecimal(line.net),
+      vat: normalizeDecimal(line.vat),
       accountFinal: line.accountFinal.trim() || null,
     })),
   };
 }
 
-/** The id the input for a server-reported path carries, so an issue can move focus to it. */
-export function fieldIdFor(fieldPath: string): string {
-  // "lines[1].unitPrice" (0-based) -> "field-lines-1-unitPrice"
-  return `field-${fieldPath.replace(/\[(\d+)\]\./g, "-$1-").replace(/\./g, "-")}`;
+/**
+ * The id of the input an issue points at, so it can move focus there. `lineNo` is 1-based as the backend counts.
+ * Returns null for something that has no input of its own (for example "the invoice has no lines").
+ */
+export function fieldIdFor(field: string | null | undefined, lineNo?: number | null): string | null {
+  if (!field) return null;
+  const known = ["number", "issueDate", "currency", "net", "vat", "gross"];
+  if (lineNo)
+    return `field-lines-${lineNo - 1}-${field === "quantity" ? "quantity" : field === "qty" ? "quantity" : field}`;
+  return known.includes(field) ? `field-${field}` : null;
 }

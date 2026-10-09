@@ -4,6 +4,134 @@
  */
 
 export interface paths {
+    "/admin/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Liveness + database readiness */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "ok";
+                            service: string;
+                            version: string;
+                            timestamp: string;
+                            checks: {
+                                /** @enum {string} */
+                                database: "ok";
+                                /** @enum {string} */
+                                storage: "ok";
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Liveness + database readiness */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "ok";
+                            service: string;
+                            version: string;
+                            timestamp: string;
+                            checks: {
+                                /** @enum {string} */
+                                database: "ok";
+                                /** @enum {string} */
+                                storage: "ok";
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -13,8 +141,103 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sign in with email and password */
-        post: operations["login"];
+        /** Email + parol ilə giriş; refresh token HttpOnly cookie-də verilir */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        email: string;
+                        password: string;
+                        mfaCode?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accessToken: string;
+                            csrfToken: string;
+                            expiresInSeconds: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -30,8 +253,133 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Exchange the refresh cookie for a new access token */
-        post: operations["refreshSession"];
+        /** Refresh token rotasiyası (cookie + X-CSRF-Token) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accessToken: string;
+                            csrfToken: string;
+                            expiresInSeconds: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/csrf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mövcud refresh sessiyası üçün CSRF token (səhifə yenilənəndən sonra) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            csrfToken: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -47,872 +395,125 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revoke the refresh token and clear the cookie */
-        post: operations["logout"];
+        /** Sessiyanı revoke edir və cookie-ni silir */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "ok";
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/news/sources": {
+    "/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Sources that feed the news list (for filter options) */
-        get: operations["listNewsSources"];
+        /** Cari istifadəçi, şirkət, rollar və icazələr */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "active" | "suspended";
+                            /** Format: uuid */
+                            companyId: string;
+                            companyName: string | null;
+                            roles: string[];
+                            permissions: string[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/news": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search and filter news, newest first */
-        get: operations["listNews"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/news/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getNews"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/news/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["setNewsRead"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/news/{id}/bookmark": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["setNewsBookmark"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/legislation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search the legislation base */
-        get: operations["listLegislation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/legislation/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** A document with its version history */
-        get: operations["getLegislation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/legislation/{id}/versions/{versionId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Full text of one version, split into articles */
-        get: operations["getLegislationVersion"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/legislation/{id}/diff": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Article-level difference between two versions */
-        get: operations["diffLegislation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/files": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Files of the signed-in user's company */
-        get: operations["listFiles"];
-        put?: never;
-        /** Upload one file. Returns at once; extraction and indexing continue in the background. */
-        post: operations["uploadFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/files/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getFile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Rename, move or retag */
-        patch: operations["updateFile"];
-        trace?: never;
-    };
-    "/files/{id}/archive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Soft delete. Nothing is ever deleted permanently from the UI. */
-        post: operations["archiveFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/files/{id}/restore": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["restoreFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/files/{id}/reindex": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run extraction and indexing again (for example after a failure) */
-        post: operations["reindexFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/files/{id}/content": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The stored bytes, with the original name in Content-Disposition */
-        get: operations["downloadFile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Invoices of the signed-in user's company, newest first */
-        get: operations["listInvoices"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/upload": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Upload an invoice document (PDF, image, e-invoice XML/Excel export). One file can contain several invoices. */
-        post: operations["uploadInvoice"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getInvoice"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Save corrections. The server recalculates every line and total, runs validation again and returns the result. The client never computes money. */
-        patch: operations["updateInvoice"];
-        trace?: never;
-    };
-    "/invoices/{id}/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run validation and recalculation again (for example after a rate or master-data change) */
-        post: operations["validateInvoice"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}/source": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The original document, for the side-by-side preview */
-        get: operations["getInvoiceSource"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}/propose-entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Suggest journal entries for a validated invoice. Nothing is posted. */
-        post: operations["proposeInvoiceEntries"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/periods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** VAT periods, newest first */
-        get: operations["listVatPeriods"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/periods/{periodId}/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Output VAT, deductible VAT and the result for a period, in the base currency. The server converts foreign currency invoices and decides which invoices are included. */
-        get: operations["getVatSummary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/periods/{periodId}/deposit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The VAT deposit account statement for the period, matched against invoices */
-        get: operations["getVatDeposit"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/deposit-lines/{lineId}/match": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Confirm which invoice a deposit account movement belongs to */
-        post: operations["matchDepositLine"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/periods/{periodId}/draft-return": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The current draft, or 404 when none has been prepared yet */
-        get: operations["getVatReturnDraft"];
-        put?: never;
-        /** Prepare (or prepare again) the draft from the invoices as they are now. This is not a filing. */
-        post: operations["createVatReturnDraft"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/vat/periods/{periodId}/draft-return/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The draft as a file */
-        get: operations["exportVatReturnDraft"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/journal": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Journal entries, newest first */
-        get: operations["listJournal"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/journal/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getJournalEntry"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/journal/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send a proposed entry for approval. The requester can never approve it. */
-        post: operations["submitJournalEntry"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The company's chart of accounts */
-        get: operations["listAccounts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tax-rates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Rates in force on a date, so the UI can offer valid choices */
-        get: operations["listTaxRates"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/excel/workbooks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Uploaded spreadsheets, newest first (no paging yet; see BACKEND_REQUIREMENTS) */
-        get: operations["listWorkbooks"];
-        put?: never;
-        /** Upload a spreadsheet. It is profiled in the background; the original is never modified. */
-        post: operations["uploadWorkbook"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/excel/workbooks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getWorkbook"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/excel/workbooks/{id}/jobs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run an operation. The result is always a new file; the workbook is never changed. */
-        post: operations["createExcelJob"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reconciliations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listReconciliations"];
-        put?: never;
-        /** Compare an uploaded file with the books (or an e-invoice register with the invoices) for a period */
-        post: operations["createReconciliation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reconciliations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getReconciliation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reconciliations/{id}/rows": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listReconciliationRows"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reconciliations/{id}/rows/{rowId}/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accept the server's suggested match. A person decides; the model only suggests. */
-        post: operations["confirmReconciliationRow"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reconciliations/{id}/rows/{rowId}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Say the suggested match is wrong. Both sides go back to unmatched. */
-        post: operations["rejectReconciliationRow"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/imports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listImports"];
-        put?: never;
-        /** Upload a file from 1C, the e-taxes portal or a bank. Nothing is written until the import is committed. */
-        post: operations["uploadImport"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/imports/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getImport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/imports/{id}/mapping": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Choose which file column feeds which field. The server validates again and returns a fresh preview. */
-        put: operations["saveImportMapping"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/imports/{id}/commit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Write the rows. Only allowed when the server says `canCommit`. It cannot be undone from the UI. */
-        post: operations["commitImport"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exports/onec": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Build a file of the approved journal entries of a period, in a format 1C can import */
-        post: operations["exportToOneC"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/conversations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The signed-in user's conversations, most recently active first */
-        get: operations["listConversations"];
-        put?: never;
-        post: operations["createConversation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/conversations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getConversation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Rename or archive. Nothing is deleted. */
-        patch: operations["updateConversation"];
-        trace?: never;
-    };
-    "/conversations/{id}/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Send a message and stream the answer as Server-Sent Events
-         * @description The response is `text/event-stream`. Every event has an `id:` (a counter per message), an `event:` name and a JSON `data:` line. Events: `message.started` {messageId}; `message.delta` {text}; `citation.added` {citation}; `tool.requested` {toolRun}; `tool.approval_required` {toolRun, approval}; `tool.started` {toolRun}; `tool.completed` {toolRun}; `tool.failed` {toolRun}; `message.completed` {message}; `message.failed` {code, message}. If the connection drops before `message.completed` or `message.failed`, the client resumes with `GET /messages/{id}/events` and a `Last-Event-ID` header. Retrieved text is untrusted input and the model's output is never rendered as HTML.
-         */
-        post: operations["sendMessage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/messages/{id}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Replay the events after `Last-Event-ID`, then continue live if the answer is still being written */
-        get: operations["resumeMessageStream"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/messages/{id}/stop": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Stop generating. The tokens already written are kept; the model stops spending. */
-        post: operations["stopMessage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/messages/{id}/feedback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Thumbs up or down, with the right answer when it is down. This is training data. */
-        post: operations["sendFeedback"];
         delete?: never;
         options?: never;
         head?: never;
@@ -926,8 +527,78 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The approval queue, soonest deadline first for pending items, newest first otherwise */
-        get: operations["listApprovals"];
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            kind: string;
+                            resourceRef: string;
+                            /** Format: uuid */
+                            requesterId: string;
+                            /** Format: uuid */
+                            approverId: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "expired";
+                            expiresAt: string;
+                            decidedAt: string | null;
+                            comment: string | null;
+                            createdAt: string;
+                            execution?: {
+                                /** @enum {string} */
+                                status: "succeeded" | "failed" | "skipped";
+                                message: string;
+                            };
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -943,7 +614,112 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getApproval"];
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            kind: string;
+                            resourceRef: string;
+                            /** Format: uuid */
+                            requesterId: string;
+                            /** Format: uuid */
+                            approverId: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "expired";
+                            expiresAt: string;
+                            decidedAt: string | null;
+                            comment: string | null;
+                            createdAt: string;
+                            execution?: {
+                                /** @enum {string} */
+                                status: "succeeded" | "failed" | "skipped";
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -961,8 +737,136 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Approve or deny a request (a tool run, an access request, a tax-rate change, a model release). The person who asked can never decide it. A comment is required for both decisions. */
-        post: operations["decideApproval"];
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        decision: "approve" | "reject";
+                        comment?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            kind: string;
+                            resourceRef: string;
+                            /** Format: uuid */
+                            requesterId: string;
+                            /** Format: uuid */
+                            approverId: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "expired";
+                            expiresAt: string;
+                            decidedAt: string | null;
+                            comment: string | null;
+                            createdAt: string;
+                            execution?: {
+                                /** @enum {string} */
+                                status: "succeeded" | "failed" | "skipped";
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -976,8 +880,88 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The audit log, newest first. Events are append-only; there is no way to change or delete one. */
-        get: operations["listAuditEvents"];
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            actorId: string | null;
+                            action: string;
+                            resourceType: string;
+                            resourceId: string;
+                            before: unknown;
+                            after: unknown;
+                            requestId: string;
+                            createdAt: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -986,7 +970,620 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/audit-events/export": {
+    "/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    folder?: string;
+                    tag?: string;
+                    q?: string;
+                    includeArchived?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                mime: string;
+                                size: number;
+                                folder: string;
+                                tags: string[];
+                                /** Format: uuid */
+                                ownerId: string;
+                                archivedAt: string | null;
+                                createdAt: string;
+                                updatedAt: string;
+                                /** @enum {string|null} */
+                                extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Fayl yüklə (multipart/form-data: file, folder?, tags?, name?)
+         * @description Ölçü limiti, magic-byte MIME yoxlaması və antivirus skanı keçən fayl S3-ə yazılır (sha256 ilə dedupe), versiya və extraction (pending) yaradılır, `file.extract` işi növbələnir.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            folder: string;
+                            tags: string[];
+                            /** Format: uuid */
+                            ownerId: string;
+                            archivedAt: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            /** @enum {string|null} */
+                            extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                            versions: {
+                                /** Format: uuid */
+                                id: string;
+                                versionNo: number;
+                                sha256: string;
+                                size: number;
+                                mime: string;
+                                /** Format: uuid */
+                                uploadedBy: string;
+                                createdAt: string;
+                            }[];
+                            extraction: {
+                                /** @enum {string} */
+                                status: "pending" | "extracting" | "ready" | "failed";
+                                detectedKind: string | null;
+                                error: string | null;
+                                textLength: number | null;
+                                updatedAt: string;
+                            } | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            folder: string;
+                            tags: string[];
+                            /** Format: uuid */
+                            ownerId: string;
+                            archivedAt: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            /** @enum {string|null} */
+                            extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                            versions: {
+                                /** Format: uuid */
+                                id: string;
+                                versionNo: number;
+                                sha256: string;
+                                size: number;
+                                mime: string;
+                                /** Format: uuid */
+                                uploadedBy: string;
+                                createdAt: string;
+                            }[];
+                            extraction: {
+                                /** @enum {string} */
+                                status: "pending" | "extracting" | "ready" | "failed";
+                                detectedKind: string | null;
+                                error: string | null;
+                                textLength: number | null;
+                                updatedAt: string;
+                            } | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        folder?: string;
+                        tags?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            folder: string;
+                            tags: string[];
+                            /** Format: uuid */
+                            ownerId: string;
+                            archivedAt: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            /** @enum {string|null} */
+                            extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/files/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Faylın cari versiyasının məzmunu (attachment) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/archive": {
         parameters: {
             query?: never;
             header?: never;
@@ -995,8 +1592,5971 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Build a CSV of the events that match the same filters, stored under Files. The export itself is audited. */
-        post: operations["exportAuditEvents"];
+        /** Faylı arxivləşdir (idempotent; silmə yoxdur) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            folder: string;
+                            tags: string[];
+                            /** Format: uuid */
+                            ownerId: string;
+                            archivedAt: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            /** @enum {string|null} */
+                            extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Arxivlənmiş faylı bərpa et (idempotent) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            folder: string;
+                            tags: string[];
+                            /** Format: uuid */
+                            ownerId: string;
+                            archivedAt: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            /** @enum {string|null} */
+                            extractionStatus: "pending" | "extracting" | "ready" | "failed" | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{id}/reindex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cari versiyanın extraction-unu yenidən işə sal */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "pending" | "extracting" | "ready" | "failed";
+                            detectedKind: string | null;
+                            error: string | null;
+                            textLength: number | null;
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tax-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vergi dərəcələri (tarixə görə qüvvədə olanlar)
+         * @description Dərəcələr məlumat bazasındadır və əməliyyat tarixinə görə seçilir. `date` verilərsə, həmin tarixdə qüvvədə olan dərəcələr qaytarılır.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    taxType?: "VAT" | "PROFIT" | "INCOME" | "WITHHOLDING" | "SIMPLIFIED" | "SOCIAL";
+                    date?: string;
+                    status?: "proposed" | "active";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            taxType: "VAT" | "PROFIT" | "INCOME" | "WITHHOLDING" | "SIMPLIFIED" | "SOCIAL";
+                            code: string;
+                            ratePercent: string;
+                            /** @enum {string|null} */
+                            treatment: "taxable" | "zero_rated" | "exempt" | null;
+                            validFrom: string;
+                            validTo: string | null;
+                            /** Format: uuid */
+                            legalSourceId: string | null;
+                            /** @enum {string} */
+                            status: "proposed" | "active";
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** e-qaimə XML yüklə (multipart: file); AI-sız şablon parse işə düşür */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            fileId: string;
+                            /** Format: uuid */
+                            fileVersionId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    direction?: "sales" | "purchase";
+                    status?: "extracted" | "needs_review" | "validated" | "posted";
+                    from?: string;
+                    to?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                direction: "sales" | "purchase";
+                                number: string;
+                                issueDate: string;
+                                counterparty: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    name: string;
+                                    voen: string | null;
+                                    isVatPayer: boolean | null;
+                                } | null;
+                                currency: string;
+                                net: string;
+                                vat: string;
+                                gross: string;
+                                /** @enum {string} */
+                                status: "extracted" | "needs_review" | "validated" | "posted";
+                                /** Format: uuid */
+                                sourceFileId: string | null;
+                                extractionConfidence: string | null;
+                                templateVersion: string | null;
+                                aiModelVersion: string | null;
+                                lowConfidenceFields: string[];
+                                fieldConfidence: {
+                                    [key: string]: number;
+                                };
+                                createdAt: string;
+                                updatedAt: string;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            direction: "sales" | "purchase";
+                            number: string;
+                            issueDate: string;
+                            counterparty: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                voen: string | null;
+                                isVatPayer: boolean | null;
+                            } | null;
+                            currency: string;
+                            net: string;
+                            vat: string;
+                            gross: string;
+                            /** @enum {string} */
+                            status: "extracted" | "needs_review" | "validated" | "posted";
+                            /** Format: uuid */
+                            sourceFileId: string | null;
+                            extractionConfidence: string | null;
+                            templateVersion: string | null;
+                            aiModelVersion: string | null;
+                            lowConfidenceFields: string[];
+                            fieldConfidence: {
+                                [key: string]: number;
+                            };
+                            createdAt: string;
+                            updatedAt: string;
+                            lines: {
+                                /** Format: uuid */
+                                id: string;
+                                lineNo: number;
+                                description: string;
+                                qty: string;
+                                unitPrice: string;
+                                vatRateCode: string;
+                                net: string;
+                                vat: string;
+                                accountSuggestion: string | null;
+                                accountSuggestionConfidence: string | null;
+                                accountFinal: string | null;
+                            }[];
+                            issues: {
+                                /** Format: uuid */
+                                id: string;
+                                code: string;
+                                /** @enum {string} */
+                                severity: "error" | "warning";
+                                detail: string;
+                                lineNo: number | null;
+                                field: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Başlıq və sətir məlumatlarını düzəlt; status yenidən "extracted" olur və təkrar yoxlama tələb edir */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        number?: string;
+                        issueDate?: string;
+                        currency?: string;
+                        net?: string;
+                        vat?: string;
+                        gross?: string;
+                        lines?: {
+                            /** Format: uuid */
+                            id: string;
+                            accountFinal?: string | null;
+                            description?: string;
+                            qty?: string;
+                            unitPrice?: string;
+                            vatRateCode?: string;
+                            net?: string;
+                            vat?: string;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            direction: "sales" | "purchase";
+                            number: string;
+                            issueDate: string;
+                            counterparty: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                voen: string | null;
+                                isVatPayer: boolean | null;
+                            } | null;
+                            currency: string;
+                            net: string;
+                            vat: string;
+                            gross: string;
+                            /** @enum {string} */
+                            status: "extracted" | "needs_review" | "validated" | "posted";
+                            /** Format: uuid */
+                            sourceFileId: string | null;
+                            extractionConfidence: string | null;
+                            templateVersion: string | null;
+                            aiModelVersion: string | null;
+                            lowConfidenceFields: string[];
+                            fieldConfidence: {
+                                [key: string]: number;
+                            };
+                            createdAt: string;
+                            updatedAt: string;
+                            lines: {
+                                /** Format: uuid */
+                                id: string;
+                                lineNo: number;
+                                description: string;
+                                qty: string;
+                                unitPrice: string;
+                                vatRateCode: string;
+                                net: string;
+                                vat: string;
+                                accountSuggestion: string | null;
+                                accountSuggestionConfidence: string | null;
+                                accountFinal: string | null;
+                            }[];
+                            issues: {
+                                /** Format: uuid */
+                                id: string;
+                                code: string;
+                                /** @enum {string} */
+                                severity: "error" | "warning";
+                                detail: string;
+                                lineNo: number | null;
+                                field: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/invoices/{id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Qaimənin orijinal sənədi (yüklənmiş fayl); önbaxış üçün inline */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** accounting.invoice.check işlət, invoice_issues-i yenilə */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            direction: "sales" | "purchase";
+                            number: string;
+                            issueDate: string;
+                            counterparty: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                voen: string | null;
+                                isVatPayer: boolean | null;
+                            } | null;
+                            currency: string;
+                            net: string;
+                            vat: string;
+                            gross: string;
+                            /** @enum {string} */
+                            status: "extracted" | "needs_review" | "validated" | "posted";
+                            /** Format: uuid */
+                            sourceFileId: string | null;
+                            extractionConfidence: string | null;
+                            templateVersion: string | null;
+                            aiModelVersion: string | null;
+                            lowConfidenceFields: string[];
+                            fieldConfidence: {
+                                [key: string]: number;
+                            };
+                            createdAt: string;
+                            updatedAt: string;
+                            lines: {
+                                /** Format: uuid */
+                                id: string;
+                                lineNo: number;
+                                description: string;
+                                qty: string;
+                                unitPrice: string;
+                                vatRateCode: string;
+                                net: string;
+                                vat: string;
+                                accountSuggestion: string | null;
+                                accountSuggestionConfidence: string | null;
+                                accountFinal: string | null;
+                            }[];
+                            issues: {
+                                /** Format: uuid */
+                                id: string;
+                                code: string;
+                                /** @enum {string} */
+                                severity: "error" | "warning";
+                                detail: string;
+                                lineNo: number | null;
+                                field: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}/propose-entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Qaimədən TƏKLİF olunan jurnal yazılışı (yazılmır; təsdiq B11) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        accountMapping?: {
+                            receivable: string;
+                            payable: string;
+                            revenue: string;
+                            expense: string;
+                            vatOutput: string;
+                            vatInput: string;
+                        };
+                        vatDeductible?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            date: string;
+                            description: string;
+                            /** @enum {string} */
+                            status: "proposed";
+                            lines: {
+                                accountCode: string;
+                                debit: string;
+                                credit: string;
+                                description: string | null;
+                            }[];
+                            explanation: string[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    sourceId?: string;
+                    unread?: string;
+                    bookmarked?: string;
+                    q?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                sourceId: string;
+                                title: string;
+                                originalUrl: string;
+                                publishedAt: string | null;
+                                fetchedAt: string;
+                                excerpt: string;
+                                aiSummary: string | null;
+                                aiCategory: string | null;
+                                aiRiskLevel: string | null;
+                                aiTags: string[] | null;
+                                read: boolean;
+                                bookmarked: boolean;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/news/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xəbər filtri üçün aktiv mənbələr (konfiqurasiyasız, platforma icazəsi tələb olunmur) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            url: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/news/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            sourceId: string;
+                            title: string;
+                            originalUrl: string;
+                            publishedAt: string | null;
+                            fetchedAt: string;
+                            excerpt: string;
+                            aiSummary: string | null;
+                            aiCategory: string | null;
+                            aiRiskLevel: string | null;
+                            aiTags: string[] | null;
+                            read: boolean;
+                            bookmarked: boolean;
+                            rawText: string;
+                            canonicalUrl: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/news/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Oxundu işarəsi */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default true */
+                        value?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            sourceId: string;
+                            title: string;
+                            originalUrl: string;
+                            publishedAt: string | null;
+                            fetchedAt: string;
+                            excerpt: string;
+                            aiSummary: string | null;
+                            aiCategory: string | null;
+                            aiRiskLevel: string | null;
+                            aiTags: string[] | null;
+                            read: boolean;
+                            bookmarked: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/news/{id}/bookmark": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Seçilmişlərə əlavə et/çıxar */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default true */
+                        value?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            sourceId: string;
+                            title: string;
+                            originalUrl: string;
+                            publishedAt: string | null;
+                            fetchedAt: string;
+                            excerpt: string;
+                            aiSummary: string | null;
+                            aiCategory: string | null;
+                            aiRiskLevel: string | null;
+                            aiTags: string[] | null;
+                            read: boolean;
+                            bookmarked: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/legislation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    type?: "code" | "law" | "decree" | "cabinet_decision" | "standard";
+                    q?: string;
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            type: string;
+                            officialNumber: string | null;
+                            adoptedAt: string | null;
+                            title: string;
+                            language: string;
+                            sourceUrl: string;
+                            latestVersionNo: number | null;
+                            currentValidFrom: string | null;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/legislation/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sənəd + tarixdə qüvvədə olan versiyanın mətni (`date` verilməsə — cari) */
+        get: {
+            parameters: {
+                query?: {
+                    date?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            type: string;
+                            officialNumber: string | null;
+                            adoptedAt: string | null;
+                            title: string;
+                            language: string;
+                            sourceUrl: string;
+                            latestVersionNo: number | null;
+                            currentValidFrom: string | null;
+                            version: {
+                                versionNo: number;
+                                validFrom: string;
+                                validTo: string | null;
+                                contentHash: string;
+                                sourceUrl: string;
+                                fullText: string;
+                            } | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/legislation/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            versionNo: number;
+                            validFrom: string;
+                            validTo: string | null;
+                            contentHash: string;
+                            sourceUrl: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/legislation/{id}/diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İki versiya arasında abzas səviyyəsində fərq (from/to = versiya nömrəsi) */
+        get: {
+            parameters: {
+                query: {
+                    from: number;
+                    to: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            from: {
+                                versionNo: number;
+                                validFrom: string;
+                                validTo: string | null;
+                                contentHash: string;
+                                sourceUrl: string;
+                            };
+                            to: {
+                                versionNo: number;
+                                validFrom: string;
+                                validTo: string | null;
+                                contentHash: string;
+                                sourceUrl: string;
+                            };
+                            hunks: {
+                                /** @enum {string} */
+                                type: "added" | "removed" | "unchanged";
+                                text: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Açıq sistem xəbərdarlıqları (məs. mənbə 24 saatdır yenilənmir) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            kind: string;
+                            /** Format: uuid */
+                            sourceId: string | null;
+                            message: string;
+                            createdAt: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hybrid axtarış: pgvector + full-text → RRF → rerank (top 8)
+         * @description company_id sessiyadan götürülür. Nəticələr istifadəçinin icazəsi olan resurs növləri ilə məhdudlaşır. `date` — qanunun həmin gün qüvvədə olan versiyası.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        query: string;
+                        resourceTypes?: ("legislation" | "news" | "file" | "audit")[];
+                        date?: string;
+                        /** @default 8 */
+                        limit?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            query: string;
+                            /** @enum {string} */
+                            language: "az" | "ru" | "en";
+                            modes: ("vector" | "fulltext")[];
+                            reranked: boolean;
+                            hits: {
+                                label: string;
+                                /** Format: uuid */
+                                chunkId: string;
+                                /** @enum {string} */
+                                resourceType: "legislation" | "news" | "file" | "audit";
+                                /** Format: uuid */
+                                resourceId: string;
+                                title: string;
+                                articleRef: string | null;
+                                versionNo: number | null;
+                                url: string | null;
+                                text: string;
+                                scores: {
+                                    rrf: number;
+                                    rerank: number | null;
+                                };
+                            }[];
+                            message: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            title: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            title: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conversations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Söhbət və mesajlar (alət nəticələri daxil deyil) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            title: string | null;
+                            createdAt: string;
+                            updatedAt: string;
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "tool";
+                                content: string;
+                                citations: {
+                                    label: string;
+                                    /** Format: uuid */
+                                    chunkId: string;
+                                }[];
+                                toolCalls: {
+                                    id: string;
+                                    name: string;
+                                }[] | null;
+                                modelVersion: string | null;
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conversations/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mesaj göndər → SSE axını (message.created, step, delta, tool.call, tool.result, final, error, done)
+         * @description Cavab `text/event-stream`dir. Hər agent addımı ayrıca event kimi gəlir. Model yalnız alət TƏKLİF edir; icranı Tool Gateway yoxlayır.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        content: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/messages/{id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        kind: "thumbs";
+                        /** @enum {string} */
+                        value: "up" | "down";
+                        comment?: string;
+                    } | {
+                        /** @enum {string} */
+                        kind: "correction";
+                        correction: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            period: string;
+                            status: string;
+                            latestDraftVersion: number | null;
+                            invoices: number;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{p}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dövr üzrə ƏDV yekunu (yalnız deterministik mühərrikdən; hesablanmayanlar açıq göstərilir) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    p: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            period: string;
+                            from: string;
+                            to: string;
+                            outputVat: string;
+                            inputVat: string;
+                            payable: string;
+                            taxableTurnover: string;
+                            exemptTurnover: string;
+                            zeroRatedTurnover: string;
+                            depositBalance: string | null;
+                            byRate: {
+                                code: string;
+                                ratePercent: string;
+                                treatment: string;
+                                salesNet: string;
+                                salesVat: string;
+                                purchaseNet: string;
+                                purchaseVat: string;
+                            }[];
+                            included: {
+                                sales: number;
+                                purchases: number;
+                            };
+                            excluded: {
+                                /** Format: uuid */
+                                id: string;
+                                number: string;
+                                status: string;
+                            }[];
+                            blockers: {
+                                /** Format: uuid */
+                                invoiceId: string;
+                                number: string;
+                                reason: string;
+                            }[];
+                            complete: boolean;
+                            explanation: string[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/periods/{p}/draft-return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bəyannamə QARALAMASI: yeni CSV fayl + vat_returns versiyası (qaimələr dəyişmir; təqdim etmir) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    p: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            returnId: string;
+                            version: number;
+                            /** Format: uuid */
+                            draftFileId: string;
+                            summary: {
+                                period: string;
+                                from: string;
+                                to: string;
+                                outputVat: string;
+                                inputVat: string;
+                                payable: string;
+                                taxableTurnover: string;
+                                exemptTurnover: string;
+                                zeroRatedTurnover: string;
+                                depositBalance: string | null;
+                                byRate: {
+                                    code: string;
+                                    ratePercent: string;
+                                    treatment: string;
+                                    salesNet: string;
+                                    salesVat: string;
+                                    purchaseNet: string;
+                                    purchaseVat: string;
+                                }[];
+                                included: {
+                                    sales: number;
+                                    purchases: number;
+                                };
+                                excluded: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    number: string;
+                                    status: string;
+                                }[];
+                                blockers: {
+                                    /** Format: uuid */
+                                    invoiceId: string;
+                                    number: string;
+                                    reason: string;
+                                }[];
+                                complete: boolean;
+                                explanation: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vat/deposit-statements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ƏDV depozit hesabı çıxarışını idxal et (JSON sətirlər) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        period: string;
+                        lines: {
+                            date: string;
+                            /** @enum {string} */
+                            operation: "top_up" | "vat_payment" | "refund" | "withdrawal" | "other";
+                            amount: string;
+                            reference?: string | null;
+                            counterpartyVoen?: string | null;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            statementId: string;
+                            lines: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tax-calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Vergi təqvimi (son tarixlər bazadadır, kodda yox) */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    taxType?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            taxType: string;
+                            period: string;
+                            dueDate: string;
+                            /** Format: uuid */
+                            legalSourceId: string | null;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "proposed" | "approved" | "posted";
+                    from?: string;
+                    to?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                date: string;
+                                description: string;
+                                /** @enum {string} */
+                                status: "proposed" | "approved" | "posted";
+                                /** @enum {string} */
+                                source: "invoice" | "manual" | "ai";
+                                /** Format: uuid */
+                                sourceInvoiceId: string | null;
+                                /** Format: uuid */
+                                approvalId: string | null;
+                                postedAt: string | null;
+                                createdAt: string;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            date: string;
+                            description: string;
+                            /** @enum {string} */
+                            status: "proposed" | "approved" | "posted";
+                            /** @enum {string} */
+                            source: "invoice" | "manual" | "ai";
+                            /** Format: uuid */
+                            sourceInvoiceId: string | null;
+                            /** Format: uuid */
+                            approvalId: string | null;
+                            postedAt: string | null;
+                            createdAt: string;
+                            lines: {
+                                lineNo: number;
+                                accountCode: string;
+                                debit: string;
+                                credit: string;
+                                description: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Yazılışı post etmək üçün TƏSDİQ sorğusu yarat (balanssız yazılış rədd olunur; təsdiq başqa istifadəçi tərəfindən verilməlidir) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            entryId: string;
+                            /** Format: uuid */
+                            approvalId: string;
+                            /** @enum {string} */
+                            status: "approval_required";
+                            reused: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            code: string;
+                            nameAz: string;
+                            nameRu: string | null;
+                            nameEn: string | null;
+                            type: string;
+                            /** Format: uuid */
+                            parentId: string | null;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chart-of-accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Şirkətin hesablar planını yüklə (mövcud plan əvəzlənir: yeni plan yaranır və aktiv olur) */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        /**
+                         * @default MMUS
+                         * @enum {string}
+                         */
+                        standard?: "MMUS" | "MHBS";
+                        accounts: {
+                            code: string;
+                            nameAz: string;
+                            nameRu?: string;
+                            nameEn?: string;
+                            /** @enum {string} */
+                            type: "asset" | "liability" | "equity" | "revenue" | "expense" | "off_balance";
+                            parentCode?: string;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            chartId: string;
+                            accounts: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/excel/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Excel işi: profile | clean | reconcile | report — nəticə YENİ fayldır (output_file_id), orijinal dəyişmir */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        operation: "profile";
+                        /** Format: uuid */
+                        inputFileId: string;
+                    } | {
+                        /** @enum {string} */
+                        operation: "clean";
+                        /** Format: uuid */
+                        inputFileId: string;
+                        /**
+                         * @default {
+                         *       "dedupe": true
+                         *     }
+                         */
+                        params?: {
+                            /** @default true */
+                            dedupe?: boolean;
+                        };
+                    } | {
+                        /** @enum {string} */
+                        operation: "reconcile";
+                        params: {
+                            left: {
+                                /** @enum {string} */
+                                type: "file";
+                                /** Format: uuid */
+                                fileId: string;
+                                keyColumn: string;
+                                amountColumn: string;
+                                dateColumn?: string;
+                            } | {
+                                /** @enum {string} */
+                                type: "invoices";
+                                from: string;
+                                to: string;
+                                /** @enum {string} */
+                                direction?: "sales" | "purchase";
+                            } | {
+                                /** @enum {string} */
+                                type: "bank";
+                                from?: string;
+                                to?: string;
+                            };
+                            right: {
+                                /** @enum {string} */
+                                type: "file";
+                                /** Format: uuid */
+                                fileId: string;
+                                keyColumn: string;
+                                amountColumn: string;
+                                dateColumn?: string;
+                            } | {
+                                /** @enum {string} */
+                                type: "invoices";
+                                from: string;
+                                to: string;
+                                /** @enum {string} */
+                                direction?: "sales" | "purchase";
+                            } | {
+                                /** @enum {string} */
+                                type: "bank";
+                                from?: string;
+                                to?: string;
+                            };
+                        };
+                    } | {
+                        /** @enum {string} */
+                        operation: "report";
+                        params: {
+                            /** @enum {string} */
+                            template: "invoices" | "journal";
+                            from: string;
+                            to: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            operation: "profile" | "clean" | "reconcile" | "report";
+                            /** Format: uuid */
+                            inputFileId: string | null;
+                            /** Format: uuid */
+                            outputFileId: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "running" | "done" | "failed";
+                            result: unknown;
+                            error: string | null;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/excel/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            operation: "profile" | "clean" | "reconcile" | "report";
+                            /** Format: uuid */
+                            inputFileId: string | null;
+                            /** Format: uuid */
+                            outputFileId: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "running" | "done" | "failed";
+                            result: unknown;
+                            error: string | null;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** İki mənbəni uzlaşdır (fayl / qaimələr / bank). Nəticələr TƏKLİFDİR; insan confirm edir */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        left: {
+                            /** @enum {string} */
+                            type: "file";
+                            /** Format: uuid */
+                            fileId: string;
+                            keyColumn: string;
+                            amountColumn: string;
+                            dateColumn?: string;
+                        } | {
+                            /** @enum {string} */
+                            type: "invoices";
+                            from: string;
+                            to: string;
+                            /** @enum {string} */
+                            direction?: "sales" | "purchase";
+                        } | {
+                            /** @enum {string} */
+                            type: "bank";
+                            from?: string;
+                            to?: string;
+                        };
+                        right: {
+                            /** @enum {string} */
+                            type: "file";
+                            /** Format: uuid */
+                            fileId: string;
+                            keyColumn: string;
+                            amountColumn: string;
+                            dateColumn?: string;
+                        } | {
+                            /** @enum {string} */
+                            type: "invoices";
+                            from: string;
+                            to: string;
+                            /** @enum {string} */
+                            direction?: "sales" | "purchase";
+                        } | {
+                            /** @enum {string} */
+                            type: "bank";
+                            from?: string;
+                            to?: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            summary: unknown;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            leftSource: string;
+                            rightSource: string;
+                            status: string;
+                            summary: unknown;
+                            matches: {
+                                /** Format: uuid */
+                                id: string;
+                                matchType: string;
+                                confidence: string;
+                                left: unknown;
+                                right: unknown;
+                                difference: string | null;
+                                explanation: string;
+                                /** @enum {string} */
+                                status: "proposed" | "confirmed";
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconciliations/{id}/matches/{m}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    m: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "confirmed";
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** İmport ÖNBAXIŞI (heç nə yazılmır): şablon, düzgün/səhv sətirlər */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        source: "1c" | "etaxes" | "bank";
+                        /** Format: uuid */
+                        fileId: string;
+                        /** @enum {string} */
+                        defaultDirection?: "sales" | "purchase";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            importId: string;
+                            template: string;
+                            rowsOk: number;
+                            rowsFailed: number;
+                            truncated: boolean;
+                            errors: {
+                                row: number;
+                                errors: string[];
+                            }[];
+                            sample: unknown[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            source: string;
+                            template: string | null;
+                            status: string;
+                            rowsOk: number;
+                            rowsFailed: number;
+                            /** Format: uuid */
+                            approvalId: string | null;
+                            error: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/{id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Önbaxışı tətbiq etmək üçün TƏSDİQ sorğusu (başqa istifadəçi təsdiqləyəndə yazılır) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            importId: string;
+                            /** Format: uuid */
+                            approvalId: string;
+                            /** @enum {string} */
+                            status: "approval_required";
+                            reused: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal/export-1c": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 1C üçün POST olunmuş yazılışların ixrac faylı (YENİ fayl; format lexaudit-1c-v1) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        from: string;
+                        to: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            fileId: string;
+                            entries: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/impact-findings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Şirkətin sənədlərinə təsir edə bilən yeni xəbər/qanun dəyişiklikləri */
+        get: {
+            parameters: {
+                query?: {
+                    status?: "new" | "seen" | "dismissed" | "actioned";
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            sourceKind: "news" | "legislation_version";
+                            /** Format: uuid */
+                            sourceId: string;
+                            /** @enum {string} */
+                            affectedResourceType: "file" | "audit";
+                            /** Format: uuid */
+                            affectedResourceId: string;
+                            score: string;
+                            explanation: string;
+                            evidence: unknown;
+                            /** @enum {string} */
+                            status: "new" | "seen" | "dismissed" | "actioned";
+                            createdAt: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/impact-findings/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "seen" | "dismissed" | "actioned";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            sourceKind: "news" | "legislation_version";
+                            /** Format: uuid */
+                            sourceId: string;
+                            /** @enum {string} */
+                            affectedResourceType: "file" | "audit";
+                            /** Format: uuid */
+                            affectedResourceId: string;
+                            score: string;
+                            explanation: string;
+                            evidence: unknown;
+                            /** @enum {string} */
+                            status: "new" | "seen" | "dismissed" | "actioned";
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dashboard bildirişləri (polling: `afterSeq` ilə yalnız yeniləri al) */
+        get: {
+            parameters: {
+                query?: {
+                    unreadOnly?: string;
+                    afterSeq?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            unreadCount: number;
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                seq: string;
+                                kind: string;
+                                title: string;
+                                body: string | null;
+                                refType: string | null;
+                                /** Format: uuid */
+                                refId: string | null;
+                                read: boolean;
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            updated: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            updated: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1010,10 +7570,168 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Every user of the company (requires admin:manage) */
-        get: operations["listAdminUsers"];
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "active" | "suspended";
+                            roles: string[];
+                            createdAt: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
-        post?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                        password: string;
+                        roleIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "active" | "suspended";
+                            roles: string[];
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1033,19 +7751,616 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Deactivate or reactivate a user (applied at once, 200), or ask for a different role. A role change is never applied directly: it creates an approval request (202) that someone else must approve. You cannot change your own role or deactivate yourself (403). */
-        patch: operations["updateAdminUser"];
+        /** İstifadəçi statusu (state machine); özünü və son admini dayandırmaq olmaz; sessiyalar ləğv olunur */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "active" | "suspended";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "active" | "suspended";
+                            roles: string[];
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
-    "/admin/news-sources": {
+    "/admin/users/{id}/roles": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** News and legislation sources with their fetch health */
-        get: operations["listAdminNewsSources"];
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        roleIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "active" | "suspended";
+                            roles: string[];
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            system: boolean;
+                            description: string | null;
+                            permissions: string[];
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Şirkətə məxsus rol yarat (icazələr çağıranın icazələrinin alt çoxluğu olmalıdır) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        description?: string;
+                        permissions: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            system: boolean;
+                            description: string | null;
+                            permissions: string[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/roles/{id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Yalnız şirkətin öz (xüsusi) rolları dəyişdirilə bilər; sistem rolları dəyişməzdir */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        permissions: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            system: boolean;
+                            description: string | null;
+                            permissions: string[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** [platforma] Mənbələr */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            url: string;
+                            type: string;
+                            kind: string;
+                            adapter: string | null;
+                            config: unknown;
+                            fetchCron: string;
+                            enabled: boolean;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -1054,7 +8369,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/news-sources/{id}": {
+    "/admin/sources/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1062,16 +8377,313 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /** [platforma] Mənbə adapteri/konfiqurasiyası/cron/aktivlik (aktivləşdirmə robots.txt və şərtlərin yoxlanmasından sonra) */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        adapter?: "rss" | "html_list" | "html_document";
+                        config?: unknown;
+                        fetchCron?: string;
+                        enabled?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            url: string;
+                            type: string;
+                            kind: string;
+                            adapter: string | null;
+                            config: unknown;
+                            fetchCron: string;
+                            enabled: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Turn a source on or off. Items already collected stay. */
-        patch: operations["updateAdminNewsSource"];
+        patch?: never;
         trace?: never;
     };
-    "/admin/tax-rates/changes": {
+    "/admin/tax-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** [platforma] Bütün dərəcələr (proposed daxil) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            taxType: string;
+                            code: string;
+                            rate: string;
+                            treatment: string | null;
+                            validFrom: string;
+                            validTo: string | null;
+                            /** Format: uuid */
+                            legalSourceId: string | null;
+                            status: string;
+                        }[];
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** [platforma] Dərəcə təklifi (status = proposed; aktivləşmə ayrıca təsdiq tələb edir) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        taxType: "VAT" | "PROFIT" | "INCOME" | "WITHHOLDING" | "SIMPLIFIED" | "SOCIAL";
+                        code: string;
+                        ratePercent: string;
+                        /** @enum {string} */
+                        treatment?: "taxable" | "zero_rated" | "exempt";
+                        validFrom: string;
+                        validTo?: string;
+                        /** Format: uuid */
+                        legalSourceId?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            taxType: string;
+                            code: string;
+                            rate: string;
+                            treatment: string | null;
+                            validFrom: string;
+                            validTo: string | null;
+                            /** Format: uuid */
+                            legalSourceId: string | null;
+                            status: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/tax-rates/{id}/request-activation": {
         parameters: {
             query?: never;
             header?: never;
@@ -1080,8 +8692,114 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Propose a new rate for a code. Rates change only through approval, never directly (202). */
-        post: operations["proposeTaxRateChange"];
+        /** [platforma] Təklifi aktivləşdirmək üçün təsdiq sorğusu (başqa operator təsdiqləməlidir) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            approvalId: string;
+                            /** @enum {string} */
+                            status: "approval_required";
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1095,17 +8813,195 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Model versions per task, with evaluation results */
-        get: operations["listModelVersions"];
+        /** [platforma] Model versiyaları + model-serving-in bildirdiyi aktiv modellər */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            versions: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                version: string;
+                                /** @enum {string} */
+                                kind: "llm" | "embedding" | "classifier";
+                                artifactUri: string;
+                                /** @enum {string} */
+                                status: "candidate" | "canary" | "production" | "retired";
+                                evalReport: unknown;
+                                createdAt: string;
+                            }[];
+                            serving: {
+                                available: boolean;
+                                models: string[];
+                                error: string | null;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
-        post?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        version: string;
+                        /** @enum {string} */
+                        kind: "llm" | "embedding" | "classifier";
+                        artifactUri: string;
+                        evalReport?: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            version: string;
+                            /** @enum {string} */
+                            kind: "llm" | "embedding" | "classifier";
+                            artifactUri: string;
+                            /** @enum {string} */
+                            status: "candidate" | "canary" | "production" | "retired";
+                            evalReport: unknown;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/admin/models/{id}/change": {
+    "/admin/models/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -1113,9 +9009,129 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
-        /** Ask to release a candidate/canary version to everyone, or to roll back to a retired one. Always goes through approval (202); the requester cannot approve it. */
-        post: operations["requestModelChange"];
+        /** [platforma] candidate → canary → production → retired. production-a keçid üçün eval_report məcburidir; əvvəlki production avtomatik retired olur */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "candidate" | "canary" | "production" | "retired";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            version: string;
+                            /** @enum {string} */
+                            kind: "llm" | "embedding" | "classifier";
+                            artifactUri: string;
+                            /** @enum {string} */
+                            status: "candidate" | "canary" | "production" | "retired";
+                            evalReport: unknown;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1125,2951 +9141,12 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        ApiError: {
-            error: {
-                /** @enum {string} */
-                code: "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_FAILED" | "CONFLICT" | "APPROVAL_REQUIRED" | "RATE_LIMITED" | "UPSTREAM_UNAVAILABLE" | "INTERNAL";
-                message: string;
-                requestId: string;
-            };
-        };
-        LoginRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        /** @enum {string} */
-        Role: "viewer" | "accountant" | "chief_accountant" | "auditor" | "admin";
-        User: {
-            id: string;
-            companyId: string;
-            name: string;
-            /** Format: email */
-            email: string;
-            role: components["schemas"]["Role"];
-            /** @description Used by the UI only to show or hide things. The server checks every request again. */
-            permissions: string[];
-        };
-        Session: {
-            accessToken: string;
-            /** Format: date-time */
-            expiresAt: string;
-            user: components["schemas"]["User"];
-        };
-        /** @enum {string} */
-        RiskLevel: "low" | "medium" | "high" | "critical";
-        /** @enum {string} */
-        NewsCategory: "tax" | "vat" | "accounting" | "banking" | "customs" | "labor" | "other";
-        NewsSource: {
-            id: string;
-            name: string;
-            /** @enum {string} */
-            kind: "official" | "news";
-            /** Format: date-time */
-            lastFetchedAt?: string | null;
-        };
-        NewsItem: {
-            id: string;
-            sourceId: string;
-            sourceName: string;
-            title: string;
-            category: components["schemas"]["NewsCategory"];
-            riskLevel: components["schemas"]["RiskLevel"];
-            /** Format: date-time */
-            publishedAt: string;
-            /** @description AI-generated summary. The UI always labels it as such. */
-            summary: string;
-            tags: string[];
-            isRead: boolean;
-            isBookmarked: boolean;
-        };
-        NewsPage: {
-            items: components["schemas"]["NewsItem"][];
-            nextCursor: string | null;
-        };
-        AiAnnotation: {
-            summary: string;
-            riskExplanation: string;
-            modelVersion: string;
-            /** Format: date-time */
-            generatedAt: string;
-        };
-        LegislationRef: {
-            id: string;
-            title: string;
-            articleRef?: string | null;
-        };
-        /** @description Where a change touches this company's own files, records or past audit findings. */
-        ImpactFinding: {
-            id: string;
-            /** @enum {string} */
-            resourceType: "file" | "invoice" | "audit_finding" | "record";
-            resourceTitle: string;
-            score: number;
-            explanation: string;
-        };
-        NewsDetail: components["schemas"]["NewsItem"] & {
-            /** @description Source text exactly as fetched. Never mixed with AI output. */
-            body: string;
-            /** Format: uri */
-            originalUrl: string;
-            /** Format: date-time */
-            fetchedAt: string;
-            /** Format: date-time */
-            lastCheckedAt: string;
-            ai: components["schemas"]["AiAnnotation"];
-            relatedLegislation: components["schemas"]["LegislationRef"][];
-            impact: components["schemas"]["ImpactFinding"][];
-        };
-        /** @enum {string} */
-        LegislationType: "code" | "law" | "decree" | "cabinet_decision" | "standard";
-        /** @enum {string} */
-        LegislationStatus: "in_force" | "repealed";
-        LegislationSummary: {
-            id: string;
-            type: components["schemas"]["LegislationType"];
-            officialNumber: string | null;
-            title: string;
-            status: components["schemas"]["LegislationStatus"];
-            /** Format: date */
-            adoptedAt: string;
-            currentVersionNo: number;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        LegislationPage: {
-            items: components["schemas"]["LegislationSummary"][];
-            nextCursor: string | null;
-        };
-        LegislationVersion: {
-            id: string;
-            versionNo: number;
-            /** Format: date */
-            validFrom: string;
-            /**
-             * Format: date
-             * @description null means the version is still in force
-             */
-            validTo: string | null;
-            /** Format: uri */
-            sourceUrl: string;
-        };
-        LegislationDetail: components["schemas"]["LegislationSummary"] & {
-            /** @description Newest first */
-            versions: components["schemas"]["LegislationVersion"][];
-        };
-        Article: {
-            /** @description Stable article reference, e.g. a number */
-            ref: string;
-            title: string;
-            text: string;
-        };
-        LegislationVersionText: {
-            version: components["schemas"]["LegislationVersion"];
-            articles: components["schemas"]["Article"][];
-        };
-        DiffSegment: {
-            /** @enum {string} */
-            type: "equal" | "added" | "removed";
-            text: string;
-        };
-        ArticleDiff: {
-            ref: string;
-            title: string;
-            /** @enum {string} */
-            status: "unchanged" | "changed" | "added" | "removed";
-            segments: components["schemas"]["DiffSegment"][];
-        };
-        LegislationDiff: {
-            from: components["schemas"]["LegislationVersion"];
-            to: components["schemas"]["LegislationVersion"];
-            articles: components["schemas"]["ArticleDiff"][];
-        };
-        /**
-         * @description pending (queued) → extracting → ready | failed
-         * @enum {string}
-         */
-        FileStatus: "pending" | "extracting" | "ready" | "failed";
-        File: {
-            id: string;
-            name: string;
-            mimeType: string;
-            sizeBytes: number;
-            /** @description Always starts with a slash; root is / */
-            folder: string;
-            tags: string[];
-            status: components["schemas"]["FileStatus"];
-            /** @description Human-readable reason when status is failed */
-            statusDetail: string | null;
-            ownerName: string;
-            isArchived: boolean;
-            currentVersionNo: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        FilePage: {
-            items: components["schemas"]["File"][];
-            nextCursor: string | null;
-        };
-        FileVersion: {
-            id: string;
-            versionNo: number;
-            sizeBytes: number;
-            sha256: string;
-            /** Format: date-time */
-            uploadedAt: string;
-            uploadedByName: string;
-        };
-        /** @description Where the file was used, so people see what depends on it */
-        FileUsage: {
-            id: string;
-            /** @enum {string} */
-            action: "cited" | "opened" | "downloaded" | "indexed";
-            actorName: string;
-            /** Format: date-time */
-            occurredAt: string;
-            detail: string;
-        };
-        FileDetail: components["schemas"]["File"] & {
-            /** @description Newest first */
-            versions: components["schemas"]["FileVersion"][];
-            usage: components["schemas"]["FileUsage"][];
-            /** @description First part of the extracted text (plain text, at most a few thousand characters). null until extraction finishes. */
-            extractedTextPreview: string | null;
-        };
-        /** @description Only the fields present are changed. */
-        FileUpdate: {
-            name?: string;
-            folder?: string;
-            tags?: string[];
-        };
-        /** @enum {string} */
-        Currency: "AZN" | "USD" | "EUR" | "RUB" | "TRY";
-        /**
-         * @description Decimal string, never a number
-         * @example 12500.00
-         */
-        Money: string;
-        /** @enum {string} */
-        InvoiceDirection: "purchase" | "sales";
-        /**
-         * @description uploaded → extracting → extracted (needs review) → validated → posted; failed and rejected are terminal
-         * @enum {string}
-         */
-        InvoiceStatus: "uploaded" | "extracting" | "extracted" | "validated" | "posted" | "rejected" | "failed";
-        /** @enum {string} */
-        InvoiceIssueCode: "MISSING_FIELD" | "INVALID_TAX_ID" | "TOTAL_MISMATCH" | "DUPLICATE_INVOICE" | "LOW_CONFIDENCE" | "DATE_IN_FUTURE";
-        /** @description A finding from validation. The frontend translates `code` into the user's language and fills the `params`; `message` is an English fallback for logs and unknown codes. */
-        InvoiceIssue: {
-            id: string;
-            code: components["schemas"]["InvoiceIssueCode"];
-            /** @enum {string} */
-            severity: "info" | "warning" | "error";
-            /** @description Which input it concerns: number, issueDate, counterpartyVoen, lines[1].unitPrice ... */
-            fieldPath: string | null;
-            params: {
-                [key: string]: string;
-            };
-            message: string;
-            resolved: boolean;
-        };
-        InvoiceCounterparty: {
-            name?: string | null;
-            voen?: string | null;
-        };
-        InvoiceTotals: {
-            net: components["schemas"]["Money"];
-            vat: components["schemas"]["Money"];
-            gross: components["schemas"]["Money"];
-        };
-        Invoice: {
-            id: string;
-            direction: components["schemas"]["InvoiceDirection"];
-            number: string | null;
-            /** Format: date */
-            issueDate: string | null;
-            counterpartyName: string | null;
-            counterpartyVoen: string | null;
-            currency: components["schemas"]["Currency"];
-            netTotal: components["schemas"]["Money"];
-            vatTotal: components["schemas"]["Money"];
-            grossTotal: components["schemas"]["Money"];
-            status: components["schemas"]["InvoiceStatus"];
-            extractionConfidence: number | null;
-            /** @description Open issues of any severity */
-            issueCount: number;
-            /** @description Open issues of severity error */
-            errorCount: number;
-            sourceFileName: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        InvoicePage: {
-            items: components["schemas"]["Invoice"][];
-            nextCursor: string | null;
-        };
-        InvoiceUploadResult: {
-            items: components["schemas"]["Invoice"][];
-        };
-        AccountSuggestion: {
-            code: string;
-            name: string;
-            confidence: number;
-        };
-        InvoiceLine: {
-            id: string;
-            position: number;
-            description: string;
-            quantity: components["schemas"]["Money"];
-            unitPrice: components["schemas"]["Money"];
-            /** @description A code from /tax-rates */
-            vatRateCode: string;
-            net: components["schemas"]["Money"];
-            vat: components["schemas"]["Money"];
-            gross: components["schemas"]["Money"];
-            accountSuggestion: components["schemas"]["AccountSuggestion"] | null;
-            /** @description Account code chosen by a person */
-            accountFinal: string | null;
-        };
-        InvoiceSource: {
-            mimeType: string;
-            fileName: string;
-            pageCount: number | null;
-        };
-        InvoiceDetail: components["schemas"]["Invoice"] & {
-            lines: components["schemas"]["InvoiceLine"][];
-            issues: components["schemas"]["InvoiceIssue"][];
-            /** @description The totals printed on the document, as read by the model. Compared with the recalculated ones. */
-            declaredTotals: components["schemas"]["InvoiceTotals"] | null;
-            /** @description 0..1 per header field: number, issueDate, counterpartyName, counterpartyVoen, currency */
-            fieldConfidence: {
-                [key: string]: number;
-            };
-            source: components["schemas"]["InvoiceSource"];
-            journalEntryId: string | null;
-            /** @description Reason when status is failed */
-            statusDetail: string | null;
-        };
-        InvoiceLineInput: {
-            /** @description null for a new line */
-            id?: string | null;
-            description: string;
-            quantity: components["schemas"]["Money"];
-            unitPrice: components["schemas"]["Money"];
-            vatRateCode: string;
-            accountFinal?: string | null;
-        };
-        /** @description Only the fields present are changed. When `lines` is present it replaces all lines. */
-        InvoiceUpdate: {
-            direction?: components["schemas"]["InvoiceDirection"];
-            number?: string;
-            /** Format: date */
-            issueDate?: string;
-            counterpartyName?: string;
-            counterpartyVoen?: string;
-            currency?: components["schemas"]["Currency"];
-            lines?: components["schemas"]["InvoiceLineInput"][];
-        };
-        Account: {
-            code: string;
-            name: string;
-            /** @enum {string} */
-            type: "asset" | "liability" | "equity" | "income" | "expense";
-            /** @description null for a top-level account. The UI nests children under their parent when it is present. */
-            parentCode: string | null;
-        };
-        TaxRate: {
-            /** @description The law this rate comes from, so a rate can always be traced back to its text */
-            legalSource: components["schemas"]["LegislationRef"] | null;
-            /** @example AZ_VAT_STANDARD */
-            code: string;
-            label: string;
-            rate: components["schemas"]["Money"];
-            /** Format: date */
-            validFrom: string;
-            /** Format: date */
-            validTo: string | null;
-        };
-        JournalLine: {
-            accountCode: string;
-            accountName: string;
-            debit: components["schemas"]["Money"];
-            credit: components["schemas"]["Money"];
-            description: string;
-        };
-        /** @enum {string} */
-        JournalStatus: "proposed" | "pending_approval" | "approved" | "posted" | "rejected";
-        JournalEntry: {
-            id: string;
-            /** Format: date */
-            date: string;
-            description: string;
-            status: components["schemas"]["JournalStatus"];
-            /** @description The company's base currency. The ledger is always kept in it, whatever currency the invoice used. */
-            currency: string;
-            /** @description Official rate used to convert a foreign currency source into the base currency; null when no conversion was needed */
-            exchangeRate: string | null;
-            /** @enum {string} */
-            source: "invoice" | "manual" | "ai";
-            sourceInvoiceId: string | null;
-            lines: components["schemas"]["JournalLine"][];
-            totalDebit: components["schemas"]["Money"];
-            totalCredit: components["schemas"]["Money"];
-            /** @description totalDebit equals totalCredit, decided by the server */
-            balanced: boolean;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        JournalEntrySummary: {
-            id: string;
-            /** Format: date */
-            date: string;
-            description: string;
-            status: components["schemas"]["JournalStatus"];
-            /** @enum {string} */
-            source: "invoice" | "manual" | "ai";
-            sourceInvoiceId: string | null;
-            currency: string;
-            totalDebit: components["schemas"]["Money"];
-            totalCredit: components["schemas"]["Money"];
-            balanced: boolean;
-        };
-        JournalPage: {
-            items: components["schemas"]["JournalEntrySummary"][];
-            nextCursor: string | null;
-        };
-        /**
-         * @description A line of the VAT summary an invoice list can be narrowed to
-         * @enum {string}
-         */
-        VatBucket: "output" | "input" | "zeroRated" | "exempt";
-        VatPeriod: {
-            /**
-             * @description YYYY-MM
-             * @example 2026-09
-             */
-            id: string;
-            /** Format: date */
-            from: string;
-            /** Format: date */
-            to: string;
-            /** @enum {string} */
-            status: "open" | "filed";
-            /**
-             * Format: date
-             * @description From the tax calendar, never hard-coded in the UI
-             */
-            dueDate: string;
-        };
-        VatBreakdownItem: {
-            bucket: components["schemas"]["VatBucket"];
-            amount: components["schemas"]["Money"];
-            invoiceCount: number;
-        };
-        VatSummary: {
-            periodId: string;
-            /** @description Base currency; every amount below is in it */
-            currency: string;
-            outputVat: components["schemas"]["Money"];
-            inputVat: components["schemas"]["Money"];
-            result: components["schemas"]["Money"];
-            /**
-             * @description Decided by the server; the UI never compares amounts
-             * @enum {string}
-             */
-            resultKind: "payable" | "refundable" | "zero";
-            taxableTurnover: components["schemas"]["Money"];
-            zeroRatedTurnover: components["schemas"]["Money"];
-            exemptTurnover: components["schemas"]["Money"];
-            breakdown: components["schemas"]["VatBreakdownItem"][];
-            /** @description Invoices of the period left out because they are not validated yet. The UI must say so. */
-            excludedInvoiceCount: number;
-            /** @description Invoices converted from a foreign currency at the official rate */
-            convertedInvoiceCount: number;
-        };
-        DepositLine: {
-            id: string;
-            /** Format: date */
-            date: string;
-            description: string;
-            /** @enum {string} */
-            direction: "in" | "out";
-            amount: components["schemas"]["Money"];
-            /** @enum {string} */
-            matchStatus: "matched" | "unmatched";
-            matchedInvoiceId: string | null;
-            /** @description What people recognise an invoice by */
-            matchedInvoiceNumber: string | null;
-            /** @description The server's best guess for an unmatched line */
-            suggestedInvoiceId: string | null;
-            suggestedInvoiceNumber: string | null;
-        };
-        DepositReconciliation: {
-            periodId: string;
-            currency: string;
-            openingBalance: components["schemas"]["Money"];
-            closingBalance: components["schemas"]["Money"];
-            /** @description What the books explain, i.e. only matched movements */
-            ledgerBalance: components["schemas"]["Money"];
-            /** @description closingBalance minus ledgerBalance, computed by the server */
-            difference: components["schemas"]["Money"];
-            lines: components["schemas"]["DepositLine"][];
-            unmatchedCount: number;
-        };
-        VatReturnLine: {
-            /** @description A stable key for the line. Mapping it to a field of the official form is the backend's job. */
-            code: string;
-            amount: components["schemas"]["Money"];
-        };
-        VatReturnDraft: {
-            id: string;
-            periodId: string;
-            currency: string;
-            /** Format: date-time */
-            generatedAt: string;
-            generatedByName: string;
-            lines: components["schemas"]["VatReturnLine"][];
-            /** @description Invoices left out when the draft was prepared */
-            excludedInvoiceCount: number;
-        };
-        /** @enum {string} */
-        WorkbookStatus: "uploaded" | "profiling" | "ready" | "failed";
-        Workbook: {
-            id: string;
-            fileName: string;
-            status: components["schemas"]["WorkbookStatus"];
-            statusDetail: string | null;
-            sheetCount: number;
-            /** @description Rows over all sheets, 0 until profiled */
-            rowCount: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        /** @enum {string} */
-        ColumnType: "text" | "number" | "money" | "date" | "taxId" | "empty";
-        /** @description What the model thinks the column holds */
-        ColumnMeaning: {
-            label: string;
-            confidence: number;
-        };
-        ColumnProfile: {
-            /** @description Column letter, the stable handle used when asking for an operation */
-            letter: string;
-            name: string;
-            detectedType: components["schemas"]["ColumnType"];
-            meaning: components["schemas"]["ColumnMeaning"] | null;
-            filled: number;
-            empty: number;
-            /** @description Rows whose value already appeared earlier in the column */
-            duplicates: number;
-            samples: string[];
-        };
-        Sheet: {
-            name: string;
-            rowCount: number;
-            columns: components["schemas"]["ColumnProfile"][];
-        };
-        /** @enum {string} */
-        ExcelOperation: "trim_spaces" | "remove_duplicates" | "normalize_dates";
-        ExcelJobRequest: {
-            operation: components["schemas"]["ExcelOperation"];
-            sheet: string;
-            /** @description trim_spaces: empty means all; remove_duplicates: the key columns (at least one); normalize_dates: exactly one */
-            columns: string[];
-        };
-        /** @enum {string} */
-        ExcelJobStatus: "queued" | "running" | "done" | "failed";
-        CellChange: {
-            row: number;
-            column: string;
-            before: string;
-            after: string;
-        };
-        ExcelJob: {
-            id: string;
-            workbookId: string;
-            operation: components["schemas"]["ExcelOperation"];
-            sheet: string;
-            columns: string[];
-            status: components["schemas"]["ExcelJobStatus"];
-            statusDetail: string | null;
-            rowsRead: number;
-            rowsChanged: number;
-            rowsRemoved: number;
-            /** @description A sample of the first changes, for a preview */
-            changes: components["schemas"]["CellChange"][];
-            /** @description The new file, stored under Files */
-            outputFileId: string | null;
-            outputFileName: string | null;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        WorkbookDetail: components["schemas"]["Workbook"] & {
-            sheets: components["schemas"]["Sheet"][];
-            /** @description Newest first */
-            jobs: components["schemas"]["ExcelJob"][];
-        };
-        /** @enum {string} */
-        ReconciliationKind: "bank_ledger" | "invoices_etaxes";
-        ReconciliationRequest: {
-            kind: components["schemas"]["ReconciliationKind"];
-            /** @description A file from Files that has finished processing (status ready) */
-            fileId: string;
-            periodId: string;
-        };
-        /**
-         * @description confirmed (a person agreed), suggested (the model proposes, a person decides), unmatched, rejected (a person said no)
-         * @enum {string}
-         */
-        ReconciliationRowStatus: "confirmed" | "suggested" | "unmatched" | "rejected";
-        ReconItem: {
-            /** Format: date */
-            date: string;
-            description: string;
-            amount: components["schemas"]["Money"];
-            reference: string | null;
-        };
-        ReconciliationSummary: {
-            confirmed: number;
-            suggested: number;
-            /** @description Rows with no partner, plus rejected suggestions */
-            unmatched: number;
-            differenceTotal: components["schemas"]["Money"];
-            currency: string;
-        };
-        Reconciliation: {
-            id: string;
-            kind: components["schemas"]["ReconciliationKind"];
-            fileName: string;
-            periodId: string;
-            /** @enum {string} */
-            status: "running" | "ready" | "failed";
-            statusDetail: string | null;
-            summary: components["schemas"]["ReconciliationSummary"];
-            /** Format: date-time */
-            createdAt: string;
-        };
-        ReconciliationRow: {
-            id: string;
-            status: components["schemas"]["ReconciliationRowStatus"];
-            /** @description Only for suggestions */
-            confidence: number | null;
-            left: components["schemas"]["ReconItem"] | null;
-            right: components["schemas"]["ReconItem"] | null;
-            /** @description Computed by the server */
-            difference: components["schemas"]["Money"] | null;
-        };
-        ReconciliationRowPage: {
-            items: components["schemas"]["ReconciliationRow"][];
-            nextCursor: string | null;
-        };
-        /** @enum {string} */
-        ImportSource: "onec" | "etaxes" | "bank";
-        /** @enum {string} */
-        ImportStatus: "analysing" | "needs_mapping" | "ready" | "importing" | "done" | "failed";
-        ImportSummary: {
-            rowsTotal: number;
-            rowsOk: number;
-            rowsFailed: number;
-            duplicates: number;
-        };
-        ImportJob: {
-            id: string;
-            source: components["schemas"]["ImportSource"];
-            fileName: string;
-            status: components["schemas"]["ImportStatus"];
-            statusDetail: string | null;
-            rowCount: number;
-            /** @description Set once the import has run */
-            summary: components["schemas"]["ImportSummary"] | null;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        ImportColumn: {
-            name: string;
-            samples: string[];
-        };
-        ImportTargetField: {
-            /** @description A stable key the UI translates, for example date, number, voen, amount */
-            key: string;
-            required: boolean;
-        };
-        ImportRowError: {
-            row: number;
-            field: string;
-            /** @enum {string} */
-            code: "REQUIRED_UNMAPPED" | "INVALID_DATE" | "INVALID_AMOUNT" | "INVALID_TAX_ID" | "DUPLICATE_ROW";
-        };
-        ImportPreviewRow: {
-            row: number;
-            values: {
-                [key: string]: string;
-            };
-        };
-        ImportDetail: components["schemas"]["ImportJob"] & {
-            columns: components["schemas"]["ImportColumn"][];
-            targetFields: components["schemas"]["ImportTargetField"][];
-            /** @description The server's proposal, then the user's choice. target key to file column name, or null. */
-            mapping: {
-                [key: string]: string | null;
-            };
-            preview: components["schemas"]["ImportPreviewRow"][];
-            errors: components["schemas"]["ImportRowError"][];
-            /** @description Decided by the server. The button follows it. */
-            canCommit: boolean;
-        };
-        Conversation: {
-            id: string;
-            title: string;
-            /** Format: date-time */
-            updatedAt: string;
-            archived: boolean;
-        };
-        /** @enum {string} */
-        CitationResource: "legislation" | "news" | "file" | "invoice";
-        /** @description A stable pointer to the stored resource a statement rests on, with the passage that was used */
-        Citation: {
-            id: string;
-            resourceType: components["schemas"]["CitationResource"];
-            resourceId: string;
-            title: string;
-            /** @description For example an article number or a page */
-            locationLabel: string | null;
-            /** @description Plain text. Rendered as text, never as HTML. */
-            excerpt: string;
-        };
-        /** @enum {string} */
-        ToolRisk: "read" | "low-write" | "moderate-write";
-        /** @enum {string} */
-        ToolRunStatus: "proposed" | "approval_required" | "running" | "done" | "failed" | "denied";
-        ToolRun: {
-            id: string;
-            /** @example legislation.search */
-            toolName: string;
-            riskLevel: components["schemas"]["ToolRisk"];
-            status: components["schemas"]["ToolRunStatus"];
-            /** @description What the tool was asked, in words */
-            argumentsSummary: string;
-            resultSummary: string | null;
-            approvalId: string | null;
-        };
-        /** @enum {string} */
-        ApprovalStatus: "pending" | "approved" | "denied" | "expired";
-        Approval: {
-            id: string;
-            toolRunId: string;
-            toolName: string;
-            argumentsSummary: string;
-            targetResource: string;
-            riskLevel: components["schemas"]["ToolRisk"];
-            requestedBy: {
-                id: string;
-                name: string;
-            };
-            status: components["schemas"]["ApprovalStatus"];
-            /** Format: date-time */
-            expiresAt: string;
-            comment: string | null;
-        };
-        /** @enum {string} */
-        ApprovalKind: "tool_action" | "access_request" | "tax_rate_change" | "model_release";
-        /** @description One thing that will change. Either side is null when the value is being added or removed. */
-        ApprovalChange: {
-            label: string;
-            before: string | null;
-            after: string | null;
-        };
-        ApprovalRequest: {
-            id: string;
-            kind: components["schemas"]["ApprovalKind"];
-            title: string;
-            summary: string;
-            riskLevel: components["schemas"]["ToolRisk"];
-            status: components["schemas"]["ApprovalStatus"];
-            requestedBy: components["schemas"]["PersonRef"];
-            /** Format: date-time */
-            requestedAt: string;
-            /** Format: date-time */
-            expiresAt: string;
-            decidedBy: components["schemas"]["PersonRef"] | null;
-            /** Format: date-time */
-            decidedAt: string | null;
-            /** @description The decider's comment */
-            comment: string | null;
-            changes: components["schemas"]["ApprovalChange"][];
-            /** @description True when the caller has the permission and is not the requester. A hint for the UI only; the server checks again on decide. */
-            canDecide: boolean;
-            source?: {
-                /** @enum {string} */
-                type: "conversation";
-                id: string;
-            } | null;
-        };
-        PersonRef: {
-            id: string;
-            name: string;
-        };
-        /** @enum {string} */
-        AuditOutcome: "success" | "denied" | "failed";
-        AuditEvent: {
-            id: string;
-            /** Format: date-time */
-            at: string;
-            actor: components["schemas"]["PersonRef"];
-            /** @description Dotted verb such as invoice.update or approval.decide */
-            action: string;
-            resourceType: string;
-            resourceId: string;
-            /** @description A human label captured at the time */
-            resourceLabel: string;
-            outcome: components["schemas"]["AuditOutcome"];
-            ip: string | null;
-            requestId: string;
-        };
-        AdminUser: {
-            id: string;
-            name: string;
-            email: string;
-            role: components["schemas"]["Role"];
-            active: boolean;
-            /** Format: date-time */
-            lastLoginAt: string | null;
-            /** @description A role change that is waiting for approval, if any */
-            pendingRole: string | null;
-        };
-        AdminNewsSource: {
-            id: string;
-            name: string;
-            /** @enum {string} */
-            kind: "official" | "news";
-            enabled: boolean;
-            /** Format: date-time */
-            lastFetchedAt: string | null;
-            lastError: string | null;
-            /** @description Consecutive failures */
-            failedFetches: number;
-        };
-        ModelVersion: {
-            id: string;
-            /** @enum {string} */
-            task: "invoice_extractor" | "classifier" | "assistant" | "embeddings";
-            version: string;
-            /** @enum {string} */
-            status: "active" | "canary" | "candidate" | "retired";
-            /** @description Decimal fraction on the frozen evaluation set, e.g. 0.934 */
-            evalScore: string;
-            /** @description Score of the version it would replace */
-            previousScore: string | null;
-            canaryPercent: number | null;
-            /** Format: date-time */
-            createdAt: string;
-            /**
-             * @description A release or rollback waiting for approval
-             * @enum {string|null}
-             */
-            pendingChange: "release" | "rollback" | null;
-        };
-        /** @enum {string} */
-        MessageStatus: "complete" | "failed" | "stopped";
-        Message: {
-            id: string;
-            /** @enum {string} */
-            role: "user" | "assistant";
-            content: string;
-            /** Format: date-time */
-            createdAt: string;
-            status: components["schemas"]["MessageStatus"];
-            citations: components["schemas"]["Citation"][];
-            toolRuns: components["schemas"]["ToolRun"][];
-            approvals: components["schemas"]["Approval"][];
-            /** @description Which model wrote it, kept for traceability */
-            modelVersion: string | null;
-            /** @enum {string|null} */
-            feedback: "up" | "down" | null;
-        };
-        ConversationDetail: components["schemas"]["Conversation"] & {
-            messages: components["schemas"]["Message"][];
-        };
-        /** @description Something the user pointed the assistant at. The server checks the user may read it. */
-        ContextAttachment: {
-            type: components["schemas"]["CitationResource"];
-            id: string;
-            title: string;
-        };
-        SendMessageRequest: {
-            content: string;
-            attachments: components["schemas"]["ContextAttachment"][];
-        };
-        FeedbackRequest: {
-            /** @enum {string} */
-            rating: "up" | "down";
-            /** @description The right answer, when the rating is down */
-            correction?: string;
-        };
-    };
-    responses: {
-        /** @description Missing, invalid or expired access token */
-        Unauthenticated: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The user lacks the required permission */
-        Forbidden: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The resource does not exist (or is not visible to this company) */
-        NotFound: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The file is larger than the allowed size */
-        PayloadTooLarge: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The file type is not allowed */
-        UnsupportedType: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The request body or parameters are invalid */
-        ValidationFailed: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description The resource is in a state that does not allow this action */
-        Conflict: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-        /** @description Too many attempts */
-        RateLimited: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-    };
+    schemas: never;
+    responses: never;
     parameters: never;
     requestBodies: never;
     headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export interface operations {
-    login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Signed in. The refresh token is set as an HttpOnly cookie. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Session"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            429: components["responses"]["RateLimited"];
-        };
-    };
-    refreshSession: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description New session. The refresh cookie is rotated. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Session"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
-    };
-    logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Signed out */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    listNewsSources: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NewsSource"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
-    };
-    listNews: {
-        parameters: {
-            query?: {
-                q?: string;
-                sourceId?: string;
-                category?: components["schemas"]["NewsCategory"];
-                riskLevel?: components["schemas"]["RiskLevel"];
-                publishedFrom?: string;
-                publishedTo?: string;
-                read?: "all" | "unread" | "read";
-                bookmarked?: boolean;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NewsPage"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    getNews: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NewsDetail"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-        };
-    };
-    setNewsRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    isRead: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Updated item */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NewsItem"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    setNewsBookmark: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    isBookmarked: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Updated item */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NewsItem"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    listLegislation: {
-        parameters: {
-            query?: {
-                q?: string;
-                type?: components["schemas"]["LegislationType"];
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LegislationPage"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    getLegislation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LegislationDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    getLegislationVersion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                versionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LegislationVersionText"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    diffLegislation: {
-        parameters: {
-            query: {
-                from: string;
-                to: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LegislationDiff"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    listFiles: {
-        parameters: {
-            query?: {
-                /** @description Matches name, tags and folder */
-                q?: string;
-                status?: components["schemas"]["FileStatus"];
-                archived?: "active" | "archived" | "all";
-                tag?: string;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FilePage"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    uploadFile: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                    /** @description Slash separated, e.g. /Müqavilələr/2026 */
-                    folder?: string;
-                    tags?: string[];
-                };
-            };
-        };
-        responses: {
-            /** @description Stored. status is `pending`. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            413: components["responses"]["PayloadTooLarge"];
-            415: components["responses"]["UnsupportedType"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    getFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FileDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    updateFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FileUpdate"];
-            };
-        };
-        responses: {
-            /** @description Updated file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    archiveFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Archived file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    restoreFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Restored file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    reindexFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Accepted. status is `pending` again. */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    downloadFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description File bytes */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/octet-stream": string;
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    listInvoices: {
-        parameters: {
-            query?: {
-                /** @description Matches number and counterparty name or VÖEN */
-                q?: string;
-                status?: components["schemas"]["InvoiceStatus"];
-                direction?: components["schemas"]["InvoiceDirection"];
-                /** @description true = only invoices with at least one open issue */
-                hasIssues?: boolean;
-                /** @description Only invoices that fall in this VAT period (YYYY-MM) */
-                vatPeriod?: string;
-                /** @description With vatPeriod: only the invoices behind one line of the VAT summary */
-                vatBucket?: components["schemas"]["VatBucket"];
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoicePage"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    uploadInvoice: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Accepted. Every returned invoice is `uploaded`; extraction continues in the background. */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceUploadResult"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            413: components["responses"]["PayloadTooLarge"];
-            415: components["responses"]["UnsupportedType"];
-        };
-    };
-    getInvoice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    updateInvoice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceUpdate"];
-            };
-        };
-        responses: {
-            /** @description The invoice with recalculated totals and fresh issues */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    validateInvoice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The invoice with fresh issues */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    getInvoiceSource: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Document bytes (the Content-Type is the stored one) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/octet-stream": string;
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    proposeInvoiceEntries: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description A journal entry in status `proposed` */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JournalEntry"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    listVatPeriods: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VatPeriod"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    getVatSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                periodId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VatSummary"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    getVatDeposit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                periodId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepositReconciliation"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    matchDepositLine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                lineId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    invoiceId: string;
-                };
-            };
-        };
-        responses: {
-            /** @description The reconciliation after the change */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepositReconciliation"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    getVatReturnDraft: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                periodId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VatReturnDraft"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    createVatReturnDraft: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                periodId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The new draft */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VatReturnDraft"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    exportVatReturnDraft: {
-        parameters: {
-            query: {
-                format: "pdf" | "xlsx" | "xml";
-            };
-            header?: never;
-            path: {
-                periodId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description File bytes */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/octet-stream": string;
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    listJournal: {
-        parameters: {
-            query?: {
-                /** @description Matches the description */
-                q?: string;
-                status?: components["schemas"]["JournalStatus"];
-                from?: string;
-                to?: string;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JournalPage"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    getJournalEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JournalEntry"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    submitJournalEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The entry, now `pending_approval` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JournalEntry"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    listAccounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Account"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
-    };
-    listTaxRates: {
-        parameters: {
-            query?: {
-                /** @description Only VAT for now */
-                type?: "VAT";
-                /** @description Defaults to today */
-                date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TaxRate"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
-    };
-    listWorkbooks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Workbook"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    uploadWorkbook: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Accepted */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Workbook"];
-                };
-            };
-            413: components["responses"]["PayloadTooLarge"];
-            415: components["responses"]["UnsupportedType"];
-        };
-    };
-    getWorkbook: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkbookDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    createExcelJob: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExcelJobRequest"];
-            };
-        };
-        responses: {
-            /** @description Accepted */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExcelJob"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listReconciliations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Reconciliation"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    createReconciliation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReconciliationRequest"];
-            };
-        };
-        responses: {
-            /** @description Accepted */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Reconciliation"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    getReconciliation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Reconciliation"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    listReconciliationRows: {
-        parameters: {
-            query?: {
-                status?: components["schemas"]["ReconciliationRowStatus"];
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReconciliationRowPage"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    confirmReconciliationRow: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                rowId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The row after the decision */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReconciliationRow"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    rejectReconciliationRow: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                rowId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The row after the decision */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReconciliationRow"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    listImports: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportJob"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    uploadImport: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                    source: components["schemas"]["ImportSource"];
-                };
-            };
-        };
-        responses: {
-            /** @description Accepted */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportJob"];
-                };
-            };
-            413: components["responses"]["PayloadTooLarge"];
-            415: components["responses"]["UnsupportedType"];
-        };
-    };
-    getImport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    saveImportMapping: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    mapping: {
-                        [key: string]: string | null;
-                    };
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    commitImport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Accepted. The status becomes `importing`, then `done`. */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-        };
-    };
-    exportToOneC: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    periodId: string;
-                };
-            };
-        };
-        responses: {
-            /** @description The generated file (it is also listed under Files) */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listConversations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Conversation"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    createConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": {
-                    title?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Conversation"];
-                };
-            };
-        };
-    };
-    getConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationDetail"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    updateConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    title?: string;
-                    archived?: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Conversation"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    sendMessage: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendMessageRequest"];
-            };
-        };
-        responses: {
-            /** @description The event stream */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": string;
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-            429: components["responses"]["RateLimited"];
-        };
-    };
-    resumeMessageStream: {
-        parameters: {
-            query?: never;
-            header?: {
-                "Last-Event-ID"?: string;
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The remaining events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": string;
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    stopMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Stopped */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    sendFeedback: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FeedbackRequest"];
-            };
-        };
-        responses: {
-            /** @description Saved */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listApprovals: {
-        parameters: {
-            query?: {
-                status?: components["schemas"]["ApprovalStatus"];
-                kind?: components["schemas"]["ApprovalKind"];
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        items: components["schemas"]["ApprovalRequest"][];
-                        nextCursor: string | null;
-                        /** @description Pending items the caller may decide */
-                        pendingCount: number;
-                    };
-                };
-            };
-        };
-    };
-    getApproval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalRequest"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    decideApproval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** @enum {string} */
-                    decision: "approved" | "denied";
-                    comment: string;
-                };
-            };
-        };
-        responses: {
-            /** @description The request after the decision */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalRequest"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listAuditEvents: {
-        parameters: {
-            query?: {
-                /** @description Matches the person */
-                q?: string;
-                action?: string;
-                resourceType?: string;
-                outcome?: components["schemas"]["AuditOutcome"];
-                from?: string;
-                to?: string;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        items: components["schemas"]["AuditEvent"][];
-                        nextCursor: string | null;
-                    };
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    exportAuditEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    q?: string;
-                    action?: string;
-                    resourceType?: string;
-                    outcome?: components["schemas"]["AuditOutcome"];
-                    /** Format: date */
-                    from?: string;
-                    /** Format: date */
-                    to?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description The generated file */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["File"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listAdminUsers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminUser"][];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    updateAdminUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    active?: boolean;
-                    role?: components["schemas"]["Role"];
-                };
-            };
-        };
-        responses: {
-            /** @description Applied */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminUser"];
-                };
-            };
-            /** @description Waiting for approval */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalRequest"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listAdminNewsSources: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminNewsSource"][];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    updateAdminNewsSource: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    enabled: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminNewsSource"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-        };
-    };
-    proposeTaxRateChange: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    code: string;
-                    /** @description A fraction such as 0.18 */
-                    rate: string;
-                    /** Format: date */
-                    validFrom: string;
-                    reason: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Waiting for approval */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalRequest"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-    listModelVersions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ModelVersion"][];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    requestModelChange: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** @enum {string} */
-                    action: "release" | "rollback";
-                    reason: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Waiting for approval */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalRequest"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
-    };
-}
+export type operations = Record<string, never>;

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_app/integrations/$id")({ component: Impo
 function ImportPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="integrations:read">
+    <RequirePermission permission="files:read">
       <ImportContent />
     </RequirePermission>
   );
@@ -69,7 +69,7 @@ function ImportContent() {
 
 function ImportView({ detail }: { detail: ImportDetail }) {
   const { t } = useTranslation();
-  const canWrite = usePermission("integrations:write");
+  const canWrite = usePermission("imports:commit");
   const save = useSaveMapping(detail.id);
   const commit = useCommitImport(detail.id);
   const [mapping, setMapping] = useState<Mapping>(detail.mapping);

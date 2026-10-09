@@ -51,21 +51,15 @@ describe("file list", () => {
     }
   });
 
-  it("filters by status from the URL", async () => {
+  it("hides archived files unless asked, then marks them", async () => {
     signInAs();
-    renderApp("/files?status=failed");
-    const only = await rows();
-    expect(only).toHaveLength(1);
-    expect(only[0]).toHaveTextContent("Skan - qaimə 0457.jpg");
-  });
+    const { unmount } = renderApp("/files");
+    expect((await rows()).some((row) => row.textContent?.includes("Köhnə müqavilə (arxiv).pdf"))).toBe(false);
+    unmount();
 
-  it("shows archived files only when asked", async () => {
-    signInAs();
-    renderApp("/files?archived=archived");
-    const only = await rows();
-    expect(only).toHaveLength(1);
-    expect(only[0]).toHaveTextContent("Köhnə müqavilə (arxiv).pdf");
-    expect(within(only[0]!).getByText("Arxivdədir")).toBeInTheDocument();
+    renderApp("/files?archived=all&q=arxiv");
+    const archived = (await rows()).find((row) => row.textContent?.includes("Köhnə müqavilə (arxiv).pdf"))!;
+    expect(within(archived).getByText("Arxivdədir")).toBeInTheDocument();
   });
 
   it("finds files by typing", async () => {

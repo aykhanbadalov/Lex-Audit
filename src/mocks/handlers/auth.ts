@@ -1,49 +1,62 @@
 import { http, HttpResponse } from "msw";
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { getMockRefreshUser, setMockRefreshUser } from "../refreshCookie";
 import { apiPath } from "./base";
 
-type User = components["schemas"]["User"];
+type User = MockUser;
 type ErrorCode = components["schemas"]["ApiError"]["error"]["code"];
 
 const DEMO_PASSWORD = "demo1234";
 
-const ACCOUNTANT_PERMISSIONS = [
-  "dashboard:view",
+/** Reads only; the auditor and the accountant both start from here. */
+const READ_PERMISSIONS = [
   "invoices:read",
-  "invoices:write",
   "vat:read",
-  "ledger:read",
-  "excel:read",
-  "excel:write",
-  "reconciliation:read",
-  "reconciliation:write",
-  "integrations:read",
-  "integrations:write",
+  "journal:read",
+  "files:read",
   "news:read",
   "legislation:read",
-  "files:read",
-  "files:write",
-  "vat:write",
-  "ledger:write",
   "assistant:use",
+  "impact:read",
 ];
 
-export const mockUsers: Record<string, User> = {
+const ACCOUNTANT_PERMISSIONS = [
+  ...READ_PERMISSIONS,
+  "invoices:write",
+  "vat:write",
+  "journal:write",
+  "files:write",
+  "excel:use",
+  "imports:commit",
+  "impact:write",
+];
+
+/** The display name lives only in the mock: the real backend knows nothing but the e-mail. */
+export type MockRole = "viewer" | "accountant" | "approver" | "auditor" | "admin";
+export interface MockUser {
+  id: string;
+  companyId: string;
+  name: string;
+  email: string;
+  role: MockRole;
+  permissions: string[];
+}
+
+export const mockUsers: Record<string, MockUser> = {
   "muhasib@lexaudit.test": {
     id: "user-accountant",
     companyId: "company-demo",
     name: "Aygün Məmmədova",
     email: "muhasib@lexaudit.test",
     role: "accountant",
-    permissions: ACCOUNTANT_PERMISSIONS,
+    permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read"],
   },
   "bas.muhasib@lexaudit.test": {
     id: "user-chief",
     companyId: "company-demo",
     name: "Elçin Həsənov",
     email: "bas.muhasib@lexaudit.test",
-    role: "chief_accountant",
+    role: "approver",
     permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read", "approvals:decide", "audit:read"],
   },
   "admin@lexaudit.test": {
@@ -52,7 +65,18 @@ export const mockUsers: Record<string, User> = {
     name: "Nigar Quliyeva",
     email: "admin@lexaudit.test",
     role: "admin",
-    permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read", "approvals:decide", "audit:read", "admin:manage"],
+    permissions: [
+      ...ACCOUNTANT_PERMISSIONS,
+      "approvals:read",
+      "approvals:decide",
+      "audit:read",
+      "users:read",
+      "users:write",
+      "roles:read",
+      "roles:write",
+      "admin:health",
+      "platform:admin",
+    ],
   },
   // Reads everything and writes nothing: used to test that write actions stay hidden.
   "auditor@lexaudit.test": {
@@ -61,50 +85,22 @@ export const mockUsers: Record<string, User> = {
     name: "Səbinə Rzayeva",
     email: "auditor@lexaudit.test",
     role: "auditor",
-    permissions: [
-      ...ACCOUNTANT_PERMISSIONS.filter((permission) => !permission.endsWith(":write")),
-      "approvals:read",
-      "audit:read",
-    ],
+    permissions: [...READ_PERMISSIONS, "approvals:read", "audit:read"],
   },
-  // Used to test the "no access" path: signed in, but allowed to see nothing.
+  // Used to test the "no access" path: signed in, but allowed to see almost nothing.
   "viewer@lexaudit.test": {
     id: "user-viewer",
     companyId: "company-demo",
     name: "Rəşad Əliyev",
     email: "viewer@lexaudit.test",
     role: "viewer",
-    permissions: ["dashboard:view"],
+    permissions: [],
   },
 };
 
 export function apiError(status: number, code: ErrorCode, message: string): Response {
   return HttpResponse.json({ error: { code, message, requestId: crypto.randomUUID() } }, { status });
 }
-
-/** The backend's own permission names, derived from the finer-grained ones the mock users are written with. */
-function toBackendPermissions(user: User): string[] {
-  const out = new Set<string>();
-  for (const permission of user.permissions) {
-    if (permission === "dashboard:view") continue;
-    if (permission.startsWith("ledger:")) out.add(permission.replace("ledger:", "journal:"));
-    else if (/^(excel|reconciliation):/.test(permission)) out.add("excel:use");
-    else if (permission === "integrations:write") out.add("imports:commit");
-    else if (permission === "integrations:read") out.add("files:read");
-    else if (permission === "admin:manage")
-      ["users:read", "users:write", "roles:read", "roles:write", "platform:admin"].forEach((p) => out.add(p));
-    else out.add(permission);
-  }
-  return [...out];
-}
-
-const BACKEND_ROLE: Record<User["role"], string> = {
-  viewer: "viewer",
-  accountant: "accountant",
-  chief_accountant: "approver",
-  auditor: "viewer",
-  admin: "admin",
-};
 
 const csrfFor = (user: User) => `mock-csrf-${user.id}`;
 
@@ -176,8 +172,8 @@ export const authHandlers = [
       status: "active",
       companyId: user.companyId,
       companyName: "Demo MMC",
-      roles: [BACKEND_ROLE[user.role]],
-      permissions: toBackendPermissions(user),
+      roles: [user.role],
+      permissions: user.permissions,
     });
   }),
 

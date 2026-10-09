@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/admin")({
 
 function AdminPage() {
   return (
-    <RequirePermission permission="admin:manage">
+    <RequirePermission anyOf={["users:read", "roles:read", "platform:admin"]}>
       <AdminContent />
     </RequirePermission>
   );

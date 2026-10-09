@@ -1,5 +1,5 @@
 // DEMO CONTENT. These items are invented to exercise the UI; they are not real announcements or legal text.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 
 type NewsSource = components["schemas"]["NewsSource"];
 type NewsItem = components["schemas"]["NewsItem"];

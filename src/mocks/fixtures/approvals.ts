@@ -1,8 +1,9 @@
 // DEMO CONTENT. The queue, its rules (separation of duties, one decision, deadlines) belong to the backend.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 
 type ApprovalRequest = components["schemas"]["ApprovalRequest"];
-type User = components["schemas"]["User"];
+import type { MockUser as User } from "../handlers/auth";
+import { findJournalEntry } from "./invoices";
 export type StoredApproval = Omit<ApprovalRequest, "canDecide">;
 
 const HOUR = 3_600_000;
@@ -15,7 +16,7 @@ function seed(): StoredApproval[] {
   return [
     {
       id: "appr-seed-rate",
-      kind: "tax_rate_change",
+      kind: "tax_rate_proposal",
       title: "Güzəştli ƏDV dərəcəsi: tikinti-quraşdırma",
       summary: "Dərəcələr cədvəlində dəyişiklik təklif olunur. Təsdiqdən sonra yeni hesablamalara tətbiq olunacaq.",
       riskLevel: "moderate-write",
@@ -33,44 +34,8 @@ function seed(): StoredApproval[] {
       source: null,
     },
     {
-      id: "appr-seed-access",
-      kind: "access_request",
-      title: "Rəşad Əliyev: qaimələrə yazma icazəsi",
-      summary: "İstifadəçi qaimələri redaktə etmək üçün rolunun dəyişdirilməsini istəyir.",
-      riskLevel: "low-write",
-      status: "pending",
-      requestedBy: admin,
-      requestedAt: inHours(-30),
-      expiresAt: inHours(6),
-      decidedBy: null,
-      decidedAt: null,
-      comment: null,
-      changes: [{ label: "Rol", before: "Baxıcı", after: "Mühasib" }],
-      source: null,
-    },
-    {
-      id: "appr-seed-model",
-      kind: "model_release",
-      title: "Qaimə çıxarışı modeli v7",
-      summary: "Yeni versiya canary mərhələsini keçib. Təsdiqdən sonra bütün şirkətlərə açılacaq.",
-      riskLevel: "moderate-write",
-      status: "pending",
-      requestedBy: admin,
-      requestedAt: inHours(-2),
-      expiresAt: inHours(70),
-      decidedBy: null,
-      decidedAt: null,
-      comment: null,
-      changes: [
-        { label: "Aktiv model", before: "invoice-extractor v6", after: "invoice-extractor v7" },
-        { label: "Dəqiqlik (eval)", before: "91,2%", after: "93,4%" },
-        { label: "Canary", before: null, after: "5% trafik, 7 gün, xəta artımı yoxdur" },
-      ],
-      source: null,
-    },
-    {
       id: "appr-seed-done",
-      kind: "access_request",
+      kind: "journal_post",
       title: "Səbinə Rzayeva: audit jurnalına giriş",
       summary: "Auditor üçün audit jurnalının oxunması.",
       riskLevel: "read",
@@ -86,7 +51,7 @@ function seed(): StoredApproval[] {
     },
     {
       id: "appr-seed-expired",
-      kind: "tax_rate_change",
+      kind: "tax_rate_proposal",
       title: "Sadələşdirilmiş vergi dərəcəsi",
       summary: "Müddət bitdiyi üçün qərar verilməyib.",
       riskLevel: "moderate-write",
@@ -174,11 +139,41 @@ export function decideRequest(
   if (item.status === "pending" && Date.parse(item.expiresAt) < Date.now()) item.status = "expired";
   if (item.status !== "pending") return { ok: false, reason: "conflict" };
   const text = comment?.trim() ?? "";
-  if (text.length < 3) return { ok: false, reason: "comment-required" };
 
   item.status = decision;
-  item.comment = text;
+  item.comment = text || null;
   item.decidedBy = { id: approver.id, name: approver.name };
   item.decidedAt = new Date().toISOString();
   return { ok: true, approval: item };
+}
+
+/** Posting a journal entry needs someone else's approval; approving posts it, refusing sends it back to "proposed". */
+export function ensureJournalApproval(id: string, entryId: string, description: string, by: User): void {
+  if (findApproval(id)) return;
+  addApprovalRequest({
+    id,
+    kind: "journal_post",
+    title: `Jurnal yazılışı: ${description}`,
+    summary: "Yazılış təsdiqdən sonra uçota alınır.",
+    riskLevel: "moderate-write",
+    status: "pending",
+    requestedBy: { id: by.id, name: by.name },
+    requestedAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 72 * 3_600_000).toISOString(),
+    decidedBy: null,
+    decidedAt: null,
+    comment: null,
+    changes: [],
+    source: { type: "journal", id: entryId } as never,
+  });
+  registerEffect(id, {
+    approved: () => {
+      const entry = findJournalEntry(entryId);
+      if (entry) entry.status = "posted";
+    },
+    denied: () => {
+      const entry = findJournalEntry(entryId);
+      if (entry) entry.status = "proposed";
+    },
+  });
 }

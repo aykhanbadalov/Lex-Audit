@@ -1,6 +1,6 @@
 // DEMO CONTENT. Invoices, companies, VÖEN numbers and account names are invented.
 // This module stands in for backend/crates/accounting: it recalculates and validates the way the real backend must.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { formatDec, mulDec, parseDec, roundCents } from "../decimal";
 import { processingMs } from "./files";
 import { BASE_CURRENCY, rateFor, toBase } from "./fx";

@@ -8,14 +8,15 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import type { NewsFilters } from "./filters";
 
-export type NewsItem = components["schemas"]["NewsItem"];
-export type NewsDetail = components["schemas"]["NewsDetail"];
-export type NewsPage = components["schemas"]["NewsPage"];
+export type NewsPage = Json<"/news">;
+export type NewsItem = Item<NewsPage>;
+export type NewsDetail = Json<"/news/{id}">;
+export type NewsSource = Item<Json<"/news/sources">>;
 
 export const PAGE_SIZE = 8;
 
@@ -43,7 +44,7 @@ export function useNewsList(filters: NewsFilters) {
       unwrap(
         await api.GET("/news", { signal, params: { query: { ...filters, cursor: pageParam, limit: PAGE_SIZE } } }),
       ),
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
   });
 }
 
@@ -96,16 +97,15 @@ function useOptimisticItemMutation(
 
 export function useSetNewsRead() {
   return useOptimisticItemMutation(
-    async ({ id, value }) =>
-      unwrap(await api.PUT("/news/{id}/read", { params: { path: { id } }, body: { isRead: value } })),
-    (value) => ({ isRead: value }),
+    async ({ id, value }) => unwrap(await api.PUT("/news/{id}/read", { params: { path: { id } }, body: { value } })),
+    (value) => ({ read: value }),
   );
 }
 
 export function useSetNewsBookmark() {
   return useOptimisticItemMutation(
     async ({ id, value }) =>
-      unwrap(await api.PUT("/news/{id}/bookmark", { params: { path: { id } }, body: { isBookmarked: value } })),
-    (value) => ({ isBookmarked: value }),
+      unwrap(await api.PUT("/news/{id}/bookmark", { params: { path: { id } }, body: { value } })),
+    (value) => ({ bookmarked: value }),
   );
 }

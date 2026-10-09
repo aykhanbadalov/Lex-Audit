@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_app/reconciliation/")({ component: Recon
 function ReconciliationPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="reconciliation:read">
+    <RequirePermission permission="excel:use">
       <ReconciliationContent />
     </RequirePermission>
   );
@@ -35,7 +35,7 @@ function ReconciliationPage() {
 
 function ReconciliationContent() {
   const { t, i18n } = useTranslation();
-  const canWrite = usePermission("reconciliation:write");
+  const canWrite = usePermission("excel:use");
   const list = useReconciliations();
   const tag = localeTag(i18n.language);
 

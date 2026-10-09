@@ -6,14 +6,14 @@ import { renderApp, signInAs, setupMockApi } from "./utils";
 setupMockApi();
 
 describe("legislation list", () => {
-  it("lists documents with type and status", async () => {
+  it("lists documents with type, number and version", async () => {
     signInAs();
     renderApp("/legislation");
 
     expect(await screen.findByRole("link", { name: "Vergi Məcəlləsi" })).toBeInTheDocument();
     const rows = screen.getAllByRole("row");
     expect(rows.length).toBeGreaterThan(3);
-    expect(screen.getByText("Ləğv edilib")).toBeInTheDocument();
+    expect(screen.getAllByText(/^v\d+$/).length).toBeGreaterThan(0);
   });
 
   it("filters by type from the URL", async () => {
@@ -58,36 +58,22 @@ describe("legislation detail", () => {
     expect(await screen.findByText(/Köhnə müddəa/)).toBeInTheDocument();
   });
 
-  it("compares versions and marks changes with <ins>/<del>, hiding unchanged articles", async () => {
+  it("compares versions and marks changes with <ins>/<del>, hiding unchanged paragraphs", async () => {
     signInAs();
     const { container } = renderApp("/legislation/leg-tax-code?view=diff");
 
-    await screen.findByRole("heading", { name: /Maddə 2\. Qaimə-fakturalar/ });
+    await waitFor(() => expect(container.querySelector("ins")).not.toBeNull());
     expect(container.querySelector("ins")).toHaveTextContent(/elektron/);
-    expect(screen.getAllByText("Dəyişib").length).toBeGreaterThan(0);
-    // Article 1 is identical in v2 and v3.
-    expect(screen.queryByRole("heading", { name: /Maddə 1\./ })).not.toBeInTheDocument();
+    expect(container.querySelector("del")).not.toBeNull();
+    const before = container.querySelectorAll("ol > li").length;
 
     await userEvent.click(screen.getByRole("checkbox", { name: "Dəyişməyən maddələri göstər" }));
-    expect(await screen.findByRole("heading", { name: /Maddə 1\./ })).toBeInTheDocument();
-  });
-
-  it("shows removed articles as removed", async () => {
-    signInAs();
-    const { router } = renderApp("/legislation/leg-tax-code?view=diff");
-    await screen.findByRole("heading", { name: /Maddə 2\./ });
-
-    // v2 -> v3 removes article 5.
-    expect(await screen.findByRole("heading", { name: /Maddə 5\./ })).toBeInTheDocument();
-    const article = screen.getByRole("heading", { name: /Maddə 5\./ }).closest("li")!;
-    expect(within(article).getByText("Çıxarılıb")).toBeInTheDocument();
-    expect(article.querySelector("del")).not.toBeNull();
-    expect(router.state.location.pathname).toBe("/legislation/leg-tax-code");
+    await waitFor(() => expect(container.querySelectorAll("ol > li").length).toBeGreaterThan(before));
   });
 
   it("explains when the same version is chosen on both sides", async () => {
     signInAs();
-    renderApp("/legislation/leg-tax-code?view=diff&from=leg-tax-code-v3&to=leg-tax-code-v3");
+    renderApp("/legislation/leg-tax-code?view=diff&from=3&to=3");
     expect(await screen.findByText("Müqayisə üçün fərqli versiyalar seçin.")).toBeInTheDocument();
   });
 

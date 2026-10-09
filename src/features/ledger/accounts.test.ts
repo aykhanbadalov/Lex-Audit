@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import { buildAccountRows, matchesAccount, type Account } from "./accounts";
 
 const account = (code: string, parentCode: string | null = null, name = `Hesab ${code}`): Account => ({
+  id: `id-${code}`,
   code,
-  name,
+  nameAz: name,
+  nameRu: name,
+  nameEn: name,
   type: "asset",
-  parentCode,
+  parentId: parentCode ? `id-${parentCode}` : null,
 });
 
 describe("buildAccountRows", () => {

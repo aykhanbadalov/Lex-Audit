@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from "msw";
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { ALLOWED_EXTENSIONS, extensionOf, MAX_UPLOAD_BYTES } from "@/shared/upload/limits";
 import {
   allWorkbooks,
@@ -58,13 +58,13 @@ async function readUpload(request: Request, allowed: readonly string[]) {
 export const workHandlers = [
   // ----- Excel -----
   http.get(apiPath("/excel/workbooks"), async ({ request }) => {
-    const auth = authorize(request, "excel:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     await latency();
     return HttpResponse.json(allWorkbooks());
   }),
   http.post(apiPath("/excel/workbooks"), async ({ request }) => {
-    const auth = authorize(request, "excel:write");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const key = request.headers.get("Idempotency-Key");
     if (!key) return apiError(422, "VALIDATION_FAILED", "Idempotency-Key header is required");
@@ -84,7 +84,7 @@ export const workHandlers = [
     );
   }),
   http.post(apiPath("/excel/workbooks/:id/jobs"), async ({ request, params }) => {
-    const auth = authorize(request, "excel:write");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const workbook = findWorkbook(String(params.id));
     if (!workbook) return apiError(404, "NOT_FOUND", "Workbook not found");
@@ -95,14 +95,14 @@ export const workHandlers = [
       : apiError(422, "VALIDATION_FAILED", "Invalid operation or columns");
   }),
   http.get(apiPath("/excel/workbooks/:id"), async ({ request, params }) => {
-    const auth = authorize(request, "excel:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     await latency();
     const workbook = findWorkbook(String(params.id));
     return workbook ? HttpResponse.json(workbookDetail(workbook)) : apiError(404, "NOT_FOUND", "Workbook not found");
   }),
   http.get(apiPath("/excel/jobs/:id"), ({ request, params }) => {
-    const auth = authorize(request, "excel:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const job = findJob(String(params.id));
     return job ? HttpResponse.json(job) : apiError(404, "NOT_FOUND", "Job not found");
@@ -110,13 +110,13 @@ export const workHandlers = [
 
   // ----- Reconciliation -----
   http.get(apiPath("/reconciliations"), async ({ request }) => {
-    const auth = authorize(request, "reconciliation:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     await latency();
     return HttpResponse.json(allReconciliations());
   }),
   http.post(apiPath("/reconciliations"), async ({ request }) => {
-    const auth = authorize(request, "reconciliation:write");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const body = (await request.json()) as ReconRequest;
     const file = findFile(body.fileId);
@@ -131,7 +131,7 @@ export const workHandlers = [
     });
   }),
   http.get(apiPath("/reconciliations/:id/rows"), async ({ request, params }) => {
-    const auth = authorize(request, "reconciliation:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     await latency();
     const stored = findReconciliation(String(params.id));
@@ -144,7 +144,7 @@ export const workHandlers = [
     return HttpResponse.json({ items: all.slice(offset, next), nextCursor: next < all.length ? String(next) : null });
   }),
   http.post(apiPath("/reconciliations/:id/rows/:rowId/:decision"), ({ request, params }) => {
-    const auth = authorize(request, "reconciliation:write");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const decision = String(params.decision);
     if (decision !== "confirm" && decision !== "reject") return apiError(404, "NOT_FOUND", "Not found");
@@ -155,7 +155,7 @@ export const workHandlers = [
     return result.reason === "not-found" ? apiError(404, "NOT_FOUND", "Row not found") : CONFLICT();
   }),
   http.get(apiPath("/reconciliations/:id"), ({ request, params }) => {
-    const auth = authorize(request, "reconciliation:read");
+    const auth = authorize(request, "excel:use");
     if ("response" in auth) return auth.response;
     const stored = findReconciliation(String(params.id));
     return stored
@@ -165,13 +165,13 @@ export const workHandlers = [
 
   // ----- Imports -----
   http.get(apiPath("/imports"), async ({ request }) => {
-    const auth = authorize(request, "integrations:read");
+    const auth = authorize(request, "files:read");
     if ("response" in auth) return auth.response;
     await latency();
     return HttpResponse.json(allImports());
   }),
   http.post(apiPath("/imports"), async ({ request }) => {
-    const auth = authorize(request, "integrations:write");
+    const auth = authorize(request, "imports:commit");
     if ("response" in auth) return auth.response;
     const key = request.headers.get("Idempotency-Key");
     if (!key) return apiError(422, "VALIDATION_FAILED", "Idempotency-Key header is required");
@@ -194,7 +194,7 @@ export const workHandlers = [
     );
   }),
   http.put(apiPath("/imports/:id/mapping"), async ({ request, params }) => {
-    const auth = authorize(request, "integrations:write");
+    const auth = authorize(request, "imports:commit");
     if ("response" in auth) return auth.response;
     const stored = findImport(String(params.id));
     if (!stored) return apiError(404, "NOT_FOUND", "Import not found");
@@ -204,21 +204,21 @@ export const workHandlers = [
     return result.reason === "conflict" ? CONFLICT() : apiError(422, "VALIDATION_FAILED", "Invalid mapping");
   }),
   http.post(apiPath("/imports/:id/commit"), ({ request, params }) => {
-    const auth = authorize(request, "integrations:write");
+    const auth = authorize(request, "imports:commit");
     if ("response" in auth) return auth.response;
     const stored = findImport(String(params.id));
     if (!stored) return apiError(404, "NOT_FOUND", "Import not found");
     return commit(stored) === "ok" ? HttpResponse.json(importDetail(stored), { status: 202 }) : CONFLICT();
   }),
   http.get(apiPath("/imports/:id"), async ({ request, params }) => {
-    const auth = authorize(request, "integrations:read");
+    const auth = authorize(request, "files:read");
     if ("response" in auth) return auth.response;
     await latency();
     const stored = findImport(String(params.id));
     return stored ? HttpResponse.json(importDetail(stored)) : apiError(404, "NOT_FOUND", "Import not found");
   }),
   http.post(apiPath("/exports/onec"), async ({ request }) => {
-    const auth = authorize(request, "integrations:write");
+    const auth = authorize(request, "imports:commit");
     if ("response" in auth) return auth.response;
     const body = (await request.json()) as { periodId?: string };
     if (!body.periodId || !/^\d{4}-\d{2}$/.test(body.periodId))

@@ -3,11 +3,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { uploadInvoice } from "@/api/upload";
-import { invoiceKeys, useInvoiceList, type Invoice } from "@/features/invoices/api";
+import { invoiceKeys, markInvoiceUploaded, useInvoiceList, type Invoice } from "@/features/invoices/api";
 import { InvoiceStatusBadge } from "@/features/invoices/components/InvoiceStatusBadge";
 import {
   hasActiveInvoiceFilters,
-  hasAmounts,
   INVOICE_DIRECTIONS,
   INVOICE_STATUSES,
   invoicesSearchSchema,
@@ -18,11 +17,9 @@ import { MoneyText } from "@/shared/components/MoneyText";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
 import { usePermission } from "@/shared/hooks/usePermission";
-import { useSearchText } from "@/shared/hooks/useSearchText";
-import { formatDate, formatMonth } from "@/shared/lib/date";
+import { formatDate } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
 import { UploadDropzone } from "@/shared/upload/UploadDropzone";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -52,9 +49,6 @@ function InvoicesPageContent() {
   const tag = localeTag(i18n.language);
   const active = hasActiveInvoiceFilters(search);
 
-  const { text, onTextChange } = useSearchText(search.q, (q) => {
-    void navigate({ search: (previous) => ({ ...previous, q }), replace: true });
-  });
   const update = (patch: Partial<InvoicesSearch>) =>
     void navigate({ search: (previous) => ({ ...previous, ...patch }), replace: true });
 
@@ -63,7 +57,7 @@ function InvoicesPageContent() {
       {
         id: "invoice",
         header: t("invoices.columns.invoice"),
-        accessorFn: (row) => row.number ?? row.sourceFileName,
+        accessorFn: (row) => row.number,
         cell: ({ row }) => (
           <div className="min-w-0">
             <Link
@@ -72,11 +66,11 @@ function InvoicesPageContent() {
               state={{ fromInvoicesSearch: search }}
               className="font-medium hover:underline"
             >
-              {row.original.number ?? row.original.sourceFileName}
+              {row.original.number}
             </Link>
             <p className="truncate text-xs text-muted-foreground">
               {t(`invoices.direction.${row.original.direction}`)}
-              {row.original.counterpartyName ? ` · ${row.original.counterpartyName}` : ""}
+              {row.original.counterparty?.name ? ` · ${row.original.counterparty.name}` : ""}
             </p>
           </div>
         ),
@@ -87,35 +81,14 @@ function InvoicesPageContent() {
         cell: ({ row }) => (row.original.issueDate ? formatDate(row.original.issueDate, tag) : "—"),
       },
       {
-        accessorKey: "grossTotal",
+        accessorKey: "gross",
         header: t("invoices.columns.gross"),
-        cell: ({ row }) =>
-          hasAmounts(row.original.status) ? (
-            <MoneyText amount={row.original.grossTotal} currency={row.original.currency} />
-          ) : (
-            "—"
-          ),
+        cell: ({ row }) => <MoneyText amount={row.original.gross} currency={row.original.currency} />,
       },
       {
         accessorKey: "status",
         header: t("invoices.columns.status"),
         cell: ({ row }) => <InvoiceStatusBadge status={row.original.status} />,
-      },
-      {
-        id: "issues",
-        header: t("invoices.columns.issues"),
-        enableSorting: false,
-        cell: ({ row }) => {
-          const errors = row.original.errorCount;
-          const warnings = row.original.issueCount - errors;
-          if (errors === 0 && warnings === 0) return <span className="text-muted-foreground">—</span>;
-          return (
-            <span className="flex flex-wrap gap-1">
-              {errors > 0 ? <Badge tone="danger">{t("invoices.issues.errors", { count: errors })}</Badge> : null}
-              {warnings > 0 ? <Badge tone="warning">{t("invoices.issues.warnings", { count: warnings })}</Badge> : null}
-            </span>
-          );
-        },
       },
     ],
     [t, tag, search],
@@ -127,44 +100,22 @@ function InvoicesPageContent() {
 
       {canWrite ? (
         <div className="mb-6">
-          <UploadDropzone upload={(file, options) => uploadInvoice(file, options)} queryKey={invoiceKeys.all} />
+          <UploadDropzone
+            upload={async (file, options) => {
+              const result = await uploadInvoice(file, options);
+              markInvoiceUploaded();
+              return result;
+            }}
+            queryKey={invoiceKeys.all}
+          />
         </div>
-      ) : null}
-
-      {search.vatPeriod ? (
-        <p className="mb-4 flex flex-wrap items-center gap-2 text-sm">
-          <Badge tone="info">
-            {t("invoices.vatFilter", {
-              period: formatMonth(search.vatPeriod, tag),
-              bucket: search.vatBucket ? t(`vat.bucket.${search.vatBucket}`) : t("vat.bucket.all"),
-            })}
-          </Badge>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => update({ vatPeriod: undefined, vatBucket: undefined })}
-          >
-            {t("invoices.vatFilterRemove")}
-          </Button>
-        </p>
       ) : null}
 
       <form
         role="search"
-        className="mb-6 grid gap-3 sm:grid-cols-[1fr_12rem_12rem_auto] sm:items-end"
+        className="mb-6 grid gap-3 sm:grid-cols-[12rem_12rem_10rem_10rem_auto] sm:items-end"
         onSubmit={(event) => event.preventDefault()}
       >
-        <div className="space-y-1.5">
-          <Label htmlFor="inv-q">{t("news.filters.search")}</Label>
-          <Input
-            id="inv-q"
-            type="search"
-            value={text}
-            placeholder={t("invoices.searchPlaceholder")}
-            onChange={(event) => onTextChange(event.target.value)}
-          />
-        </div>
         <div className="space-y-1.5">
           <Label htmlFor="inv-status">{t("invoices.columns.status")}</Label>
           <Select
@@ -197,15 +148,26 @@ function InvoicesPageContent() {
             ))}
           </Select>
         </div>
-        <label className="flex h-9 items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="size-4"
-            checked={search.hasIssues ?? false}
-            onChange={(event) => update({ hasIssues: event.target.checked || undefined })}
+        <div className="space-y-1.5">
+          <Label htmlFor="inv-from">{t("news.filters.from")}</Label>
+          <Input
+            id="inv-from"
+            type="date"
+            value={search.from ?? ""}
+            max={search.to}
+            onChange={(event) => update({ from: event.target.value || undefined })}
           />
-          {t("invoices.onlyWithIssues")}
-        </label>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="inv-to">{t("news.filters.to")}</Label>
+          <Input
+            id="inv-to"
+            type="date"
+            value={search.to ?? ""}
+            min={search.from}
+            onChange={(event) => update({ to: event.target.value || undefined })}
+          />
+        </div>
         {active ? (
           <Button type="button" variant="ghost" onClick={() => void navigate({ search: {}, replace: true })}>
             {t("news.filters.reset")}

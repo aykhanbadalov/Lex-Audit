@@ -1,60 +1,68 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { accountName, useAccounts } from "@/shared/api/referenceData";
 import { MoneyText } from "@/shared/components/MoneyText";
-import type { Currency } from "@/shared/lib/money";
+import { sameAmount, sumDecimals } from "@/shared/lib/decimal";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { useSubmitJournal, type JournalEntry } from "../api";
+import { useSubmitJournal, type JournalView } from "../api";
 
-const STATUS_TONE: Record<JournalEntry["status"], BadgeTone> = {
+type Shown = JournalView["status"] | "pending_approval";
+
+const STATUS_TONE: Record<Shown, BadgeTone> = {
   proposed: "info",
   pending_approval: "warning",
   approved: "success",
   posted: "success",
-  rejected: "danger",
 };
 
-export function JournalStatusBadge({ status }: { status: JournalEntry["status"] }) {
+/** An entry with an approval waiting is "proposed" on the backend; for a person it is "waiting for approval". */
+export function journalState(entry: Pick<JournalView, "status" | "approvalId">): Shown {
+  return entry.status === "proposed" && entry.approvalId ? "pending_approval" : entry.status;
+}
+
+export function JournalStatusBadge({ entry }: { entry: Pick<JournalView, "status" | "approvalId"> }) {
   const { t } = useTranslation();
-  return <Badge tone={STATUS_TONE[status]}>{t(`invoices.journal.status.${status}`)}</Badge>;
+  const state = journalState(entry);
+  return <Badge tone={STATUS_TONE[state]}>{t(`invoices.journal.status.${state}`)}</Badge>;
 }
 
 interface JournalEntryCardProps {
-  entry: JournalEntry;
+  entry: JournalView;
   /** May this person send the entry for approval? The server checks again. */
   canSubmit: boolean;
   /** Offer a link back to the invoice the entry came from. */
   showSourceLink?: boolean;
 }
 
-/** One journal entry: its state, its lines and what can be done with it. Used on the invoice and on the ledger. */
+/**
+ * One journal entry: its state, its lines and what can be done with it. Used on the invoice and on the ledger.
+ * The totals shown under the table are sums of the lines for reading only; the backend refuses an unbalanced entry.
+ */
 export function JournalEntryCard({ entry, canSubmit, showSourceLink = false }: JournalEntryCardProps) {
   const { t, i18n } = useTranslation();
+  const accounts = useAccounts();
   const submit = useSubmitJournal(entry.id);
-  const currency = entry.currency as Currency;
-  // A rate is a decimal string; only the decimal mark is adapted to the language.
-  const rate = entry.exchangeRate
-    ? i18n.language === "en"
-      ? entry.exchangeRate
-      : entry.exchangeRate.replace(".", ",")
-    : null;
+  const totalDebit = sumDecimals(entry.lines.map((line) => line.debit));
+  const totalCredit = sumDecimals(entry.lines.map((line) => line.credit));
+  const balanced = sameAmount(totalDebit, totalCredit);
+  const state = journalState(entry);
+  const nameOf = (code: string) => {
+    const account = accounts.data?.find((candidate) => candidate.code === code);
+    return account ? accountName(account, i18n.language) : "";
+  };
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <JournalStatusBadge status={entry.status} />
-        <Badge tone={entry.balanced ? "success" : "danger"}>
-          {entry.balanced ? t("invoices.journal.balanced") : t("invoices.journal.unbalanced")}
+        <JournalStatusBadge entry={entry} />
+        <Badge tone={balanced ? "success" : "danger"}>
+          {balanced ? t("invoices.journal.balanced") : t("invoices.journal.unbalanced")}
         </Badge>
         {entry.source === "ai" || entry.source === "invoice" ? (
           <span className="text-xs text-muted-foreground">{t("invoices.journal.aiNote")}</span>
         ) : null}
       </div>
-      {rate ? (
-        <p className="text-xs text-muted-foreground">
-          {t("invoices.journal.rate", { rate, currency: entry.currency })}
-        </p>
-      ) : null}
       {showSourceLink && entry.sourceInvoiceId ? (
         <Link
           to="/invoices/$id"
@@ -63,6 +71,13 @@ export function JournalEntryCard({ entry, canSubmit, showSourceLink = false }: J
         >
           {t("ledger.openInvoice")}
         </Link>
+      ) : null}
+      {entry.explanation && entry.explanation.length > 0 ? (
+        <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
+          {entry.explanation.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
       ) : null}
 
       <div className="overflow-x-auto rounded-lg border">
@@ -85,16 +100,17 @@ export function JournalEntryCard({ entry, canSubmit, showSourceLink = false }: J
             {entry.lines.map((line, index) => (
               <tr key={index} className="border-t">
                 <td className="px-3 py-2">
-                  <span className="font-medium">{line.accountCode}</span> · {line.accountName}
+                  <span className="font-medium">{line.accountCode}</span>
+                  {nameOf(line.accountCode) ? ` · ${nameOf(line.accountCode)}` : ""}
                   {line.description ? (
                     <span className="block text-xs text-muted-foreground">{line.description}</span>
                   ) : null}
                 </td>
                 <td className="px-3 py-2 text-right">
-                  {line.debit !== "0.00" ? <MoneyText amount={line.debit} currency={currency} /> : "—"}
+                  {!sameAmount(line.debit, "0") ? <MoneyText amount={line.debit} /> : "—"}
                 </td>
                 <td className="px-3 py-2 text-right">
-                  {line.credit !== "0.00" ? <MoneyText amount={line.credit} currency={currency} /> : "—"}
+                  {!sameAmount(line.credit, "0") ? <MoneyText amount={line.credit} /> : "—"}
                 </td>
               </tr>
             ))}
@@ -105,22 +121,22 @@ export function JournalEntryCard({ entry, canSubmit, showSourceLink = false }: J
                 {t("invoices.journal.total")}
               </th>
               <td className="px-3 py-2 text-right">
-                <MoneyText amount={entry.totalDebit} currency={currency} />
+                <MoneyText amount={totalDebit} />
               </td>
               <td className="px-3 py-2 text-right">
-                <MoneyText amount={entry.totalCredit} currency={currency} />
+                <MoneyText amount={totalCredit} />
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      {entry.status === "proposed" && canSubmit ? (
-        <Button type="button" onClick={() => submit.mutate()} disabled={submit.isPending || !entry.balanced}>
+      {state === "proposed" && canSubmit ? (
+        <Button type="button" onClick={() => submit.mutate()} disabled={submit.isPending || !balanced}>
           {t("invoices.journal.submit")}
         </Button>
       ) : null}
-      {entry.status === "pending_approval" ? (
+      {state === "pending_approval" ? (
         <p className="text-sm text-muted-foreground">{t("invoices.journal.waiting")}</p>
       ) : null}
     </div>

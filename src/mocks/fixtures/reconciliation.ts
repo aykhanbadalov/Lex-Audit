@@ -1,5 +1,5 @@
 // DEMO CONTENT. The rows are invented; the real matching belongs to the backend.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { formatDec, parseDec } from "../decimal";
 import { processingMs } from "./files";
 

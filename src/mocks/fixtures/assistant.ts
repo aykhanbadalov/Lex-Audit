@@ -1,5 +1,5 @@
 // DEMO CONTENT. Answers, sources and tool runs are scripted; the real model, retrieval and tools belong to the backend.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { addApprovalRequest } from "./approvals";
 
 type Conversation = components["schemas"]["Conversation"];
@@ -8,7 +8,7 @@ type Citation = components["schemas"]["Citation"];
 type ToolRun = components["schemas"]["ToolRun"];
 type Approval = components["schemas"]["Approval"];
 type Attachment = components["schemas"]["ContextAttachment"];
-type User = components["schemas"]["User"];
+import type { MockUser as User } from "../handlers/auth";
 
 export interface ScriptEvent {
   id: number;
@@ -169,7 +169,7 @@ export function answer(conversation: StoredConversation, content: string, attach
     approvals.set(approval.id, approval);
     addApprovalRequest({
       id: approval.id,
-      kind: "tool_action",
+      kind: "tool:ledger.submit_entries",
       title: "Jurnal yazılışı təsdiqə göndərilsin",
       summary: approval.argumentsSummary,
       riskLevel: approval.riskLevel,

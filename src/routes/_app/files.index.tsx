@@ -7,13 +7,7 @@ import { fileKeys, useFileList, type FileRecord } from "@/features/files/api";
 import { FileStatusBadge } from "@/features/files/components/FileStatusBadge";
 import { FileTypeIcon } from "@/shared/upload/FileTypeIcon";
 import { UploadDropzone } from "@/shared/upload/UploadDropzone";
-import {
-  ARCHIVE_FILTERS,
-  FILE_STATUSES,
-  filesSearchSchema,
-  hasActiveFileFilters,
-  type FilesSearch,
-} from "@/features/files/filters";
+import { ARCHIVE_FILTERS, filesSearchSchema, hasActiveFileFilters, type FilesSearch } from "@/features/files/filters";
 import { DataTable } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
@@ -76,22 +70,21 @@ function FilesPageContent() {
             >
               {row.original.name}
             </Link>
-            {row.original.isArchived ? <Badge tone="neutral">{t("files.archivedBadge")}</Badge> : null}
+            {row.original.archivedAt ? <Badge tone="neutral">{t("files.archivedBadge")}</Badge> : null}
           </span>
         ),
       },
       { accessorKey: "folder", header: t("files.columns.folder") },
       {
-        accessorKey: "sizeBytes",
+        accessorKey: "size",
         header: t("files.columns.size"),
-        cell: ({ row }) => <span className="tabular-nums">{formatBytes(row.original.sizeBytes, tag)}</span>,
+        cell: ({ row }) => <span className="tabular-nums">{formatBytes(row.original.size, tag)}</span>,
       },
       {
-        accessorKey: "status",
+        accessorKey: "extractionStatus",
         header: t("files.columns.status"),
-        cell: ({ row }) => <FileStatusBadge status={row.original.status} />,
+        cell: ({ row }) => <FileStatusBadge status={row.original.extractionStatus} />,
       },
-      { accessorKey: "ownerName", header: t("files.columns.owner") },
       {
         accessorKey: "updatedAt",
         header: t("files.columns.updated"),
@@ -113,7 +106,7 @@ function FilesPageContent() {
 
       <form
         role="search"
-        className="mb-6 grid gap-3 sm:grid-cols-[1fr_12rem_12rem_auto] sm:items-end"
+        className="mb-6 grid gap-3 sm:grid-cols-[1fr_12rem_auto] sm:items-end"
         onSubmit={(event) => event.preventDefault()}
       >
         <div className="space-y-1.5">
@@ -125,21 +118,6 @@ function FilesPageContent() {
             placeholder={t("files.searchPlaceholder")}
             onChange={(event) => onTextChange(event.target.value)}
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="files-status">{t("files.columns.status")}</Label>
-          <Select
-            id="files-status"
-            value={search.status ?? ""}
-            onChange={(event) => update({ status: (event.target.value || undefined) as FilesSearch["status"] })}
-          >
-            <option value="">{t("common.all")}</option>
-            {FILE_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {t(`files.status.${status}`)}
-              </option>
-            ))}
-          </Select>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="files-archived">{t("files.archiveFilter.label")}</Label>

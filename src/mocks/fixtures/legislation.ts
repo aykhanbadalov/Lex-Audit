@@ -1,6 +1,6 @@
 // DEMO CONTENT. Titles name real documents so the screens look realistic, but every article text below is
 // invented placeholder text, and dates/numbers are placeholders. Never treat it as legal text.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { wordDiff } from "./diff";
 
 type Summary = components["schemas"]["LegislationSummary"];

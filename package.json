@@ -19,9 +19,8 @@
     "e2e": "playwright test",
     "e2e:demo": "playwright test -c playwright.demo.config.ts",
     "e2e:real": "playwright test -c playwright.real.config.ts",
-    "api:gen": "openapi-typescript ../backend/openapi.yaml -o src/api/schema.d.ts",
-    "api:gen:real": "openapi-typescript contract/openapi.json -o src/api/real/schema.d.ts",
-    "api:sync": "cp ${BACKEND_DIR:-../../invoice_backend/backend}/openapi.json contract/openapi.json && pnpm api:gen:real"
+    "api:gen": "openapi-typescript contract/openapi.json -o src/api/schema.d.ts && node scripts/strip-api-prefix.mjs",
+    "api:sync": "cp ${BACKEND_DIR:-../invoice_backend/backend}/openapi.json contract/openapi.json && pnpm api:gen"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

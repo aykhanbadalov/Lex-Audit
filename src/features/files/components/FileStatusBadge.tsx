@@ -1,9 +1,9 @@
 import { CheckCircle2, CircleAlert, Clock, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
-import type { FileRecord } from "../api";
+import type { FileStatus } from "../filters";
 
-const TONE: Record<FileRecord["status"], BadgeTone> = {
+const TONE: Record<FileStatus, BadgeTone> = {
   pending: "neutral",
   extracting: "info",
   ready: "success",
@@ -11,7 +11,8 @@ const TONE: Record<FileRecord["status"], BadgeTone> = {
 };
 
 /** The state is spelled out in words and an icon, never colour alone. */
-export function FileStatusBadge({ status }: { status: FileRecord["status"] }) {
+export function FileStatusBadge({ status: raw }: { status: FileStatus | null }) {
+  const status = raw ?? "pending";
   const { t } = useTranslation();
   const icon =
     status === "ready" ? (

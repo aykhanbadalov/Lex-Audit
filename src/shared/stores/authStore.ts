@@ -1,8 +1,12 @@
 import { create } from "zustand";
-import type { components } from "@/api/schema";
+import type { SessionUser } from "@/api/mapSession";
 
-export type SessionUser = components["schemas"]["User"];
-export type Session = components["schemas"]["Session"];
+export type { SessionUser };
+export interface Session {
+  accessToken: string;
+  expiresAt: string;
+  user: SessionUser;
+}
 
 interface AuthState {
   /** Access token lives in memory only. It is never written to web storage (audit A-02). */

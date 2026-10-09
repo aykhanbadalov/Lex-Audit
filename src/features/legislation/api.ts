@@ -1,76 +1,75 @@
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import type { LegislationListSearch } from "./filters";
 
-export type LegislationSummary = components["schemas"]["LegislationSummary"];
-export type LegislationDetail = components["schemas"]["LegislationDetail"];
-export type LegislationVersion = components["schemas"]["LegislationVersion"];
-export type ArticleDiff = components["schemas"]["ArticleDiff"];
+export type LegislationSummary = Item<Json<"/legislation">>;
+export type LegislationDetail = Json<"/legislation/{id}">;
+export type LegislationVersion = Item<Json<"/legislation/{id}/versions">>;
+export type DiffHunk = Item<Json<"/legislation/{id}/diff">["hunks"]>;
 
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 20;
 
 export const legislationKeys = {
   all: ["legislation"] as const,
   list: (filters: LegislationListSearch) => ["legislation", "list", filters] as const,
-  detail: (id: string) => ["legislation", "detail", id] as const,
-  version: (id: string, versionId: string) => ["legislation", "version", id, versionId] as const,
-  diff: (id: string, from: string, to: string) => ["legislation", "diff", id, from, to] as const,
+  detail: (id: string, date: string) => ["legislation", "detail", id, date] as const,
+  versions: (id: string) => ["legislation", "versions", id] as const,
+  diff: (id: string, from: number, to: number) => ["legislation", "diff", id, from, to] as const,
 };
 
+/** The list is paged by offset: the next page starts where the loaded ones end, and a short page is the last. */
 export function useLegislationList(filters: LegislationListSearch) {
   return useInfiniteQuery({
     queryKey: legislationKeys.list(filters),
-    initialPageParam: undefined as string | undefined,
+    initialPageParam: 0,
     queryFn: async ({ pageParam, signal }) =>
       unwrap(
         await api.GET("/legislation", {
           signal,
           params: {
-            query: { q: filters.q?.trim() || undefined, type: filters.type, cursor: pageParam, limit: PAGE_SIZE },
+            query: { q: filters.q?.trim() || undefined, type: filters.type, offset: pageParam, limit: PAGE_SIZE },
           },
         }),
       ),
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.reduce((sum, page) => sum + page.length, 0),
     placeholderData: keepPreviousData,
   });
 }
 
-export function useLegislation(id: string) {
+/** The document and the text that was in force on `date` (today when omitted). */
+export function useLegislation(id: string, date?: string) {
   return useQuery({
-    queryKey: legislationKeys.detail(id),
-    queryFn: async ({ signal }) => unwrap(await api.GET("/legislation/{id}", { signal, params: { path: { id } } })),
-    retry: false,
-  });
-}
-
-export function useVersionText(id: string, versionId: string | undefined) {
-  return useQuery({
-    queryKey: legislationKeys.version(id, versionId ?? ""),
+    queryKey: legislationKeys.detail(id, date ?? ""),
     queryFn: async ({ signal }) =>
-      unwrap(
-        await api.GET("/legislation/{id}/versions/{versionId}", {
-          signal,
-          params: { path: { id, versionId: versionId ?? "" } },
-        }),
-      ),
-    enabled: Boolean(versionId),
+      unwrap(await api.GET("/legislation/{id}", { signal, params: { path: { id }, query: { date } } })),
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useVersions(id: string) {
+  return useQuery({
+    queryKey: legislationKeys.versions(id),
+    queryFn: async ({ signal }) =>
+      unwrap(await api.GET("/legislation/{id}/versions", { signal, params: { path: { id } } })),
     retry: false,
   });
 }
 
-export function useVersionDiff(id: string, from: string | undefined, to: string | undefined) {
+export function useVersionDiff(id: string, from: number | undefined, to: number | undefined) {
   return useQuery({
-    queryKey: legislationKeys.diff(id, from ?? "", to ?? ""),
+    queryKey: legislationKeys.diff(id, from ?? 0, to ?? 0),
     queryFn: async ({ signal }) =>
       unwrap(
         await api.GET("/legislation/{id}/diff", {
           signal,
-          params: { path: { id }, query: { from: from ?? "", to: to ?? "" } },
+          params: { path: { id }, query: { from: from ?? 0, to: to ?? 0 } },
         }),
       ),
-    enabled: Boolean(from && to),
+    enabled: from !== undefined && to !== undefined,
     retry: false,
   });
 }

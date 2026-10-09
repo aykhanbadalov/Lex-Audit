@@ -1,5 +1,5 @@
 // DEMO CONTENT. File names and texts are invented.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 
 type FileRecord = components["schemas"]["File"];
 type FileDetail = components["schemas"]["FileDetail"];

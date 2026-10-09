@@ -1,13 +1,10 @@
 import { ApiError, toApiError } from "./errors";
 import { toSessionUser, type BackendMe } from "./mapSession";
-import type { paths } from "./real/schema";
+import type { paths } from "./schema";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
-/** Where the real backend's paths start; they already include "/api/v1". Empty means "same origin". */
-export const API_ORIGIN = import.meta.env.VITE_API_ORIGIN ?? "";
-
-type Tokens = paths["/api/v1/auth/login"]["post"]["responses"][200]["content"]["application/json"];
+type Tokens = paths["/auth/login"]["post"]["responses"][200]["content"]["application/json"];
 
 let inFlight: Promise<boolean> | null = null;
 

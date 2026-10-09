@@ -36,7 +36,7 @@ describe("news list", () => {
 
   it("applies filters from the URL", async () => {
     signInAs();
-    renderApp("/news?riskLevel=critical");
+    renderApp("/news?q=Sadələşdirilmiş");
 
     const items = await articles();
     expect(items).toHaveLength(1);
@@ -45,7 +45,7 @@ describe("news list", () => {
 
   it("ignores garbage in the URL instead of crashing", async () => {
     signInAs();
-    renderApp("/news?riskLevel=extreme&read=maybe&from=yesterday");
+    renderApp("/news?read=maybe&bookmarked=yes");
     expect(await articles()).toHaveLength(8);
   });
 
@@ -160,25 +160,20 @@ describe("bookmarks", () => {
 });
 
 describe("news detail", () => {
-  it("keeps AI output visibly separate from the source text, and links related laws", async () => {
+  it("keeps AI output visibly separate from the source text, and shows which of the company's files it may affect", async () => {
     signInAs();
     renderApp("/news/news-einvoice-bill");
 
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Vergi Məcəlləsinə dəyişiklik layihəsi");
 
     const ai = screen.getByRole("region", { name: "Süni intellekt tərəfindən yaradılıb" });
-    expect(within(ai).getByText(/lexaudit-llm-demo/)).toBeInTheDocument();
     expect(within(ai).getByText(/məsləhət xarakterlidir/)).toBeInTheDocument();
 
     const source = screen.getByRole("heading", { name: "Mənbə mətni" }).closest("div")!.parentElement!;
     expect(ai.contains(source)).toBe(false);
     expect(source).toHaveTextContent("ictimai müzakirəyə çıxarılıb");
 
-    expect(screen.getByRole("link", { name: /Vergi Məcəlləsi — Maddə 2/ })).toHaveAttribute(
-      "href",
-      "/legislation/leg-tax-code",
-    );
-    expect(screen.getByText("ƏDV prosedurları (daxili təlimat).pdf")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Fayl" })).toHaveAttribute("href", expect.stringMatching(/^\/files\//));
     expect(screen.getByText("uyğunluq 82%")).toBeInTheDocument();
   });
 
@@ -218,7 +213,7 @@ describe("news detail", () => {
     const detail = findNewsDetail("news-einvoice-bill")!;
     server.use(
       http.get(apiPath("/news/news-einvoice-bill"), () =>
-        HttpResponse.json({ ...detail, body: '<img src=x onerror="alert(1)"> mətn' }),
+        HttpResponse.json({ ...detail, rawText: '<img src=x onerror="alert(1)"> mətn' }),
       ),
     );
     const { container } = renderApp("/news/news-einvoice-bill");
@@ -232,7 +227,7 @@ describe("news detail", () => {
 describe("returning to the list", () => {
   it("restores the filters the user had when they opened the item", async () => {
     signInAs();
-    const { router } = renderApp("/news?riskLevel=critical");
+    const { router } = renderApp("/news?q=Sadələşdirilmiş");
     const first = (await articles())[0]!;
 
     await userEvent.click(within(first).getByRole("link"));
@@ -240,7 +235,7 @@ describe("returning to the list", () => {
     await userEvent.click(screen.getByRole("link", { name: "Xəbərlərə qayıt" }));
 
     expect(await articles()).toHaveLength(1);
-    expect(router.state.location.search).toMatchObject({ riskLevel: "critical" });
+    expect(router.state.location.search).toMatchObject({ q: "Sadələşdirilmiş" });
   });
 
   it("goes to the unfiltered list when the detail page was opened directly", async () => {

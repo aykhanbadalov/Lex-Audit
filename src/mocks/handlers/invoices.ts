@@ -1,8 +1,16 @@
 import { delay, http, HttpResponse } from "msw";
 import { ALLOWED_EXTENSIONS, extensionOf, MAX_UPLOAD_BYTES } from "@/shared/upload/limits";
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import {
-  accounts,
+  isVisibleInvoice,
+  wireAccounts,
+  wireInvoice,
+  wireInvoiceDetail,
+  wireJournalDetail,
+  wireJournalSummary,
+  wireTaxRates,
+} from "../wire";
+import {
   allInvoices,
   allJournalEntries,
   createFromUpload,
@@ -10,24 +18,17 @@ import {
   findJournalEntry,
   proposeEntries,
   revalidate,
-  taxRates,
-  toDetail,
-  toInvoice,
   updateInvoice,
 } from "../fixtures/invoices";
+import { ensureJournalApproval } from "../fixtures/approvals";
 import { demoPdf } from "../fixtures/pdf";
-import { invoicesInBucket } from "../fixtures/vat";
 import { parseMultipart } from "../multipart";
 import { apiError, authorize, authorizeAny } from "./auth";
 import { apiPath } from "./base";
 
-type InvoiceUpdate = components["schemas"]["InvoiceUpdate"];
+type DraftUpdate = components["schemas"]["InvoiceUpdate"];
 
 const latency = () => (import.meta.env.MODE === "test" ? Promise.resolve() : delay(200));
-
-function matches(haystack: string, needle: string): boolean {
-  return haystack.toLocaleLowerCase("az").includes(needle.toLocaleLowerCase("az"));
-}
 
 const uploadsByKey = new Map<string, string[]>();
 export function resetInvoiceUploadKeys(): void {
@@ -44,28 +45,22 @@ export const invoicesHandlers = [
     await latency();
 
     const params = new URL(request.url).searchParams;
-    const q = params.get("q")?.trim();
     const status = params.get("status");
     const direction = params.get("direction");
-    const hasIssues = params.get("hasIssues");
-    const vatPeriod = params.get("vatPeriod");
-    const vatBucket = params.get("vatBucket") as "output" | "input" | "zeroRated" | "exempt" | null;
-    // "Show me the invoices behind this line of the VAT summary".
-    const behindBucket =
-      vatPeriod && vatBucket ? new Set(invoicesInBucket(vatPeriod, vatBucket).map((invoice) => invoice.id)) : null;
+    const from = params.get("from");
+    const to = params.get("to");
     const limit = Math.min(Number(params.get("limit") ?? 20) || 20, 100);
     const offset = Number(params.get("cursor") ?? 0) || 0;
 
     const filtered = allInvoices()
-      .map(toInvoice)
+      .filter(isVisibleInvoice)
+      .map(wireInvoice)
       .filter(
         (item) =>
-          (!q || matches(`${item.number ?? ""} ${item.counterpartyName ?? ""} ${item.counterpartyVoen ?? ""}`, q)) &&
           (!status || item.status === status) &&
           (!direction || item.direction === direction) &&
-          (hasIssues === null || (hasIssues === "true" ? item.issueCount > 0 : item.issueCount === 0)) &&
-          (!vatPeriod || item.issueDate?.slice(0, 7) === vatPeriod) &&
-          (!behindBucket || behindBucket.has(item.id)),
+          (!from || item.issueDate >= from) &&
+          (!to || item.issueDate <= to),
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const next = offset + limit;
@@ -83,9 +78,8 @@ export const invoicesHandlers = [
     const key = request.headers.get("Idempotency-Key");
     if (!key) return apiError(422, "VALIDATION_FAILED", "Idempotency-Key header is required");
     const known = uploadsByKey.get(key);
-    if (known) {
-      return HttpResponse.json({ items: known.flatMap((id) => findInvoice(id) ?? []).map(toInvoice) }, { status: 202 });
-    }
+    if (known?.[0])
+      return HttpResponse.json({ fileId: `file-${known[0]}`, fileVersionId: `ver-${known[0]}` }, { status: 202 });
 
     const form = await parseMultipart(request);
     const upload = form?.file;
@@ -100,7 +94,10 @@ export const invoicesHandlers = [
       key,
       created.map((item) => item.id),
     );
-    return HttpResponse.json({ items: created.map(toInvoice) }, { status: 202 });
+    return HttpResponse.json(
+      { fileId: `file-${created[0]!.id}`, fileVersionId: `ver-${created[0]!.id}` },
+      { status: 202 },
+    );
   }),
 
   http.get(apiPath("/invoices/:id/source"), ({ request, params }) => {
@@ -120,7 +117,7 @@ export const invoicesHandlers = [
     const found = findInvoice(String(params.id));
     if (!found) return apiError(404, "NOT_FOUND", "Invoice not found");
     revalidate(found);
-    return HttpResponse.json(toDetail(found));
+    return HttpResponse.json(wireInvoiceDetail(found));
   }),
 
   http.post(apiPath("/invoices/:id/propose-entries"), async ({ request, params }) => {
@@ -130,7 +127,12 @@ export const invoicesHandlers = [
     const found = findInvoice(String(params.id));
     if (!found) return apiError(404, "NOT_FOUND", "Invoice not found");
     const entry = proposeEntries(found);
-    return entry === "conflict" ? CONFLICT() : HttpResponse.json(entry, { status: 201 });
+    if (entry === "conflict") return CONFLICT();
+    return HttpResponse.json({
+      ...wireJournalDetail(entry),
+      status: "proposed",
+      explanation: ["Qaimənin sətirlərindən və ƏDV-dən qurulub."],
+    });
   }),
 
   http.get(apiPath("/invoices/:id"), async ({ request, params }) => {
@@ -138,7 +140,9 @@ export const invoicesHandlers = [
     if ("response" in auth) return auth.response;
     await latency();
     const found = findInvoice(String(params.id));
-    return found ? HttpResponse.json(toDetail(found)) : apiError(404, "NOT_FOUND", "Invoice not found");
+    return found && isVisibleInvoice(found)
+      ? HttpResponse.json(wireInvoiceDetail(found))
+      : apiError(404, "NOT_FOUND", "Invoice not found");
   }),
 
   http.patch(apiPath("/invoices/:id"), async ({ request, params }) => {
@@ -148,29 +152,74 @@ export const invoicesHandlers = [
     const found = findInvoice(String(params.id));
     if (!found) return apiError(404, "NOT_FOUND", "Invoice not found");
 
-    const patch = (await request.json()) as InvoiceUpdate;
+    const body = (await request.json()) as {
+      number?: string;
+      issueDate?: string;
+      currency?: string;
+      net?: string;
+      vat?: string;
+      gross?: string;
+      lines?: {
+        id: string;
+        description?: string;
+        qty?: string;
+        unitPrice?: string;
+        vatRateCode?: string;
+        accountFinal?: string | null;
+      }[];
+    };
     const decimal = /^-?\d+(\.\d+)?$/;
-    if (
-      patch.lines?.some(
-        (entry) => !decimal.test(entry.quantity) || !decimal.test(entry.unitPrice) || !entry.description.trim(),
-      )
-    ) {
-      return apiError(422, "VALIDATION_FAILED", "A line has an invalid amount or description");
-    }
-    if (patch.counterpartyVoen !== undefined && patch.counterpartyVoen.length > 10)
-      return apiError(422, "VALIDATION_FAILED", "VÖEN is too long");
+    const amounts = [
+      body.net,
+      body.vat,
+      body.gross,
+      ...(body.lines ?? []).flatMap((line) => [line.qty, line.unitPrice]),
+    ];
+    if (amounts.some((value) => value !== undefined && !decimal.test(value)))
+      return apiError(422, "VALIDATION_FAILED", "An amount is not a decimal string");
+    if (body.lines?.some((line) => line.description !== undefined && !line.description.trim()))
+      return apiError(422, "VALIDATION_FAILED", "A line has no description");
 
+    // The backend stores what it is given and only reports mismatches when the invoice is validated again.
+    const existing = new Map(found.lines.map((line) => [line.id, line]));
+    const patch: DraftUpdate = {
+      number: body.number,
+      issueDate: body.issueDate,
+      currency: body.currency as DraftUpdate["currency"],
+      lines: body.lines
+        ? found.lines.map((line) => {
+            const edit = body.lines!.find((candidate) => candidate.id === line.id);
+            return {
+              id: line.id,
+              description: edit?.description ?? line.description,
+              quantity: edit?.qty ?? line.quantity,
+              unitPrice: edit?.unitPrice ?? line.unitPrice,
+              vatRateCode: edit?.vatRateCode ?? line.vatRateCode,
+              accountFinal: edit && edit.accountFinal !== undefined ? edit.accountFinal : line.accountFinal,
+            };
+          })
+        : undefined,
+    };
+    if (body.lines?.some((line) => !existing.has(line.id)))
+      return apiError(422, "VALIDATION_FAILED", "A line does not belong to this invoice");
     const result = updateInvoice(found, patch);
     if (!result.ok)
       return result.reason === "conflict" ? CONFLICT() : apiError(422, "VALIDATION_FAILED", "Invalid invoice data");
-    return HttpResponse.json(toDetail(found));
+    if (body.net !== undefined || body.vat !== undefined || body.gross !== undefined) {
+      const current = wireInvoice(found);
+      found.declared = {
+        net: body.net ?? current.net,
+        vat: body.vat ?? current.vat,
+        gross: body.gross ?? current.gross,
+      };
+    }
+    return HttpResponse.json(wireInvoiceDetail(found));
   }),
 
   http.get(apiPath("/journal"), ({ request }) => {
-    const auth = authorize(request, "ledger:read");
+    const auth = authorize(request, "journal:read");
     if ("response" in auth) return auth.response;
     const params = new URL(request.url).searchParams;
-    const q = params.get("q")?.trim();
     const status = params.get("status");
     const from = params.get("from");
     const to = params.get("to");
@@ -178,20 +227,11 @@ export const invoicesHandlers = [
     const offset = Number(params.get("cursor") ?? 0) || 0;
 
     const filtered = allJournalEntries()
+      .map(wireJournalSummary)
       .filter(
-        (entry) =>
-          (!q || matches(entry.description, q)) &&
-          (!status || entry.status === status) &&
-          (!from || entry.date >= from) &&
-          (!to || entry.date <= to),
+        (entry) => (!status || entry.status === status) && (!from || entry.date >= from) && (!to || entry.date <= to),
       )
-      .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
-      .map(({ lines: _lines, exchangeRate: _rate, createdAt: _created, ...summary }) => {
-        void _lines;
-        void _rate;
-        void _created;
-        return summary;
-      });
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
     const next = offset + limit;
     return HttpResponse.json({
       items: filtered.slice(offset, next),
@@ -201,32 +241,36 @@ export const invoicesHandlers = [
 
   http.get(apiPath("/journal/:id"), ({ request, params }) => {
     // The invoice screen shows the entry too, so a person who may read either module may open it.
-    const auth = authorizeAny(request, ["ledger:read", "invoices:read"]);
+    const auth = authorizeAny(request, ["journal:read", "invoices:read"]);
     if ("response" in auth) return auth.response;
     const entry = findJournalEntry(String(params.id));
-    return entry ? HttpResponse.json(entry) : apiError(404, "NOT_FOUND", "Journal entry not found");
+    return entry ? HttpResponse.json(wireJournalDetail(entry)) : apiError(404, "NOT_FOUND", "Journal entry not found");
   }),
 
   http.post(apiPath("/journal/:id/submit"), ({ request, params }) => {
-    const auth = authorize(request, "ledger:write");
+    const auth = authorize(request, "journal:write");
     if ("response" in auth) return auth.response;
     const entry = findJournalEntry(String(params.id));
     if (!entry) return apiError(404, "NOT_FOUND", "Journal entry not found");
-    if (entry.status !== "proposed") return CONFLICT();
     if (!entry.balanced) return apiError(422, "VALIDATION_FAILED", "The entry does not balance");
+    // Asking twice returns the approval that is already waiting instead of opening a second one.
+    const reused = entry.status === "pending_approval";
+    if (!reused && entry.status !== "proposed") return CONFLICT();
     entry.status = "pending_approval";
-    return HttpResponse.json(entry);
+    const approvalId = `appr-${entry.id}`;
+    ensureJournalApproval(approvalId, entry.id, entry.description, auth.user);
+    return HttpResponse.json({ entryId: entry.id, approvalId, status: "approval_required", reused }, { status: 202 });
   }),
 
   http.get(apiPath("/accounts"), ({ request }) => {
     const auth = authorize(request, "invoices:read");
     if ("response" in auth) return auth.response;
-    return HttpResponse.json(accounts);
+    return HttpResponse.json(wireAccounts());
   }),
 
   http.get(apiPath("/tax-rates"), ({ request }) => {
     const auth = authorize(request, "invoices:read");
     if ("response" in auth) return auth.response;
-    return HttpResponse.json(taxRates);
+    return HttpResponse.json(wireTaxRates());
   }),
 ];

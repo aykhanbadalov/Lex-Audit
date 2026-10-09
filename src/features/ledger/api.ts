@@ -1,13 +1,26 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import type { JournalSearch } from "./filters";
 
-export type JournalEntry = components["schemas"]["JournalEntry"];
-export type JournalEntrySummary = components["schemas"]["JournalEntrySummary"];
+export type JournalEntry = Json<"/journal/{id}">;
+export type JournalEntrySummary = Item<Json<"/journal">>;
+export type JournalLine = Item<JournalEntry["lines"]>;
+
+/** What the card needs; a proposal made from an invoice has the same lines but fewer fields than a stored entry. */
+export interface JournalView {
+  id: string;
+  status: "proposed" | "approved" | "posted";
+  source?: JournalEntry["source"];
+  sourceInvoiceId?: string | null;
+  /** Set while an approval for posting the entry is waiting. */
+  approvalId?: string | null;
+  explanation?: string[];
+  lines: { accountCode: string; debit: string; credit: string; description: string | null }[];
+}
 
 export const PAGE_SIZE = 10;
 
@@ -26,18 +39,11 @@ export function useJournalList(filters: JournalSearch) {
         await api.GET("/journal", {
           signal,
           params: {
-            query: {
-              q: filters.q?.trim() || undefined,
-              status: filters.status,
-              from: filters.from,
-              to: filters.to,
-              cursor: pageParam,
-              limit: PAGE_SIZE,
-            },
+            query: { status: filters.status, from: filters.from, to: filters.to, cursor: pageParam, limit: PAGE_SIZE },
           },
         }),
       ),
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
   });
 }
 
@@ -51,13 +57,16 @@ export function useJournalEntry(id: string | null) {
   });
 }
 
+/** Posting needs approval from someone else: this only asks for it. The entry is not posted until it is granted. */
 export function useSubmitJournal(entryId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => unwrap(await api.POST("/journal/{id}/submit", { params: { path: { id: entryId } } })),
-    onSuccess: async (entry) => {
-      queryClient.setQueryData(ledgerKeys.entry(entryId), entry);
-      await queryClient.invalidateQueries({ queryKey: ["journal", "list"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ledgerKeys.all }),
+        queryClient.invalidateQueries({ queryKey: ["approvals"] }),
+      ]);
       toast.success(i18n.t("invoices.journal.submitted"));
     },
     onError: () => {

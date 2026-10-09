@@ -144,7 +144,8 @@
       "file": "Fayl",
       "invoice": "Qaimə",
       "audit_finding": "Audit tapıntısı",
-      "record": "Qeyd"
+      "record": "Qeyd",
+      "audit": "Audit"
     },
     "filters": {
       "label": "Xəbər filtrləri",
@@ -171,7 +172,8 @@
       "type": "Növ",
       "status": "Status",
       "adopted": "Qəbul tarixi",
-      "version": "Versiya"
+      "version": "Versiya",
+      "number": "Nömrə"
     },
     "type": {
       "code": "Məcəllə",
@@ -237,7 +239,7 @@
       "label": "Arxiv",
       "active": "Aktiv fayllar",
       "archived": "Yalnız arxiv",
-      "all": "Hamısı"
+      "all": "Arxiv daxil hamısı"
     },
     "back": "Fayllara qayıt",
     "notFound": "Fayl tapılmadı",
@@ -289,7 +291,9 @@
       "folderInvalid": "Qovluq yolu düzgün deyil",
       "tagsTooMany": "Ən çox 10 teq ola bilər",
       "tagTooLong": "Teq 30 simvoldan uzun ola bilməz"
-    }
+    },
+    "detectedKind": "Aşkarlanan növ",
+    "textReady": "Mətn çıxarılıb ({{count}} simvol). Axtarışda istifadə olunur."
   },
   "upload": {
     "title": "Fayl yüklə",
@@ -317,11 +321,12 @@
     "status": {
       "uploaded": "Növbədə",
       "extracting": "Oxunur",
-      "extracted": "Yoxlama tələb edir",
+      "extracted": "Oxunub",
       "validated": "Yoxlanılıb",
       "posted": "Uçota alınıb",
       "rejected": "Rədd edilib",
-      "failed": "Xəta"
+      "failed": "Xəta",
+      "needs_review": "Yoxlama tələb edir"
     },
     "direction": {
       "purchase": "Alış",
@@ -372,11 +377,18 @@
     },
     "issue": {
       "MISSING_FIELD": "«{{field}}» sahəsi boşdur.",
-      "INVALID_TAX_ID": "VÖEN 10 rəqəmdən ibarət olmalıdır (daxil edilən: {{value}}).",
-      "TOTAL_MISMATCH": "Sənəddə yazılan yekun məbləğ ({{declared}}) hesablanmış məbləğdən ({{computed}}) fərqlənir.",
-      "DUPLICATE_INVOICE": "{{number}} nömrəli qaimə bu kontragentdən artıq mövcuddur.",
-      "LOW_CONFIDENCE": "«{{field}}» sahəsi aşağı dəqiqliklə oxunub ({{percent}}%). Sənədlə yoxlayın.",
-      "DATE_IN_FUTURE": "Qaimənin tarixi gələcəkdədir."
+      "INVALID_TAX_ID": "VÖEN düzgün deyil",
+      "TOTAL_MISMATCH": "Yekun məbləğlər sətirlərin cəminə uyğun gəlmir",
+      "DUPLICATE_INVOICE": "Bu nömrə ilə qaimə artıq var",
+      "LOW_CONFIDENCE": "Model bu dəyərdə əmin deyil, yoxlayın",
+      "DATE_IN_FUTURE": "Qaimənin tarixi gələcəkdədir.",
+      "INVALID_DATE": "Tarix düzgün deyil",
+      "FUTURE_DATE": "Tarix gələcəkdədir",
+      "NO_LINES": "Qaimədə sətir yoxdur",
+      "INVALID_AMOUNT": "Məbləğ düzgün deyil",
+      "LINE_NET_MISMATCH": "Sətrin məbləği say və qiymətə uyğun gəlmir",
+      "VAT_RATE_MISMATCH": "ƏDV dərəcəsi sətrin ƏDV məbləğinə uyğun gəlmir",
+      "VAT_FROM_NON_PAYER": "ƏDV ödəyicisi olmayandan ƏDV göstərilib"
     },
     "form": {
       "label": "Qaimə məlumatları",
@@ -388,9 +400,10 @@
       "rateRequired": "ƏDV dərəcəsi seçin",
       "accountUnknown": "Bu hesab hesablar planında yoxdur",
       "linesRequired": "Ən azı bir sətir olmalıdır",
-      "checkThis": "Yoxlayın · {{percent}}%",
+      "checkThis": "Yoxlayın",
       "discard": "Dəyişiklikləri ləğv et",
-      "revalidate": "Yenidən yoxla"
+      "revalidate": "Yenidən yoxla",
+      "numberRequired": "Nömrə boş ola bilməz"
     },
     "lines": {
       "title": "Sətirlər",
@@ -413,7 +426,8 @@
       "vat": "ƏDV",
       "gross": "Cəmi",
       "printed": "Sənəddə yazılan yekun",
-      "stale": "Məbləğlər köhnədir: dəyişiklikləri yadda saxlayın."
+      "stale": "Məbləğlər köhnədir: dəyişiklikləri yadda saxlayın.",
+      "hint": "Məbləğlər olduğu kimi göndərilir. Saxlayanda sistem onları sətirlərlə yenidən yoxlayır."
     },
     "leave": {
       "title": "Dəyişikliklər itəcək",
@@ -443,7 +457,8 @@
       "total": "Cəmi",
       "submit": "Təsdiqə göndər",
       "waiting": "Yazılış baş mühasibin təsdiqini gözləyir.",
-      "rate": "Bazis valyutaya çevirmə məzənnəsi: {{rate}} ({{currency}})"
+      "rate": "Bazis valyutaya çevirmə məzənnəsi: {{rate}} ({{currency}})",
+      "open": "Jurnalda aç"
     },
     "preview": {
       "title": "Sənəd",
@@ -526,9 +541,20 @@
       "zeroRated": "0% dərəcəli",
       "exempt": "ƏDV-dən azad",
       "invoices": "Qaimələr: {{count}}",
-      "excluded": "{{count}} qaimə hələ yoxlanılmadığı üçün hesablamaya daxil edilməyib.",
+      "excluded": "Hesablamaya daxil edilməyən qaimələr: {{count}}",
       "excludedLink": "Onlara bax",
-      "converted": "Xarici valyutadakı qaimələrin sayı: {{count}}. Onlar rəsmi məzənnə ilə manata çevrilib."
+      "converted": "Xarici valyutadakı qaimələrin sayı: {{count}}. Onlar rəsmi məzənnə ilə manata çevrilib.",
+      "incomplete": "Hesablama tam deyil: aşağıdakı qaimələr üzündən yekun dəqiq olmaya bilər.",
+      "depositBalance": "Depozit hesabı qalığı",
+      "byRate": "Dərəcələr üzrə",
+      "how": "Necə hesablanıb",
+      "col": {
+        "rate": "Dərəcə",
+        "salesNet": "Satış (ƏDV-siz)",
+        "salesVat": "Satış ƏDV",
+        "purchaseNet": "Alış (ƏDV-siz)",
+        "purchaseVat": "Alış ƏDV"
+      }
     },
     "deposit": {
       "opening": "Əvvəlki qalıq",
@@ -544,7 +570,9 @@
         "direction": "İstiqamət",
         "amount": "Məbləğ",
         "status": "Status",
-        "action": "Əməliyyat"
+        "action": "Əməliyyat",
+        "operation": "Əməliyyat",
+        "reference": "İstinad"
       },
       "direction": {
         "in": "Daxil olub",
@@ -560,7 +588,21 @@
       "confirmDescription": "Hərəkət {{number}} nömrəli qaimə ilə əlaqələndiriləcək. Bu əməliyyatı sonradan geri qaytarmaq mümkün deyil.",
       "confirm": "Uyğunlaşdır",
       "matched": "Hərəkət uyğunlaşdırıldı",
-      "failed": "Uyğunlaşdırmaq alınmadı"
+      "failed": "Uyğunlaşdırmaq alınmadı",
+      "hint": "Çıxarışın sətirlərini yükləyə bilərsiniz. Qalıq sistemin əlindəki sətirlərdən hesablanır.",
+      "formLabel": "Depozit çıxarışı",
+      "importTitle": "Çıxarışı yüklə",
+      "addRow": "Sətir əlavə et",
+      "removeRow": "{{number}}-ci sətri sil",
+      "import": "Yüklə",
+      "imported": "Çıxarış yükləndi: {{count}} sətir",
+      "operation": {
+        "top_up": "Mədaxil",
+        "vat_payment": "ƏDV ödənişi",
+        "refund": "Qaytarma",
+        "withdrawal": "Çıxarış",
+        "other": "Digər"
+      }
     },
     "return": {
       "disclaimer": "Bu, rəsmi bəyannamə deyil, qaralamadır. Rəsmi təqdimat e-taxes.gov.az portalında aparılır.",
@@ -577,7 +619,8 @@
         "pdf": "PDF",
         "xlsx": "Excel",
         "xml": "XML",
-        "failed": "Fayl yüklənmədi"
+        "failed": "Fayl yüklənmədi",
+        "csv": "CSV yüklə"
       },
       "line": {
         "TURNOVER_TAXABLE": "Vergiyə cəlb olunan dövriyyə",
@@ -587,7 +630,9 @@
         "INPUT_VAT": "Əvəzləşdirilən ƏDV",
         "VAT_PAYABLE": "Ödəniləcək ƏDV",
         "VAT_REFUNDABLE": "Qaytarılacaq ƏDV"
-      }
+      },
+      "latest": "Son qaralama: versiya {{version}}",
+      "version": "Qaralama, versiya {{version}}"
     },
     "rates": {
       "intro": "Qüvvədə olan ƏDV dərəcələri. Hər dərəcə öz hüquqi mənbəyinə bağlıdır.",
@@ -596,8 +641,21 @@
       "rate": "Dərəcə",
       "valid": "Qüvvədədir",
       "source": "Mənbə",
-      "now": "hazırda"
-    }
+      "now": "hazırda",
+      "treatment": "Rejim",
+      "status": "Vəziyyət",
+      "openSource": "Mənbəyə bax",
+      "treatments": {
+        "taxable": "Vergiyə cəlb olunan",
+        "zero_rated": "0% dərəcəli",
+        "exempt": "ƏDV-dən azad"
+      },
+      "statuses": {
+        "active": "Qüvvədədir",
+        "proposed": "Təsdiq gözləyir"
+      }
+    },
+    "invoicesCount": "{{count}} qaimə"
   },
   "excel": {
     "columns": {
@@ -1077,5 +1135,8 @@
       },
       "dialogDescription": "Sorğu təsdiq növbəsinə düşür. Sorğunu siz təsdiq edə bilməzsiniz."
     }
+  },
+  "impact": {
+    "failed": "Dəyişiklik saxlanmadı"
   }
 }

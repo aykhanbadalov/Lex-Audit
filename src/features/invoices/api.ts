@@ -1,21 +1,32 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Body, Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import { ledgerKeys } from "@/features/ledger/api";
-import { isProcessing, type InvoicesSearch } from "./filters";
+import type { InvoicesSearch } from "./filters";
 
-export type Invoice = components["schemas"]["Invoice"];
-export type InvoiceDetail = components["schemas"]["InvoiceDetail"];
-export type InvoiceIssue = components["schemas"]["InvoiceIssue"];
-export type InvoiceUpdate = components["schemas"]["InvoiceUpdate"];
+export type InvoicePage = Json<"/invoices">;
+export type Invoice = Item<InvoicePage>;
+export type InvoiceDetail = Json<"/invoices/{id}">;
+export type InvoiceLine = Item<InvoiceDetail["lines"]>;
+export type InvoiceIssue = Item<InvoiceDetail["issues"]>;
+export type InvoiceUpdate = Body<"/invoices/{id}", "patch">;
+export type JournalProposalResult = Json<"/invoices/{id}/propose-entries", "post">;
 
-export const PAGE_SIZE = 10;
+/** How many invoices one page holds. Tests change it to exercise paging with a small sample. */
+export const invoiceListConfig = { pageSize: 10 };
 
-/** How often a screen re-reads invoices that are still being read. Tests shorten it. */
-export const invoicePollConfig = { intervalMs: 3000 };
+/**
+ * An uploaded document becomes an invoice a little later, when the backend has read it. For a short while after an
+ * upload the list refreshes on its own so the new invoice appears without a reload. Tests shorten the interval.
+ */
+export const invoicePollConfig = { intervalMs: 3000, windowMs: 30_000 };
+const lastUpload = { at: 0 };
+export function markInvoiceUploaded(): void {
+  lastUpload.at = Date.now();
+}
 
 export const invoiceKeys = {
   all: ["invoices"] as const,
@@ -35,25 +46,19 @@ export function useInvoiceList(filters: InvoicesSearch) {
           signal,
           params: {
             query: {
-              q: filters.q?.trim() || undefined,
               status: filters.status,
               direction: filters.direction,
-              hasIssues: filters.hasIssues || undefined,
-              vatPeriod: filters.vatPeriod,
-              vatBucket: filters.vatPeriod ? filters.vatBucket : undefined,
+              from: filters.from,
+              to: filters.to,
               cursor: pageParam,
-              limit: PAGE_SIZE,
+              limit: invoiceListConfig.pageSize,
             },
           },
         }),
       ),
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    refetchInterval: (query) => {
-      const pages = (query.state.data as InfiniteData<components["schemas"]["InvoicePage"]> | undefined)?.pages ?? [];
-      return pages.some((page) => page.items.some((invoice) => isProcessing(invoice.status)))
-        ? invoicePollConfig.intervalMs
-        : false;
-    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
+    refetchInterval: () =>
+      Date.now() - lastUpload.at < invoicePollConfig.windowMs ? invoicePollConfig.intervalMs : false,
   });
 }
 
@@ -62,8 +67,6 @@ export function useInvoice(id: string) {
     queryKey: invoiceKeys.detail(id),
     queryFn: async ({ signal }) => unwrap(await api.GET("/invoices/{id}", { signal, params: { path: { id } } })),
     retry: false,
-    refetchInterval: (query) =>
-      query.state.data && isProcessing(query.state.data.status) ? invoicePollConfig.intervalMs : false,
   });
 }
 
@@ -71,8 +74,11 @@ export function useInvoice(id: string) {
 export function useInvoiceSource(id: string, enabled: boolean) {
   return useQuery({
     queryKey: invoiceKeys.source(id),
-    queryFn: async ({ signal }) =>
-      unwrap(await api.GET("/invoices/{id}/source", { signal, params: { path: { id } }, parseAs: "blob" })),
+    queryFn: async ({ signal }) => {
+      const { data } = await api.GET("/invoices/{id}/source", { signal, params: { path: { id } }, parseAs: "blob" });
+      if (!data) throw new Error("Empty document");
+      return data as Blob;
+    },
     enabled,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
@@ -87,11 +93,17 @@ function useStoreDetail(id: string) {
   };
 }
 
-export function useUpdateInvoice(id: string) {
+/**
+ * Saving a correction makes the backend forget that the invoice was checked, so the check is run again straight away:
+ * what the person sees afterwards is the verdict on what they just saved.
+ */
+export function useSaveInvoice(id: string) {
   const store = useStoreDetail(id);
   return useMutation({
-    mutationFn: async (body: InvoiceUpdate) =>
-      unwrap(await api.PATCH("/invoices/{id}", { params: { path: { id } }, body })),
+    mutationFn: async (body: InvoiceUpdate) => {
+      await unwrap(await api.PATCH("/invoices/{id}", { params: { path: { id } }, body }));
+      return unwrap(await api.POST("/invoices/{id}/validate", { params: { path: { id } } }));
+    },
     onSuccess: async (detail) => {
       await store(detail);
       toast.success(i18n.t("invoices.saved"));
@@ -119,11 +131,12 @@ export function useValidateInvoice(id: string) {
 export function useProposeEntries(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => unwrap(await api.POST("/invoices/{id}/propose-entries", { params: { path: { id } } })),
+    mutationFn: async () =>
+      unwrap(await api.POST("/invoices/{id}/propose-entries", { params: { path: { id } }, body: {} })),
     onSuccess: async (entry) => {
-      queryClient.setQueryData(ledgerKeys.entry(entry.id), entry);
-      await queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: ledgerKeys.all });
       toast.success(i18n.t("invoices.journal.proposed"));
+      return entry;
     },
     onError: () => {
       toast.error(i18n.t("invoices.actionFailed"));

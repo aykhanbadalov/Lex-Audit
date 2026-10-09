@@ -1,6 +1,6 @@
 // DEMO CONTENT. Periods, due dates and deposit account movements are invented. The calculation below stands in for
 // backend/crates/accounting: the server decides what is included, converts currencies and works out the result.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { formatDec, parseDec } from "../decimal";
 import { BASE_CURRENCY, toBase } from "./fx";
 import { allInvoices, compute, findInvoice, taxRates, type StoredInvoice } from "./invoices";
@@ -244,3 +244,30 @@ export function createDraft(periodId: string, generatedByName: string): VatRetur
 }
 
 export { taxRates };
+
+/** Rows of an uploaded statement join the period's deposit account as movements not yet matched to an invoice. */
+export function addDepositRows(
+  periodId: string,
+  rows: { date: string; operation: string; amount: string; reference?: string }[],
+): number {
+  const stored = (deposits[periodId] ??= { opening: "0.00", lines: [] });
+  for (const row of rows) {
+    stored.lines.push(
+      line(
+        `dep-up-${stored.lines.length + 1}-${row.date}`,
+        row.date,
+        row.reference ?? row.operation,
+        row.operation === "top_up" || row.operation === "refund" ? "in" : "out",
+        row.amount.replace("-", ""),
+        null,
+      ),
+    );
+  }
+  return rows.length;
+}
+
+export function depositBalance(periodId: string): string {
+  return reconciliationFor(periodId)?.closingBalance ?? "0.00";
+}
+
+export const draftCount = (periodId: string): number => (drafts.has(periodId) ? 1 : 0);

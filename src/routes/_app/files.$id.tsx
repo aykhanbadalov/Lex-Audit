@@ -114,8 +114,8 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
     <article className="space-y-6">
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <FileStatusBadge status={file.status} />
-          {file.isArchived ? <Badge tone="neutral">{t("files.archivedBadge")}</Badge> : null}
+          <FileStatusBadge status={file.extractionStatus} />
+          {file.archivedAt ? <Badge tone="neutral">{t("files.archivedBadge")}</Badge> : null}
         </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold tracking-tight break-all">
@@ -133,7 +133,7 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
                   <Pencil className="size-4" aria-hidden="true" />
                   {t("files.edit.open")}
                 </Button>
-                {file.isArchived ? (
+                {file.archivedAt ? (
                   <Button variant="outline" size="sm" onClick={() => restore.mutate()} disabled={restore.isPending}>
                     <ArchiveRestore className="size-4" aria-hidden="true" />
                     {t("files.restore")}
@@ -150,14 +150,14 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
         </div>
       </header>
 
-      {file.status === "failed" ? (
+      {file.extractionStatus === "failed" ? (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/50 p-4 text-sm"
         >
           <div>
             <p className="font-medium">{t("files.failedTitle")}</p>
-            {file.statusDetail ? <p className="text-muted-foreground">{file.statusDetail}</p> : null}
+            {file.extraction?.error ? <p className="text-muted-foreground">{file.extraction?.error}</p> : null}
           </div>
           {canWrite ? (
             <Button size="sm" onClick={() => reindex.mutate()} disabled={reindex.isPending}>
@@ -170,9 +170,9 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
 
       <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
         <Info label={t("files.columns.folder")} value={file.folder} />
-        <Info label={t("files.columns.size")} value={formatBytes(file.sizeBytes, locale)} />
-        <Info label={t("files.type")} value={file.mimeType} />
-        <Info label={t("files.columns.owner")} value={file.ownerName} />
+        <Info label={t("files.columns.size")} value={formatBytes(file.size, locale)} />
+        <Info label={t("files.type")} value={file.mime} />
+        <Info label={t("files.detectedKind")} value={file.extraction?.detectedKind || "—"} />
         <Info label={t("files.created")} value={formatDateTime(file.createdAt, locale)} />
         <Info label={t("files.columns.updated")} value={formatDateTime(file.updatedAt, locale)} />
         <div className="sm:col-span-2 lg:col-span-3">
@@ -192,18 +192,13 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
           <CardTitle>{t("files.extractedText")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {file.extractedTextPreview ? (
-            // Plain text on purpose: extracted content is never rendered as HTML.
-            <pre className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{file.extractedTextPreview}</pre>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {file.status === "failed"
-                ? t("files.noTextFailed")
-                : file.status === "ready"
-                  ? t("files.noText")
-                  : t("files.textPending")}
-            </p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            {file.extractionStatus === "failed"
+              ? t("files.noTextFailed")
+              : file.extractionStatus === "ready"
+                ? t("files.textReady", { count: file.extraction?.textLength ?? 0 })
+                : t("files.textPending")}
+          </p>
         </CardContent>
       </Card>
 
@@ -219,38 +214,16 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
             >
               <span className="font-medium">
                 v{version.versionNo}
-                {version.versionNo === file.currentVersionNo ? ` · ${t("files.currentVersion")}` : ""}
+                {version.versionNo === Math.max(...file.versions.map((item) => item.versionNo))
+                  ? ` · ${t("files.currentVersion")}`
+                  : ""}
               </span>
               <span className="text-muted-foreground">
-                {formatBytes(version.sizeBytes, locale)} · {version.uploadedByName} ·{" "}
-                {formatDateTime(version.uploadedAt, locale)}
+                {formatBytes(version.size, locale)} · {formatDateTime(version.createdAt, locale)}
               </span>
             </li>
           ))}
         </ul>
-      </section>
-
-      <section aria-labelledby="usage-heading" className="space-y-2">
-        <h2 id="usage-heading" className="text-lg font-semibold">
-          {t("files.usage")}
-        </h2>
-        {file.usage.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("files.noUsage")}</p>
-        ) : (
-          <ul className="space-y-2">
-            {file.usage.map((entry) => (
-              <li key={entry.id} className="rounded-lg border bg-card p-3 text-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium">{t(`files.usageAction.${entry.action}`)}</span>
-                  <span className="text-muted-foreground">
-                    {entry.actorName} · {formatDateTime(entry.occurredAt, locale)}
-                  </span>
-                </div>
-                <p className="mt-1 text-muted-foreground">{entry.detail}</p>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
 
       {editing ? <FileEditDialog file={file} open onOpenChange={setEditing} /> : null}

@@ -1,8 +1,8 @@
 // DEMO CONTENT. The real log is written by the backend for every action; nothing here can be changed through the API.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 
 type AuditEvent = components["schemas"]["AuditEvent"];
-type User = components["schemas"]["User"];
+import type { MockUser as User } from "../handlers/auth";
 
 const PEOPLE = [
   { id: "user-accountant", name: "Aygün Məmmədova" },

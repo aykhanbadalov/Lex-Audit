@@ -1,5 +1,5 @@
 // DEMO CONTENT. Columns, rows and counts are invented; the real parsing and validation belong to the backend.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { addUploadedFile, processingMs } from "./files";
 
 type Source = components["schemas"]["ImportSource"];

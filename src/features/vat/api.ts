@@ -1,98 +1,52 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import { ApiError } from "@/api/errors";
-import type { components } from "@/api/schema";
+import type { Body, Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import { saveBlob } from "@/shared/lib/download";
 
-export type VatPeriod = components["schemas"]["VatPeriod"];
-export type VatSummary = components["schemas"]["VatSummary"];
-export type DepositReconciliation = components["schemas"]["DepositReconciliation"];
-export type DepositLine = components["schemas"]["DepositLine"];
-export type VatReturnDraft = components["schemas"]["VatReturnDraft"];
-export type ExportFormat = "pdf" | "xlsx" | "xml";
+export type VatPeriod = Item<Json<"/vat/periods">>;
+export type VatSummary = Json<"/vat/periods/{p}/summary">;
+export type VatDraft = Json<"/vat/periods/{p}/draft-return", "post">;
+export type DepositStatement = Body<"/vat/deposit-statements">;
+export type DepositLine = Item<DepositStatement["lines"]>;
 
 export const vatKeys = {
   periods: ["vat", "periods"] as const,
-  summary: (id: string) => ["vat", "summary", id] as const,
-  deposit: (id: string) => ["vat", "deposit", id] as const,
-  draft: (id: string) => ["vat", "draft", id] as const,
+  summary: (period: string) => ["vat", "summary", period] as const,
 };
 
 export function useVatPeriods() {
   return useQuery({
     queryKey: vatKeys.periods,
     queryFn: async ({ signal }) => unwrap(await api.GET("/vat/periods", { signal })),
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
   });
 }
 
-export function useVatSummary(periodId: string) {
+/** Totals come from the backend's accounting engine only. Anything it could not calculate is listed, never guessed. */
+export function useVatSummary(period: string) {
   return useQuery({
-    queryKey: vatKeys.summary(periodId),
+    queryKey: vatKeys.summary(period),
     queryFn: async ({ signal }) =>
-      unwrap(await api.GET("/vat/periods/{periodId}/summary", { signal, params: { path: { periodId } } })),
+      unwrap(await api.GET("/vat/periods/{p}/summary", { signal, params: { path: { p: period } } })),
     retry: false,
   });
 }
 
-export function useVatDeposit(periodId: string) {
-  return useQuery({
-    queryKey: vatKeys.deposit(periodId),
-    queryFn: async ({ signal }) =>
-      unwrap(await api.GET("/vat/periods/{periodId}/deposit", { signal, params: { path: { periodId } } })),
-    retry: false,
-  });
-}
-
-/** "No draft yet" is an ordinary state, not an error: the server's 404 becomes null. */
-export function useVatDraft(periodId: string) {
-  return useQuery({
-    queryKey: vatKeys.draft(periodId),
-    queryFn: async ({ signal }): Promise<VatReturnDraft | null> => {
-      try {
-        return unwrap(
-          await api.GET("/vat/periods/{periodId}/draft-return", { signal, params: { path: { periodId } } }),
-        );
-      } catch (error) {
-        if (error instanceof ApiError && error.code === "NOT_FOUND") return null;
-        throw error;
-      }
-    },
-    retry: false,
-  });
-}
-
-export function useMatchDepositLine(periodId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (vars: { lineId: string; invoiceId: string }) =>
-      unwrap(
-        await api.POST("/vat/deposit-lines/{lineId}/match", {
-          params: { path: { lineId: vars.lineId } },
-          body: { invoiceId: vars.invoiceId },
-        }),
-      ),
-    onSuccess: (reconciliation) => {
-      queryClient.setQueryData(vatKeys.deposit(periodId), reconciliation);
-      toast.success(i18n.t("vat.deposit.matched"));
-    },
-    onError: () => {
-      toast.error(i18n.t("vat.deposit.failed"));
-    },
-  });
-}
-
-export function useCreateVatDraft(periodId: string) {
+/** Creates a new version of the draft. The draft is a file; nothing is filed and no invoice changes. */
+export function useCreateVatDraft(period: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () =>
-      unwrap(await api.POST("/vat/periods/{periodId}/draft-return", { params: { path: { periodId } } })),
-    onSuccess: (draft) => {
-      queryClient.setQueryData(vatKeys.draft(periodId), draft);
+      unwrap(await api.POST("/vat/periods/{p}/draft-return", { params: { path: { p: period } } })),
+    onSuccess: async () => {
       toast.success(i18n.t("vat.return.created"));
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: vatKeys.periods }),
+        queryClient.invalidateQueries({ queryKey: ["files"] }),
+      ]);
     },
     onError: () => {
       toast.error(i18n.t("vat.return.failed"));
@@ -100,11 +54,25 @@ export function useCreateVatDraft(periodId: string) {
   });
 }
 
-export async function exportVatDraft(periodId: string, format: ExportFormat): Promise<void> {
-  const { data } = await api.GET("/vat/periods/{periodId}/draft-return/export", {
-    params: { path: { periodId }, query: { format } },
-    parseAs: "blob",
+/** Imports the rows of a VAT deposit account statement for a period. */
+export function useImportDeposit(period: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (lines: DepositLine[]) =>
+      unwrap(await api.POST("/vat/deposit-statements", { body: { period, lines } })),
+    onSuccess: async (result) => {
+      toast.success(i18n.t("vat.deposit.imported", { count: result.lines }));
+      await queryClient.invalidateQueries({ queryKey: vatKeys.summary(period) });
+    },
+    onError: () => {
+      toast.error(i18n.t("vat.deposit.failed"));
+    },
   });
-  if (!data) throw new Error("Empty export");
-  saveBlob(data, `vat-draft-${periodId}.${format}`);
+}
+
+/** The draft is stored as a file; an <a href> cannot send the bearer token, so it is fetched and saved from memory. */
+export async function downloadDraft(fileId: string, period: string, version: number): Promise<void> {
+  const { data } = await api.GET("/files/{id}/content", { params: { path: { id: fileId } }, parseAs: "blob" });
+  if (!data) throw new Error("Empty download");
+  saveBlob(data as Blob, `vat-draft-${period}-v${version}.csv`);
 }

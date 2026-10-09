@@ -1,15 +1,14 @@
 import createClient, { type Middleware } from "openapi-fetch";
 import type { paths } from "./schema";
-import type { paths as RealPaths } from "./real/schema";
 import { ApiError, toApiError } from "./errors";
-import { API_BASE_URL, API_ORIGIN, refreshSession } from "./session";
+import { API_BASE_URL, refreshSession } from "./session";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 // A request body can be read only once, so keep a copy to replay after a refresh.
 const replayable = new Map<string, Request>();
 
 function isAuthEndpoint(schemaPath: string): boolean {
-  return schemaPath.startsWith("/auth/") || schemaPath.startsWith("/api/v1/auth/");
+  return schemaPath.startsWith("/auth/");
 }
 
 async function failure(response: Response): Promise<never> {
@@ -75,14 +74,3 @@ export const api = createClient<paths>({
   fetch: (request) => globalThis.fetch(request),
 });
 api.use(authMiddleware);
-
-/**
- * Client typed by the real backend contract (contract/openapi.json). Its paths already contain "/api/v1", so the base
- * is only the origin. Modules move from `api` to `realApi` one at a time as they are connected to the backend.
- */
-export const realApi = createClient<RealPaths>({
-  baseUrl: API_ORIGIN,
-  credentials: "include",
-  fetch: (request) => globalThis.fetch(request),
-});
-realApi.use(authMiddleware);

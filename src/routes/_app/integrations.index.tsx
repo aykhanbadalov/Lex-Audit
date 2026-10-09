@@ -39,7 +39,7 @@ const TONE: Record<ImportJob["status"], BadgeTone> = {
 function IntegrationsPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="integrations:read">
+    <RequirePermission permission="files:read">
       <IntegrationsContent />
     </RequirePermission>
   );
@@ -47,7 +47,7 @@ function IntegrationsPage() {
 
 function IntegrationsContent() {
   const { t, i18n } = useTranslation();
-  const canWrite = usePermission("integrations:write");
+  const canWrite = usePermission("imports:commit");
   const list = useImports();
   const [source, setSource] = useState<ImportSource>("onec");
   const tag = localeTag(i18n.language);

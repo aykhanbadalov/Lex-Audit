@@ -1,5 +1,5 @@
 // DEMO CONTENT. Workbooks, columns and counts are invented; the real profiling and operations belong to the backend.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { addUploadedFile } from "./files";
 import { processingMs } from "./files";
 

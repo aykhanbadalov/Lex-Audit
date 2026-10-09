@@ -5,6 +5,7 @@ import { formatDate } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
 import { cn } from "@/shared/lib/cn";
 import { RiskLabel } from "@/shared/components/RiskLabel";
+import { riskLevel } from "../risk";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import type { NewsItem } from "../api";
@@ -12,34 +13,35 @@ import type { NewsSearch } from "../filters";
 
 interface NewsListItemProps {
   item: NewsItem;
+  sourceName?: string;
   /** The list filters in effect, remembered so the detail page can return to the same view. */
   listSearch: NewsSearch;
   onToggleBookmark: (item: NewsItem) => void;
 }
 
-export function NewsListItem({ item, listSearch, onToggleBookmark }: NewsListItemProps) {
+export function NewsListItem({ item, sourceName, listSearch, onToggleBookmark }: NewsListItemProps) {
   const { t, i18n } = useTranslation();
 
   return (
     <article className="flex gap-3 rounded-lg border bg-card p-4">
       <div className="min-w-0 flex-1 space-y-2">
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          {!item.isRead ? (
+          {!item.read ? (
             <span className="inline-flex items-center gap-1 font-medium text-sky-700 dark:text-sky-300">
               <span className="size-2 rounded-full bg-current" aria-hidden="true" />
               {t("news.unread")}
             </span>
           ) : null}
-          <span className="text-muted-foreground">{item.sourceName}</span>
+          <span className="text-muted-foreground">{sourceName}</span>
           <span className="text-muted-foreground" aria-hidden="true">
             ·
           </span>
-          <time className="text-muted-foreground" dateTime={item.publishedAt}>
-            {formatDate(item.publishedAt, localeTag(i18n.language))}
+          <time className="text-muted-foreground" dateTime={item.publishedAt ?? item.fetchedAt}>
+            {formatDate(item.publishedAt ?? item.fetchedAt, localeTag(i18n.language))}
           </time>
         </div>
 
-        <h2 className={cn("text-base leading-snug", item.isRead ? "font-normal" : "font-semibold")}>
+        <h2 className={cn("text-base leading-snug", item.read ? "font-normal" : "font-semibold")}>
           <Link
             to="/news/$id"
             params={{ id: item.id }}
@@ -53,12 +55,14 @@ export function NewsListItem({ item, listSearch, onToggleBookmark }: NewsListIte
         <p className="line-clamp-2 text-sm text-muted-foreground">
           <Sparkles className="mr-1 inline size-3.5 align-text-bottom" aria-hidden="true" />
           <span className="sr-only">{t("ai.label")}: </span>
-          {item.summary}
+          {item.aiSummary || item.excerpt}
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          <RiskLabel level={item.riskLevel} />
-          <Badge tone="outline">{t(`category.${item.category}`)}</Badge>
+          {riskLevel(item.aiRiskLevel) ? <RiskLabel level={riskLevel(item.aiRiskLevel)!} /> : null}
+          {item.aiCategory ? (
+            <Badge tone="outline">{t(`category.${item.aiCategory}`, { defaultValue: item.aiCategory })}</Badge>
+          ) : null}
         </div>
       </div>
 
@@ -66,11 +70,11 @@ export function NewsListItem({ item, listSearch, onToggleBookmark }: NewsListIte
         variant="ghost"
         size="sm"
         className="shrink-0 self-start"
-        aria-pressed={item.isBookmarked}
-        aria-label={item.isBookmarked ? t("news.removeBookmark") : t("news.addBookmark")}
+        aria-pressed={item.bookmarked}
+        aria-label={item.bookmarked ? t("news.removeBookmark") : t("news.addBookmark")}
         onClick={() => onToggleBookmark(item)}
       >
-        <Bookmark className={cn("size-4", item.isBookmarked && "fill-current")} aria-hidden="true" />
+        <Bookmark className={cn("size-4", item.bookmarked && "fill-current")} aria-hidden="true" />
       </Button>
     </article>
   );

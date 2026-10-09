@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { pollConfig } from "@/features/files/api";
-import { processingMs, toDetail, findFile } from "@/mocks/fixtures/files";
+import { findFile, processingMs } from "@/mocks/fixtures/files";
 import { apiPath } from "@/mocks/handlers/base";
 import { server } from "@/mocks/server";
 import { renderApp, setupMockApi, signInAs } from "./utils";
@@ -26,25 +26,42 @@ describe("file detail", () => {
     expect(await heading()).toHaveTextContent("Müqavilə - Alfa MMC.pdf");
     expect(screen.getAllByText("Hazırdır").length).toBeGreaterThan(0);
     expect(screen.getByText("/Müqavilələr")).toBeInTheDocument();
-    expect(
-      screen.getByText("Alfa MMC ilə təchizat müqaviləsi. Tərəflər, qiymət və ödəniş şərtləri. (demo mətn)"),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Mətn çıxarılıb/)).toBeInTheDocument();
     expect(screen.getByText(/v1 · cari/)).toBeInTheDocument();
-    expect(screen.getByText("İndekslənib")).toBeInTheDocument();
   });
 
-  it("never renders extracted text as HTML", async () => {
+  it("never renders a file name or an extraction error as HTML", async () => {
     signInAs();
-    const detail = toDetail(findFile("file-contract-alfa")!);
     server.use(
       http.get(apiPath("/files/file-contract-alfa"), () =>
-        HttpResponse.json({ ...detail, extractedTextPreview: '<img src=x onerror="alert(1)"> mətn' }),
+        HttpResponse.json({
+          id: "file-contract-alfa",
+          name: '<img src=x onerror="alert(1)"> a.pdf',
+          mime: "application/pdf",
+          size: 10,
+          folder: "/",
+          tags: [],
+          ownerId: "u",
+          archivedAt: null,
+          createdAt: "2026-10-01T00:00:00Z",
+          updatedAt: "2026-10-01T00:00:00Z",
+          extractionStatus: "failed",
+          versions: [],
+          extraction: {
+            status: "failed",
+            detectedKind: null,
+            error: '<b onmouseover="x">bad</b>',
+            textLength: 0,
+            updatedAt: "2026-10-01T00:00:00Z",
+          },
+        }),
       ),
     );
     const { container } = renderApp("/files/file-contract-alfa");
     await heading();
     expect(container.querySelector("img[src='x']")).toBeNull();
-    expect(screen.getByText(/<img src=x/)).toBeInTheDocument();
+    expect(screen.getAllByText(/<img src=x/).length).toBeGreaterThan(0);
+    expect(container.querySelector("b")).toBeNull();
   });
 
   it("explains a failed file and lets a writer process it again until it is ready", async () => {
@@ -116,13 +133,13 @@ describe("file detail", () => {
 
   it("returns to the list with the filters the user had", async () => {
     signInAs();
-    const { router } = renderApp("/files?status=failed");
+    const { router } = renderApp("/files?q=Skan");
     await userEvent.click(await screen.findByRole("link", { name: "Skan - qaimə 0457.jpg" }));
     await heading();
     await userEvent.click(screen.getByRole("link", { name: "Fayllara qayıt" }));
     await screen.findByRole("link", { name: "Skan - qaimə 0457.jpg" });
     expect(screen.queryByRole("link", { name: "Müqavilə - Alfa MMC.pdf" })).not.toBeInTheDocument();
-    expect(router.state.location.search).toMatchObject({ status: "failed" });
+    expect(router.state.location.search).toMatchObject({ q: "Skan" });
   });
 });
 

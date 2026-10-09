@@ -1,5 +1,5 @@
 // DEMO CONTENT. Users, source health and model versions come from the backend and the training pipeline.
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import { mockUsers } from "../handlers/auth";
 import { addApprovalRequest, registerEffect, type StoredApproval } from "./approvals";
 import { taxRates } from "./invoices";
@@ -9,7 +9,7 @@ type AdminUser = components["schemas"]["AdminUser"];
 type AdminNewsSource = components["schemas"]["AdminNewsSource"];
 type ModelVersion = components["schemas"]["ModelVersion"];
 type Role = components["schemas"]["Role"];
-type User = components["schemas"]["User"];
+import type { MockUser as User } from "../handlers/auth";
 
 const ORIGINAL_RATES = taxRates.map((rate) => ({ code: rate.code, rate: rate.rate }));
 

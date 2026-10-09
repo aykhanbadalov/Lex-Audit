@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { ACCOUNT_TYPES, buildAccountRows, matchesAccount } from "@/features/ledger/accounts";
 import { LedgerNav } from "@/features/ledger/components/LedgerNav";
-import { useAccounts } from "@/shared/api/referenceData";
+import { accountName, useAccounts } from "@/shared/api/referenceData";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
@@ -22,26 +22,26 @@ export const Route = createFileRoute("/_app/ledger/accounts")({
 function AccountsPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="ledger:read">
+    <RequirePermission permission="journal:read">
       <AccountsPageContent />
     </RequirePermission>
   );
 }
 
 function AccountsPageContent() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const accounts = useAccounts();
   const { text, onTextChange } = useSearchText(search.q, (q) => void navigate({ search: { q }, replace: true }));
 
   const groups = useMemo(() => {
-    const matching = (accounts.data ?? []).filter((account) => matchesAccount(account, search.q ?? ""));
+    const matching = (accounts.data ?? []).filter((account) => matchesAccount(account, search.q ?? "", i18n.language));
     return ACCOUNT_TYPES.map((type) => ({
       type,
       rows: buildAccountRows(matching.filter((account) => account.type === type)),
     })).filter((group) => group.rows.length > 0);
-  }, [accounts.data, search.q]);
+  }, [accounts.data, search.q, i18n.language]);
 
   return (
     <>
@@ -86,7 +86,7 @@ function AccountsPageContent() {
                     <tr key={account.code} className="border-t">
                       <td className="px-3 py-2 font-mono text-xs">{account.code}</td>
                       <td className="px-3 py-2" style={{ paddingLeft: `${0.75 + depth * 1.25}rem` }}>
-                        {account.name}
+                        {accountName(account, i18n.language)}
                       </td>
                     </tr>
                   ))}

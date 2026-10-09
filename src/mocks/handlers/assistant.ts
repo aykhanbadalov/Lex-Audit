@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import type { components } from "@/api/schema";
+import type { components } from "../draft/schema";
 import {
   answer,
   createConversation,

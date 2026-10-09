@@ -1,15 +1,16 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import type { components } from "@/api/schema";
+import type { Body, Item, Json } from "@/api/types";
 import { unwrap } from "@/api/unwrap";
 import { i18n } from "@/app/i18n";
 import { saveBlob } from "@/shared/lib/download";
 import { isInProgress, type FilesSearch } from "./filters";
 
-export type FileRecord = components["schemas"]["File"];
-export type FileDetail = components["schemas"]["FileDetail"];
-export type FileUpdate = components["schemas"]["FileUpdate"];
+export type FilePage = Json<"/files">;
+export type FileRecord = Item<FilePage>;
+export type FileDetail = Json<"/files/{id}">;
+export type FileUpdate = Body<"/files/{id}", "patch">;
 
 export const PAGE_SIZE = 10;
 
@@ -34,19 +35,21 @@ export function useFileList(filters: FilesSearch) {
           params: {
             query: {
               q: filters.q?.trim() || undefined,
-              status: filters.status,
-              archived: filters.archived,
+              // Archived files are hidden unless asked for.
+              includeArchived: filters.archived === "all" ? "true" : undefined,
               cursor: pageParam,
               limit: PAGE_SIZE,
             },
           },
         }),
       ),
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
     // Keep polling only while something on screen is still being processed.
     refetchInterval: (query) => {
-      const pages = (query.state.data as InfiniteData<components["schemas"]["FilePage"]> | undefined)?.pages ?? [];
-      return pages.some((page) => page.items.some((file) => isInProgress(file.status))) ? pollConfig.intervalMs : false;
+      const pages = (query.state.data as InfiniteData<FilePage> | undefined)?.pages ?? [];
+      return pages.some((page) => page.items.some((file) => isInProgress(file.extractionStatus)))
+        ? pollConfig.intervalMs
+        : false;
     },
   });
 }
@@ -57,7 +60,7 @@ export function useFile(id: string) {
     queryFn: async ({ signal }) => unwrap(await api.GET("/files/{id}", { signal, params: { path: { id } } })),
     retry: false,
     refetchInterval: (query) =>
-      query.state.data && isInProgress(query.state.data.status) ? pollConfig.intervalMs : false,
+      query.state.data && isInProgress(query.state.data.extractionStatus) ? pollConfig.intervalMs : false,
   });
 }
 

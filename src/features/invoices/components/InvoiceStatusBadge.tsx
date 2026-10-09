@@ -1,35 +1,28 @@
-import { CheckCircle2, CircleAlert, Clock, FileSearch, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, CircleAlert, FileSearch, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge, type BadgeTone } from "@/shared/ui/badge";
-import type { Invoice } from "../api";
+import type { InvoiceStatus } from "../filters";
 
-const TONE: Record<Invoice["status"], BadgeTone> = {
-  uploaded: "neutral",
-  extracting: "info",
-  extracted: "warning",
+const TONE: Record<InvoiceStatus, BadgeTone> = {
+  extracted: "info",
+  needs_review: "warning",
   validated: "success",
   posted: "success",
-  rejected: "danger",
-  failed: "danger",
 };
 
 /** The state is spelled out in words and an icon, never colour alone. */
-export function InvoiceStatusBadge({ status }: { status: Invoice["status"] }) {
+export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
   const { t } = useTranslation();
   const cls = "mr-1 size-3";
   const icon =
-    status === "validated" || status === "posted" ? (
+    status === "posted" ? (
+      <ShieldCheck className={cls} aria-hidden="true" />
+    ) : status === "validated" ? (
       <CheckCircle2 className={cls} aria-hidden="true" />
-    ) : status === "failed" || status === "rejected" ? (
-      <XCircle className={cls} aria-hidden="true" />
-    ) : status === "extracting" ? (
-      <Loader2 className={`${cls} animate-spin`} aria-hidden="true" />
-    ) : status === "extracted" ? (
-      <FileSearch className={cls} aria-hidden="true" />
-    ) : status === "uploaded" ? (
-      <Clock className={cls} aria-hidden="true" />
-    ) : (
+    ) : status === "needs_review" ? (
       <CircleAlert className={cls} aria-hidden="true" />
+    ) : (
+      <FileSearch className={cls} aria-hidden="true" />
     );
   return (
     <Badge tone={TONE[status]}>

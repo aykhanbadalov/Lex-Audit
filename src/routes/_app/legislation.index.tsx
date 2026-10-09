@@ -12,7 +12,6 @@ import {
 import { DataTable } from "@/shared/components/DataTable";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import { useSearchText } from "@/shared/hooks/useSearchText";
 import { formatDate } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
@@ -40,7 +39,7 @@ function LegislationPageContent() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const list = useLegislationList(search);
-  const items = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
+  const items = useMemo(() => list.data?.pages.flatMap((page) => page) ?? [], [list.data]);
 
   const { text, onTextChange } = useSearchText(search.q, (q) => {
     void navigate({ search: (previous) => ({ ...previous, q }), replace: true });
@@ -64,25 +63,16 @@ function LegislationPageContent() {
         ),
       },
       { id: "type", accessorFn: (row) => t(`legislation.type.${row.type}`), header: t("legislation.columns.type") },
-      {
-        accessorKey: "status",
-        header: t("legislation.columns.status"),
-        cell: ({ row }) => (
-          <StatusBadge
-            tone={row.original.status === "in_force" ? "success" : "danger"}
-            label={t(`legislation.status.${row.original.status}`)}
-          />
-        ),
-      },
+      { accessorKey: "officialNumber", header: t("legislation.columns.number") },
       {
         accessorKey: "adoptedAt",
         header: t("legislation.columns.adopted"),
-        cell: ({ row }) => formatDate(row.original.adoptedAt, tag),
+        cell: ({ row }) => (row.original.adoptedAt ? formatDate(row.original.adoptedAt, tag) : "—"),
       },
       {
-        accessorKey: "currentVersionNo",
+        accessorKey: "latestVersionNo",
         header: t("legislation.columns.version"),
-        cell: ({ row }) => `v${row.original.currentVersionNo}`,
+        cell: ({ row }) => `v${row.original.latestVersionNo}`,
       },
     ],
     [t, tag, search],

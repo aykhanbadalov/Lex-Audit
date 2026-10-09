@@ -1,6 +1,54 @@
 import { delay, http, HttpResponse } from "msw";
 import { ALLOWED_EXTENSIONS, extensionOf, MAX_UPLOAD_BYTES } from "@/shared/upload/limits";
 import { addUploadedFile, allFiles, findFile, restartProcessing, toDetail, toRecord, touch } from "../fixtures/files";
+
+type Stored = NonNullable<ReturnType<typeof findFile>>;
+
+/** The backend's file record: short names, archive is a timestamp, the status is the extraction status. */
+function wireRecord(stored: Stored) {
+  const record = toRecord(stored);
+  return {
+    id: record.id,
+    name: record.name,
+    mime: record.mimeType,
+    size: record.sizeBytes,
+    folder: record.folder,
+    tags: record.tags,
+    ownerId: "user-accountant",
+    archivedAt: record.isArchived ? record.updatedAt : null,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    extractionStatus: record.status,
+  };
+}
+
+function wireExtraction(stored: Stored) {
+  const detail = toDetail(stored);
+  return {
+    status: stored.status,
+    detectedKind: "document",
+    error: stored.statusDetail,
+    textLength: detail.extractedTextPreview?.length ?? 0,
+    updatedAt: stored.updatedAt,
+  };
+}
+
+function wireDetail(stored: Stored) {
+  const detail = toDetail(stored);
+  return {
+    ...wireRecord(stored),
+    versions: detail.versions.map((version) => ({
+      id: version.id,
+      versionNo: version.versionNo,
+      sha256: version.sha256,
+      size: version.sizeBytes,
+      mime: stored.mimeType,
+      uploadedBy: "user-accountant",
+      createdAt: version.uploadedAt,
+    })),
+    extraction: wireExtraction(stored),
+  };
+}
 import { apiError, authorize } from "./auth";
 import { parseMultipart } from "../multipart";
 import { apiPath } from "./base";
@@ -17,6 +65,16 @@ export function resetUploadKeys(): void {
   uploadsByKey.clear();
 }
 
+/** Tags arrive as a JSON array or a comma-separated list, like the real backend accepts them. */
+function parseTags(raw: string | undefined): string[] {
+  if (!raw) return [];
+  if (raw.trim().startsWith("[")) return JSON.parse(raw) as string[];
+  return raw
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
 export const filesHandlers = [
   http.get(apiPath("/files"), async ({ request }) => {
     const auth = authorize(request, "files:read");
@@ -25,9 +83,8 @@ export const filesHandlers = [
 
     const params = new URL(request.url).searchParams;
     const q = params.get("q")?.trim();
-    const status = params.get("status");
     const tag = params.get("tag");
-    const archived = params.get("archived") ?? "active";
+    const includeArchived = params.get("includeArchived") === "true";
     const limit = Math.min(Number(params.get("limit") ?? 20) || 20, 100);
     const offset = Number(params.get("cursor") ?? 0) || 0;
 
@@ -35,14 +92,13 @@ export const filesHandlers = [
       .filter(
         (file) =>
           (!q || matches(`${file.name} ${file.tags.join(" ")} ${file.folder}`, q)) &&
-          (!status || file.status === status) &&
           (!tag || file.tags.includes(tag)) &&
-          (archived === "all" || (archived === "archived" ? file.isArchived : !file.isArchived)),
+          (includeArchived || !file.isArchived),
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const next = offset + limit;
     return HttpResponse.json({
-      items: filtered.slice(offset, next).map(toRecord),
+      items: filtered.slice(offset, next).map(wireRecord),
       nextCursor: next < filtered.length ? String(next) : null,
     });
   }),
@@ -57,7 +113,7 @@ export const filesHandlers = [
     const existing = uploadsByKey.get(key);
     if (existing) {
       const found = findFile(existing);
-      if (found) return HttpResponse.json(toRecord(found), { status: 201 });
+      if (found) return HttpResponse.json(wireDetail(found), { status: 201 });
     }
 
     const form = await parseMultipart(request);
@@ -75,10 +131,10 @@ export const filesHandlers = [
       mimeType: upload.type,
       sizeBytes: upload.size,
       folder: form.fields.get("folder")?.[0] || "/",
-      tags: form.fields.get("tags") ?? [],
+      tags: parseTags(form.fields.get("tags")?.[0]),
     });
     uploadsByKey.set(key, created.id);
-    return HttpResponse.json(toRecord(created), { status: 201 });
+    return HttpResponse.json(wireDetail(created), { status: 201 });
   }),
 
   http.get(apiPath("/files/:id/content"), async ({ request, params }) => {
@@ -99,7 +155,7 @@ export const filesHandlers = [
     if ("response" in auth) return auth.response;
     await latency();
     const found = findFile(String(params.id));
-    return found ? HttpResponse.json(toDetail(found)) : apiError(404, "NOT_FOUND", "File not found");
+    return found ? HttpResponse.json(wireDetail(found)) : apiError(404, "NOT_FOUND", "File not found");
   }),
 
   http.patch(apiPath("/files/:id"), async ({ request, params }) => {
@@ -121,7 +177,7 @@ export const filesHandlers = [
     if (body.folder !== undefined) found.folder = body.folder;
     if (body.tags !== undefined) found.tags = body.tags;
     touch(found);
-    return HttpResponse.json(toRecord(found));
+    return HttpResponse.json(wireRecord(found));
   }),
 
   http.post(apiPath("/files/:id/archive"), ({ request, params }) => {
@@ -129,10 +185,9 @@ export const filesHandlers = [
     if ("response" in auth) return auth.response;
     const found = findFile(String(params.id));
     if (!found) return apiError(404, "NOT_FOUND", "File not found");
-    if (found.isArchived) return apiError(409, "CONFLICT", "File is already archived");
     found.isArchived = true;
     touch(found);
-    return HttpResponse.json(toRecord(found));
+    return HttpResponse.json(wireRecord(found));
   }),
 
   http.post(apiPath("/files/:id/restore"), ({ request, params }) => {
@@ -140,10 +195,9 @@ export const filesHandlers = [
     if ("response" in auth) return auth.response;
     const found = findFile(String(params.id));
     if (!found) return apiError(404, "NOT_FOUND", "File not found");
-    if (!found.isArchived) return apiError(409, "CONFLICT", "File is not archived");
     found.isArchived = false;
     touch(found);
-    return HttpResponse.json(toRecord(found));
+    return HttpResponse.json(wireRecord(found));
   }),
 
   http.post(apiPath("/files/:id/reindex"), ({ request, params }) => {
@@ -154,6 +208,6 @@ export const filesHandlers = [
     // A retry of a deliberately failing demo file succeeds, so the "retry" path can be seen working.
     found.name = found.name.replace(/xəta/gi, "düzəldilmiş");
     restartProcessing(found);
-    return HttpResponse.json(toRecord(found), { status: 202 });
+    return HttpResponse.json(wireExtraction(found), { status: 202 });
   }),
 ];

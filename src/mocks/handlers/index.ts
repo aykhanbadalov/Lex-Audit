@@ -3,6 +3,7 @@ import { approvalsHandlers } from "./approvals";
 import { assistantHandlers } from "./assistant";
 import { authHandlers } from "./auth";
 import { filesHandlers } from "./files";
+import { impactHandlers } from "./impact";
 import { invoicesHandlers } from "./invoices";
 import { legislationHandlers } from "./legislation";
 import { newsHandlers } from "./news";
@@ -20,5 +21,6 @@ export const handlers = [
   ...workHandlers,
   ...assistantHandlers,
   ...approvalsHandlers,
+  ...impactHandlers,
   ...adminHandlers,
 ];

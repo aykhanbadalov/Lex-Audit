@@ -1,13 +1,6 @@
 import { z } from "zod";
-import type { components } from "@/api/schema";
 
-export const LEGISLATION_TYPES = [
-  "code",
-  "law",
-  "decree",
-  "cabinet_decision",
-  "standard",
-] as const satisfies readonly components["schemas"]["LegislationType"][];
+export const LEGISLATION_TYPES = ["code", "law", "decree", "cabinet_decision", "standard"] as const;
 
 export const legislationListSearchSchema = z.object({
   q: z.coerce.string().optional().catch(undefined),
@@ -16,11 +9,14 @@ export const legislationListSearchSchema = z.object({
 
 export type LegislationListSearch = z.infer<typeof legislationListSearchSchema>;
 
+/** Versions are named by their number in the URL, the way the backend names them. */
+const versionNo = z.coerce.number().int().positive().optional().catch(undefined);
+
 export const legislationDetailSearchSchema = z.object({
   view: z.enum(["text", "diff"]).optional().catch(undefined),
-  version: z.coerce.string().optional().catch(undefined),
-  from: z.coerce.string().optional().catch(undefined),
-  to: z.coerce.string().optional().catch(undefined),
+  version: versionNo,
+  from: versionNo,
+  to: versionNo,
   showUnchanged: z.boolean().optional().catch(undefined),
 });
 

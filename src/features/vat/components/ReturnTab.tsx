@@ -1,104 +1,82 @@
-import { Download, TriangleAlert } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ErrorState } from "@/shared/components/ErrorState";
-import { LoadingState } from "@/shared/components/LoadingState";
 import { MoneyText } from "@/shared/components/MoneyText";
 import { usePermission } from "@/shared/hooks/usePermission";
-import { formatDateTime } from "@/shared/lib/date";
-import { localeTag } from "@/shared/lib/locale";
-import type { Currency } from "@/shared/lib/money";
 import { Button } from "@/shared/ui/button";
-import { exportVatDraft, useCreateVatDraft, useVatDraft, type ExportFormat, type VatPeriod } from "../api";
+import { downloadDraft, useCreateVatDraft, type VatPeriod } from "../api";
 
-const FORMATS: ExportFormat[] = ["pdf", "xlsx", "xml"];
-
+/** The draft is a CSV for the accountant to check. Nothing is filed from here; filing happens on e-taxes.gov.az. */
 export function ReturnTab({ period }: { period: VatPeriod }) {
-  const { t, i18n } = useTranslation();
-  const draft = useVatDraft(period.id);
-  const create = useCreateVatDraft(period.id);
+  const { t } = useTranslation();
+  const create = useCreateVatDraft(period.period);
   const canWrite = usePermission("vat:write");
-  const [exporting, setExporting] = useState<ExportFormat | null>(null);
-  const locale = localeTag(i18n.language);
+  const [downloading, setDownloading] = useState(false);
+  const draft = create.data;
 
-  async function download(format: ExportFormat) {
-    setExporting(format);
+  async function download() {
+    if (!draft) return;
+    setDownloading(true);
     try {
-      await exportVatDraft(period.id, format);
+      await downloadDraft(draft.draftFileId, period.period, draft.version);
     } catch {
       toast.error(t("vat.return.export.failed"));
     } finally {
-      setExporting(null);
+      setDownloading(false);
     }
   }
-
-  if (draft.isPending) return <LoadingState rows={3} />;
-  if (draft.isError) return <ErrorState message={draft.error.message} onRetry={() => void draft.refetch()} />;
-
-  const data = draft.data;
-  const canPrepare = canWrite && period.status === "open";
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">{t("vat.return.disclaimer")}</p>
+      <p className="text-sm">
+        {(period.latestDraftVersion ?? 0) > 0
+          ? t("vat.return.latest", { version: period.latestDraftVersion ?? 0 })
+          : t("vat.return.none")}
+      </p>
 
-      {data ? (
-        <>
-          <p className="text-sm">
-            {t("vat.return.generated", { date: formatDateTime(data.generatedAt, locale), name: data.generatedByName })}
-          </p>
-          {data.excludedInvoiceCount > 0 ? (
-            <p role="status" className="flex items-start gap-2 text-sm">
-              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden="true" />
-              {t("vat.return.stale", { count: data.excludedInvoiceCount })}
+      {draft ? (
+        <section aria-label={t("vat.tab.return")} className="space-y-3 rounded-lg border bg-card p-4">
+          <p className="text-sm font-medium">{t("vat.return.version", { version: draft.version })}</p>
+          <dl className="grid gap-3 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-muted-foreground">{t("vat.summary.outputVat")}</dt>
+              <dd>
+                <MoneyText amount={draft.summary.outputVat} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">{t("vat.summary.inputVat")}</dt>
+              <dd>
+                <MoneyText amount={draft.summary.inputVat} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">{t("vat.summary.resultPayable")}</dt>
+              <dd className="font-semibold">
+                <MoneyText amount={draft.summary.payable} />
+              </dd>
+            </div>
+          </dl>
+          {!draft.summary.complete ? (
+            <p role="status" className="text-sm">
+              {t("vat.summary.incomplete")}
             </p>
           ) : null}
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <caption className="sr-only">{t("vat.tab.return")}</caption>
-              <tbody>
-                {data.lines.map((line) => (
-                  <tr key={line.code} className="border-t first:border-t-0">
-                    <th scope="row" className="px-3 py-2 text-left font-normal">
-                      {t(`vat.return.line.${line.code}`, { defaultValue: line.code })}
-                    </th>
-                    <td className="px-3 py-2 text-right">
-                      <MoneyText amount={line.amount} currency={data.currency as Currency} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {FORMATS.map((format) => (
-              <Button
-                key={format}
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={exporting !== null}
-                onClick={() => void download(format)}
-              >
-                <Download className="size-4" aria-hidden="true" />
-                {t(`vat.return.export.${format}`)}
-              </Button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <p className="text-sm">{t("vat.return.none")}</p>
-      )}
+          <Button type="button" variant="outline" size="sm" disabled={downloading} onClick={() => void download()}>
+            <Download className="size-4" aria-hidden="true" />
+            {t("vat.return.export.csv")}
+          </Button>
+        </section>
+      ) : null}
 
-      {canPrepare ? (
+      {canWrite ? (
         <Button type="button" onClick={() => create.mutate()} disabled={create.isPending}>
-          {data ? t("vat.return.prepareAgain") : t("vat.return.prepare")}
+          {(period.latestDraftVersion ?? 0) > 0 || draft ? t("vat.return.prepareAgain") : t("vat.return.prepare")}
         </Button>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          {period.status === "filed" ? t("vat.return.filedNote") : t("vat.return.readerNote")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("vat.return.readerNote")}</p>
       )}
     </div>
   );

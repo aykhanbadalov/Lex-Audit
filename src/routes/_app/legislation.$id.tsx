@@ -3,7 +3,7 @@ import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/errors";
 import { AskAssistantLink } from "@/features/assistant/components/AskAssistantLink";
-import { useLegislation, useVersionDiff, useVersionText, type LegislationVersion } from "@/features/legislation/api";
+import { useLegislation, useVersionDiff, useVersions, type LegislationVersion } from "@/features/legislation/api";
 import { DiffView } from "@/features/legislation/components/DiffView";
 import { legislationDetailSearchSchema } from "@/features/legislation/filters";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -11,7 +11,6 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RequirePermission } from "@/shared/components/RequirePermission";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatDate } from "@/shared/lib/date";
 import { localeTag } from "@/shared/lib/locale";
 import { safeExternalUrl } from "@/shared/lib/safeUrl";
@@ -38,19 +37,20 @@ function LegislationDetailPageContent() {
   const { id } = Route.useParams();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const doc = useLegislation(id);
+  const versionsQuery = useVersions(id);
   const listSearch = useLocation({ select: (location) => location.state.fromLegislationSearch });
   const tag = localeTag(i18n.language);
 
-  const versions = doc.data?.versions ?? [];
-  const current = versions[0];
+  // The backend lists versions newest first and names them by number.
+  const versions = versionsQuery.data ?? [];
+  const known = (no: number | undefined) => versions.find((v) => v.versionNo === no);
   const view = search.view ?? "text";
   // Defaults: read the newest version; compare the one before it against the newest.
-  const versionId = versions.some((v) => v.id === search.version) ? search.version : current?.id;
-  const diffTo = versions.some((v) => v.id === search.to) ? search.to : current?.id;
-  const diffFrom = versions.some((v) => v.id === search.from) ? search.from : versions[1]?.id;
-
-  const text = useVersionText(id, view === "text" ? versionId : undefined);
+  const selected = known(search.version) ?? versions[0];
+  const diffTo = known(search.to)?.versionNo ?? versions[0]?.versionNo;
+  const diffFrom = known(search.from)?.versionNo ?? versions[1]?.versionNo;
+  // The text of a version is asked for by the day it came into force.
+  const doc = useLegislation(id, view === "text" ? selected?.validFrom : undefined);
   const diff = useVersionDiff(id, view === "diff" ? diffFrom : undefined, view === "diff" ? diffTo : undefined);
 
   function update(patch: Record<string, unknown>) {
@@ -69,7 +69,7 @@ function LegislationDetailPageContent() {
     </Button>
   );
 
-  if (doc.isPending) {
+  if (versionsQuery.isPending || doc.isPending) {
     return (
       <>
         {back}
@@ -77,22 +77,28 @@ function LegislationDetailPageContent() {
       </>
     );
   }
-  if (doc.isError) {
+  if (versionsQuery.isError || doc.isError) {
+    const failure = doc.error ?? versionsQuery.error;
     return (
       <>
         {back}
-        {doc.error instanceof ApiError && doc.error.code === "NOT_FOUND" ? (
+        {failure instanceof ApiError && failure.code === "NOT_FOUND" ? (
           <EmptyState icon={Scale} title={t("legislation.notFound")} description={t("legislation.notFoundHint")} />
         ) : (
-          <ErrorState message={doc.error.message} onRetry={() => void doc.refetch()} />
+          <ErrorState
+            message={failure?.message ?? ""}
+            onRetry={() => {
+              void doc.refetch();
+              void versionsQuery.refetch();
+            }}
+          />
         )}
       </>
     );
   }
 
   const data = doc.data;
-  const selectedVersion = versions.find((v) => v.id === versionId);
-  const sourceUrl = selectedVersion ? safeExternalUrl(selectedVersion.sourceUrl) : null;
+  const sourceUrl = safeExternalUrl(data.version?.sourceUrl || data.sourceUrl);
   const canCompare = versions.length > 1;
 
   return (
@@ -100,13 +106,7 @@ function LegislationDetailPageContent() {
       {back}
       <PageHeader
         title={data.title}
-        description={`${t(`legislation.type.${data.type}`)} · ${t("legislation.adopted", { date: formatDate(data.adoptedAt, tag) })}`}
-        actions={
-          <StatusBadge
-            tone={data.status === "in_force" ? "success" : "danger"}
-            label={t(`legislation.status.${data.status}`)}
-          />
-        }
+        description={`${t(`legislation.type.${data.type}`, { defaultValue: data.type })} · ${data.officialNumber} · ${t("legislation.adopted", { date: data.adoptedAt ? formatDate(data.adoptedAt, tag) : "—" })}`}
       />
 
       <div className="mb-4">
@@ -134,9 +134,13 @@ function LegislationDetailPageContent() {
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="version">{t("legislation.version")}</Label>
-              <Select id="version" value={versionId} onChange={(event) => update({ version: event.target.value })}>
+              <Select
+                id="version"
+                value={selected?.versionNo}
+                onChange={(event) => update({ version: Number(event.target.value) })}
+              >
                 {versions.map((version) => (
-                  <option key={version.id} value={version.id}>
+                  <option key={version.versionNo} value={version.versionNo}>
                     {describe(version)}
                   </option>
                 ))}
@@ -155,31 +159,26 @@ function LegislationDetailPageContent() {
             ) : null}
           </div>
 
-          {text.isPending ? (
-            <LoadingState />
-          ) : text.isError ? (
-            <ErrorState message={text.error.message} onRetry={() => void text.refetch()} />
-          ) : (
-            <ol className="space-y-4">
-              {text.data.articles.map((article) => (
-                <li key={article.ref} id={`article-${article.ref}`} className="rounded-lg border bg-card p-4">
-                  <h3 className="mb-2 font-medium">
-                    {t("legislation.article", { ref: article.ref })}. {article.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed">{article.text}</p>
-                </li>
+          {/* Plain text on purpose: the text is scraped, never rendered as HTML. */}
+          <div className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
+            {(data.version?.fullText ?? "")
+              .split(/\n{2,}/)
+              .filter(Boolean)
+              .map((paragraph, index) => (
+                <p key={index} className="whitespace-pre-line">
+                  {paragraph}
+                </p>
               ))}
-            </ol>
-          )}
+          </div>
         </section>
       ) : (
         <section aria-label={t("legislation.tab.diff")} className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="from">{t("legislation.compareFrom")}</Label>
-              <Select id="from" value={diffFrom} onChange={(event) => update({ from: event.target.value })}>
+              <Select id="from" value={diffFrom} onChange={(event) => update({ from: Number(event.target.value) })}>
                 {versions.map((version) => (
-                  <option key={version.id} value={version.id}>
+                  <option key={version.versionNo} value={version.versionNo}>
                     {describe(version)}
                   </option>
                 ))}
@@ -187,9 +186,9 @@ function LegislationDetailPageContent() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="to">{t("legislation.compareTo")}</Label>
-              <Select id="to" value={diffTo} onChange={(event) => update({ to: event.target.value })}>
+              <Select id="to" value={diffTo} onChange={(event) => update({ to: Number(event.target.value) })}>
                 {versions.map((version) => (
-                  <option key={version.id} value={version.id}>
+                  <option key={version.versionNo} value={version.versionNo}>
                     {describe(version)}
                   </option>
                 ))}
@@ -213,7 +212,7 @@ function LegislationDetailPageContent() {
           ) : diff.isError ? (
             <ErrorState message={diff.error.message} onRetry={() => void diff.refetch()} />
           ) : (
-            <DiffView articles={diff.data.articles} showUnchanged={search.showUnchanged ?? false} />
+            <DiffView hunks={diff.data.hunks} showUnchanged={search.showUnchanged ?? false} />
           )}
         </section>
       )}

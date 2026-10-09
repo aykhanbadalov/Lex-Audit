@@ -37,7 +37,7 @@ const JOB_TONE: Record<ExcelJob["status"], BadgeTone> = {
 function WorkbookPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="excel:read">
+    <RequirePermission permission="excel:use">
       <WorkbookContent />
     </RequirePermission>
   );
@@ -72,7 +72,7 @@ function WorkbookContent() {
 
 function WorkbookView({ workbook }: { workbook: WorkbookDetail }) {
   const { t } = useTranslation();
-  const canWrite = usePermission("excel:write");
+  const canWrite = usePermission("excel:use");
   const ready = workbook.status === "ready";
   return (
     <article className="space-y-8">

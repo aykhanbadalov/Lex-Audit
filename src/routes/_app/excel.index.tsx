@@ -26,7 +26,7 @@ const TONE: Record<Workbook["status"], BadgeTone> = {
 function ExcelPage() {
   // Gate first: the content below calls the API, which must not happen for a screen the user cannot open.
   return (
-    <RequirePermission permission="excel:read">
+    <RequirePermission permission="excel:use">
       <ExcelPageContent />
     </RequirePermission>
   );
@@ -34,7 +34,7 @@ function ExcelPage() {
 
 function ExcelPageContent() {
   const { t, i18n } = useTranslation();
-  const canWrite = usePermission("excel:write");
+  const canWrite = usePermission("excel:use");
   const list = useWorkbooks();
   const tag = localeTag(i18n.language);
 
