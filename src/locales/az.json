@@ -42,11 +42,7 @@
     "invalidCode": "Kod yanlışdır",
     "tooManyAttempts": "Çox cəhd edildi. Bir dəqiqə gözləyib yenidən yoxlayın.",
     "demoEmail": "Demo e-poçt",
-    "demoPassword": "Demo şifrə",
-    "tagline": "Mühasibatlıq və uyğunluq bir yerdə",
-    "point1": "Qaimələr, ƏDV və jurnal qeydləri bir sistemdə",
-    "point2": "Azərbaycan qanunvericiliyinə əsaslanan AI köməkçi",
-    "point3": "Təsdiq axını və tam audit izi"
+    "demoPassword": "Demo şifrə"
   },
   "dashboard": {
     "title": "Bu gün",

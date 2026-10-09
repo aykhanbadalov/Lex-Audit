@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Check } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -88,30 +87,14 @@ function LoginPage() {
   const labelClass = "block text-sm font-medium";
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
-        <p className="text-xl font-semibold">{t("app.name")}</p>
-        <div className="max-w-md space-y-8">
-          <h2 className="text-3xl leading-tight font-semibold">{t("auth.tagline")}</h2>
-          <ul className="space-y-4 text-base text-primary-foreground/80">
-            {(["point1", "point2", "point3"] as const).map((key) => (
-              <li key={key} className="flex items-start gap-3">
-                <Check className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-                <span>{t(`auth.${key}`)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <p className="text-sm text-primary-foreground/60">© {new Date().getFullYear()} LexAudit AI</p>
-      </aside>
-
-      <section className="relative flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-dvh">
+      <section className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-16">
         <div className="absolute top-4 right-4 md:top-6 md:right-6">
           <LanguageSwitcher />
         </div>
 
         <div className="w-full max-w-sm">
-          <p className="mb-10 text-lg font-semibold lg:hidden">{t("app.name")}</p>
+          <p className="mb-10 text-lg font-semibold">{t("app.name")}</p>
           <header className="mb-8 space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">{t("auth.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
