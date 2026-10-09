@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { AppProviders } from "@/app/providers";
+import { initTheme } from "@/shared/stores/themeStore";
 import "@/styles/globals.css";
 
 async function enableMocking(): Promise<void> {
@@ -10,6 +11,8 @@ async function enableMocking(): Promise<void> {
   const { worker } = await import("@/mocks/browser");
   await worker.start({ onUnhandledFrame: "bypass" });
 }
+
+initTheme();
 
 const root = document.getElementById("root");
 if (!root) {

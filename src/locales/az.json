@@ -12,7 +12,14 @@
     "news": "Xəbərlər",
     "assistant": "AI Assistent",
     "approvals": "Təsdiqlər",
-    "admin": "Tənzimləmələr"
+    "admin": "Tənzimləmələr",
+    "main": "Əsas naviqasiya",
+    "skip": "Məzmuna keç",
+    "groups": {
+      "work": "İş",
+      "knowledge": "Bilik",
+      "governance": "İdarəetmə"
+    }
   },
   "auth": {
     "title": "Daxil ol",
@@ -29,13 +36,45 @@
   "dashboard": {
     "title": "Bu gün",
     "welcome": "Xoş gəldiniz, {{name}}",
-    "placeholder": "Dashboard F5–F8 mərhələlərində doldurulacaq."
+    "placeholder": "Dashboard F5–F8 mərhələlərində doldurulacaq.",
+    "overview": "İcmal"
   },
   "errors": {
     "notFound": "Səhifə tapılmadı",
     "forbidden": "Bu bölməyə giriş icazəniz yoxdur",
     "retry": "Yenidən cəhd et",
-    "generic": "Xəta baş verdi"
+    "generic": "Xəta baş verdi",
+    "forbiddenHint": "Giriş üçün administratorla əlaqə saxlayın."
   },
-  "language": "Dil"
+  "language": "Dil",
+  "theme": {
+    "label": "Tema",
+    "light": "Açıq",
+    "dark": "Qaranlıq",
+    "system": "Sistem"
+  },
+  "common": {
+    "cancel": "Ləğv et",
+    "confirm": "Təsdiq et",
+    "save": "Yadda saxla",
+    "close": "Bağla"
+  },
+  "table": {
+    "noResults": "Nəticə tapılmadı",
+    "noResultsHint": "Axtarışı və ya filtrləri dəyişib yenidən yoxlayın."
+  },
+  "placeholder": {
+    "title": "Bu bölmə hazırlanır",
+    "description": "Bölmə {{phase}} mərhələsində əlavə olunacaq."
+  },
+  "modules": {
+    "invoices": "E-qaimə və sənədlərin yüklənməsi, oxunması və yoxlanması",
+    "vat": "ƏDV hesablaması, depozit hesabı uzlaşdırması və bəyannamə qaralaması",
+    "ledger": "Jurnal yazılışları və hesablar planı",
+    "excel": "Excel cədvəllərinin təhlili, təmizlənməsi və hesabatlar",
+    "news": "Qanunvericilik xəbərləri və dəyişikliklərin şirkətə təsiri",
+    "assistant": "Mənbə göstərən AI köməkçi",
+    "approvals": "Təsdiq gözləyən əməliyyatlar",
+    "admin": "İstifadəçilər, rollar, mənbələr və model idarəetməsi"
+  }
 }

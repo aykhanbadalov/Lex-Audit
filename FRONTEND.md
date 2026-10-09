@@ -37,7 +37,8 @@ Frontend **heç bir biznes qərarı vermir**: hesablama, icazə və AI çağır�
 | Stil | **Tailwind CSS 4** | Dizayn tokenləri |
 | İkonlar | **lucide-react** | |
 | Formalar | **react-hook-form** + **zod** | Validasiya sxemi API kontraktı ilə eyni |
-| Cədvəl | **TanStack Table** + **TanStack Virtual** | Böyük qaimə/Excel siyahıları |
+| Cədvəl | **TanStack Table v8** + **TanStack Virtual** | Böyük qaimə/Excel siyahıları. v9 hələ dəyişkən API-dir, ona görə v8-ə pin olunub |
+| Bildirişlər | **sonner** (toast) | |
 | Excel önbaxış | **SheetJS (xlsx)** — yalnız oxumaq üçün; ağır iş backend-də | |
 | PDF önbaxış | **react-pdf** (pdf.js) | Qaimə PDF-ləri |
 | Diaqram | **Recharts** | Dashboard |
@@ -46,7 +47,7 @@ Frontend **heç bir biznes qərarı vermir**: hesablama, icazə və AI çağır�
 | API client | **openapi-typescript** + **openapi-fetch** | Tiplər backend-in OpenAPI sxemindən avtomatik |
 | Mock | **MSW** (Mock Service Worker) | Backend hazır olmadan işləmək |
 | Test | **Vitest**, **React Testing Library**, **Playwright** | |
-| Lint/format | **ESLint** (typescript-eslint, react-hooks), **Prettier** | |
+| Lint/format | **ESLint** (typescript-eslint, react-hooks), **Prettier** | TypeScript 6.x-ə pin olunub: typescript-eslint hələ 7-ni dəstəkləmir |
 | Paket meneceri | **pnpm** | Sürətli, sərt dependency idarəsi |
 
 ---

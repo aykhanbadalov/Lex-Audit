@@ -5,6 +5,17 @@ type User = components["schemas"]["User"];
 
 const DEMO_PASSWORD = "demo1234";
 
+const ACCOUNTANT_PERMISSIONS = [
+  "dashboard:view",
+  "invoices:read",
+  "invoices:write",
+  "vat:read",
+  "ledger:read",
+  "excel:read",
+  "news:read",
+  "assistant:use",
+];
+
 export const mockUsers: Record<string, User> = {
   "muhasib@lexaudit.test": {
     id: "user-accountant",
@@ -12,7 +23,7 @@ export const mockUsers: Record<string, User> = {
     name: "Aygün Məmmədova",
     email: "muhasib@lexaudit.test",
     role: "accountant",
-    permissions: ["dashboard:view", "invoices:read", "invoices:write", "news:read", "assistant:use"],
+    permissions: ACCOUNTANT_PERMISSIONS,
   },
   "bas.muhasib@lexaudit.test": {
     id: "user-chief",
@@ -20,14 +31,15 @@ export const mockUsers: Record<string, User> = {
     name: "Elçin Həsənov",
     email: "bas.muhasib@lexaudit.test",
     role: "chief_accountant",
-    permissions: [
-      "dashboard:view",
-      "invoices:read",
-      "invoices:write",
-      "news:read",
-      "assistant:use",
-      "approvals:decide",
-    ],
+    permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read", "approvals:decide"],
+  },
+  "admin@lexaudit.test": {
+    id: "user-admin",
+    companyId: "company-demo",
+    name: "Nigar Quliyeva",
+    email: "admin@lexaudit.test",
+    role: "admin",
+    permissions: [...ACCOUNTANT_PERMISSIONS, "approvals:read", "approvals:decide", "admin:manage"],
   },
 };
 

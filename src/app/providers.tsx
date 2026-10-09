@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import { ApiError } from "@/api/errors";
 import { router } from "./router";
 import "./i18n";
@@ -19,6 +20,7 @@ export function AppProviders() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster richColors closeButton />
     </QueryClientProvider>
   );
 }

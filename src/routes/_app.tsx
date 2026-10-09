@@ -1,6 +1,9 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { NAV_GROUPS, visibleNavItems } from "@/app/navigation";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
+import { ThemeToggle } from "@/shared/components/ThemeToggle";
 import { isAuthenticated, useAuthStore } from "@/shared/stores/authStore";
 import { Button } from "@/shared/ui/button";
 
@@ -19,6 +22,7 @@ function AppLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const items = visibleNavItems(user?.permissions ?? []);
 
   async function logout() {
     useAuthStore.getState().clear();
@@ -26,24 +30,53 @@ function AppLayout() {
   }
 
   return (
-    <div className="grid min-h-dvh grid-cols-[14rem_1fr]">
-      <aside className="flex flex-col gap-4 border-r border-sidebar-border bg-sidebar p-4">
-        <p className="font-semibold">{t("app.name")}</p>
-        <nav aria-label="Main" className="flex flex-col gap-1 text-sm">
-          <Link to="/dashboard" className="rounded-md px-2 py-1.5 hover:bg-sidebar-accent [&.active]:font-medium">
-            {t("nav.dashboard")}
-          </Link>
-        </nav>
+    <div className="grid min-h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] md:grid-cols-[15rem_minmax(0,1fr)] md:grid-rows-none">
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-md bg-background p-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        {t("nav.skip")}
+      </a>
+
+      <aside className="min-w-0 border-b border-sidebar-border bg-sidebar text-sidebar-foreground md:border-r md:border-b-0">
+        <div className="flex flex-col gap-4 p-4 md:sticky md:top-0 md:h-dvh md:overflow-y-auto">
+          <p className="text-lg font-semibold">{t("app.name")}</p>
+          <nav aria-label={t("nav.main")} className="flex gap-4 overflow-x-auto md:flex-col md:gap-5">
+            {NAV_GROUPS.map((group) => {
+              const groupItems = items.filter((item) => item.group === group);
+              if (groupItems.length === 0) return null;
+              return (
+                <ul key={group} className="flex gap-1 md:flex-col" aria-label={t(`nav.groups.${group}`)}>
+                  {groupItems.map(({ to, labelKey, icon: Icon }) => (
+                    <li key={to}>
+                      <Link
+                        to={to}
+                        className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap hover:bg-sidebar-accent focus-visible:outline-2 focus-visible:outline-ring"
+                        activeProps={{ className: "bg-sidebar-accent font-medium", "aria-current": "page" }}
+                      >
+                        <Icon className="size-4 shrink-0" aria-hidden="true" />
+                        {t(labelKey)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })}
+          </nav>
+        </div>
       </aside>
+
       <div className="flex min-w-0 flex-col">
-        <header className="flex items-center justify-end gap-3 border-b px-6 py-3">
+        <header className="flex flex-wrap items-center justify-end gap-3 border-b px-4 py-3 md:px-6">
           <LanguageSwitcher />
+          <ThemeToggle />
           <span className="text-sm text-muted-foreground">{user?.name}</span>
           <Button variant="outline" size="sm" onClick={logout}>
+            <LogOut className="size-4" aria-hidden="true" />
             {t("auth.logout")}
           </Button>
         </header>
-        <main className="p-6">
+        <main id="main" tabIndex={-1} className="p-4 md:p-6">
           <Outlet />
         </main>
       </div>

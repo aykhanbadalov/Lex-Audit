@@ -12,7 +12,14 @@
     "news": "News",
     "assistant": "AI Assistant",
     "approvals": "Approvals",
-    "admin": "Settings"
+    "admin": "Settings",
+    "main": "Main navigation",
+    "skip": "Skip to content",
+    "groups": {
+      "work": "Work",
+      "knowledge": "Knowledge",
+      "governance": "Governance"
+    }
   },
   "auth": {
     "title": "Sign in",
@@ -29,13 +36,45 @@
   "dashboard": {
     "title": "Today",
     "welcome": "Welcome, {{name}}",
-    "placeholder": "The dashboard will be filled in during phases F5–F8."
+    "placeholder": "The dashboard will be filled in during phases F5–F8.",
+    "overview": "Overview"
   },
   "errors": {
     "notFound": "Page not found",
     "forbidden": "You do not have access to this section",
     "retry": "Try again",
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "forbiddenHint": "Contact your administrator to request access."
   },
-  "language": "Language"
+  "language": "Language",
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "close": "Close"
+  },
+  "table": {
+    "noResults": "No results found",
+    "noResultsHint": "Change your search or filters and try again."
+  },
+  "placeholder": {
+    "title": "This section is under construction",
+    "description": "It will be added in phase {{phase}}."
+  },
+  "modules": {
+    "invoices": "Upload, read and validate e-invoices and documents",
+    "vat": "VAT calculation, deposit account reconciliation and return draft",
+    "ledger": "Journal entries and chart of accounts",
+    "excel": "Analyse, clean and report on Excel spreadsheets",
+    "news": "Legislation news and its impact on the company",
+    "assistant": "AI assistant that cites its sources",
+    "approvals": "Operations awaiting approval",
+    "admin": "Users, roles, sources and model management"
+  }
 }

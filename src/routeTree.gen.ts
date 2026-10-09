@@ -12,7 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AppAdminRouteImport } from './routes/_app/admin'
+import { Route as AppApprovalsRouteImport } from './routes/_app/approvals'
+import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppExcelRouteImport } from './routes/_app/excel'
+import { Route as AppInvoicesRouteImport } from './routes/_app/invoices'
+import { Route as AppLedgerRouteImport } from './routes/_app/ledger'
+import { Route as AppNewsRouteImport } from './routes/_app/news'
+import { Route as AppVatRouteImport } from './routes/_app/vat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +36,134 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppApprovalsRoute = AppApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssistantRoute = AppAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExcelRoute = AppExcelRouteImport.update({
+  id: '/excel',
+  path: '/excel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicesRoute = AppInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLedgerRoute = AppLedgerRouteImport.update({
+  id: '/ledger',
+  path: '/ledger',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVatRoute = AppVatRouteImport.update({
+  id: '/vat',
+  path: '/vat',
   getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin': typeof AppAdminRoute
+  '/approvals': typeof AppApprovalsRoute
+  '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
+  '/excel': typeof AppExcelRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/ledger': typeof AppLedgerRoute
+  '/news': typeof AppNewsRoute
+  '/vat': typeof AppVatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin': typeof AppAdminRoute
+  '/approvals': typeof AppApprovalsRoute
+  '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
+  '/excel': typeof AppExcelRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/ledger': typeof AppLedgerRoute
+  '/news': typeof AppNewsRoute
+  '/vat': typeof AppVatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/admin': typeof AppAdminRoute
+  '/_app/approvals': typeof AppApprovalsRoute
+  '/_app/assistant': typeof AppAssistantRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/excel': typeof AppExcelRoute
+  '/_app/invoices': typeof AppInvoicesRoute
+  '/_app/ledger': typeof AppLedgerRoute
+  '/_app/news': typeof AppNewsRoute
+  '/_app/vat': typeof AppVatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/admin'
+    | '/approvals'
+    | '/assistant'
+    | '/dashboard'
+    | '/excel'
+    | '/invoices'
+    | '/ledger'
+    | '/news'
+    | '/vat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard'
-  id: '__root__' | '/' | '/_app' | '/login' | '/_app/dashboard'
+  to:
+    | '/'
+    | '/login'
+    | '/admin'
+    | '/approvals'
+    | '/assistant'
+    | '/dashboard'
+    | '/excel'
+    | '/invoices'
+    | '/ledger'
+    | '/news'
+    | '/vat'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/login'
+    | '/_app/admin'
+    | '/_app/approvals'
+    | '/_app/assistant'
+    | '/_app/dashboard'
+    | '/_app/excel'
+    | '/_app/invoices'
+    | '/_app/ledger'
+    | '/_app/news'
+    | '/_app/vat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +195,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/approvals': {
+      id: '/_app/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof AppApprovalsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/assistant': {
+      id: '/_app/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AppAssistantRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -95,15 +223,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/excel': {
+      id: '/_app/excel'
+      path: '/excel'
+      fullPath: '/excel'
+      preLoaderRoute: typeof AppExcelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoices': {
+      id: '/_app/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AppInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ledger': {
+      id: '/_app/ledger'
+      path: '/ledger'
+      fullPath: '/ledger'
+      preLoaderRoute: typeof AppLedgerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/news': {
+      id: '/_app/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof AppNewsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/vat': {
+      id: '/_app/vat'
+      path: '/vat'
+      fullPath: '/vat'
+      preLoaderRoute: typeof AppVatRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
+  AppApprovalsRoute: typeof AppApprovalsRoute
+  AppAssistantRoute: typeof AppAssistantRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppExcelRoute: typeof AppExcelRoute
+  AppInvoicesRoute: typeof AppInvoicesRoute
+  AppLedgerRoute: typeof AppLedgerRoute
+  AppNewsRoute: typeof AppNewsRoute
+  AppVatRoute: typeof AppVatRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
+  AppApprovalsRoute: AppApprovalsRoute,
+  AppAssistantRoute: AppAssistantRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppExcelRoute: AppExcelRoute,
+  AppInvoicesRoute: AppInvoicesRoute,
+  AppLedgerRoute: AppLedgerRoute,
+  AppNewsRoute: AppNewsRoute,
+  AppVatRoute: AppVatRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
