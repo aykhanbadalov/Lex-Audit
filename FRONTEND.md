@@ -1,13 +1,13 @@
 # LexAudit AI — Frontend Planı
 
-> Bu qovluq (`frontend/`) masaüstü tətbiqin bütün UI kodunu saxlayacaq.
+> Bu qovluq (`frontend/`) veb tətbiqin (brauzerdə işləyən SPA) bütün UI kodunu saxlayacaq.
 > Backend: [`../backend/BACKEND.md`](../backend/BACKEND.md) · Model: [`../model-training/MODEL_TRAINING.md`](../model-training/MODEL_TRAINING.md) · Köhnə kodun səhvləri: [`../audit.md`](../audit.md)
 
 ---
 
 ## 1. Məqsəd
 
-Mühasib, auditor və compliance mütəxəssisi üçün masaüstü tətbiq:
+Mühasib, auditor və compliance mütəxəssisi üçün veb tətbiq (brauzerdə işləyir, quraşdırma tələb etmir):
 
 - Elektron qaimə-fakturaları (e-qaimə), e-kassa çeklərini və skan sənədləri yükləmək, AI ilə oxumaq, ƏDV-ni yoxlamaq
 - ƏDV depozit hesabı çıxarışı ilə uzlaşdırma
@@ -27,23 +27,27 @@ Frontend **heç bir biznes qərarı vermir**: hesablama, icazə və AI çağır�
 
 | Sahə | Seçim | Səbəb |
 |---|---|---|
-| Desktop qabığı | **Tauri 2** | Yüngül, təhlükəsiz, Rust |
-| UI framework | **Vue 3** (Composition API, `<script setup>`) | Komanda təcrübəsi |
 | Dil | **TypeScript** (strict) | Kontrakt təhlükəsizliyi |
-| Build | **Vite** | Sürət |
+| UI framework | **React 19** | Ən geniş ekosistem, developer tapmaq asandır |
+| Build | **Vite** | Sürət; statik SPA build (SSR lazım deyil) |
+| Routing | **TanStack Router** | Tip təhlükəsiz route və query parametrləri |
+| Server state | **TanStack Query** | Keş, retry, invalidasiya |
+| UI state | **Zustand** | Yalnız qlobal UI vəziyyəti üçün (sidebar, tema, aktiv şirkət) |
+| UI komponentləri | **shadcn/ui** + **Radix UI** | Əlçatan (a11y), kodu bizdə olan komponentlər |
 | Stil | **Tailwind CSS 4** | Dizayn tokenləri |
-| State | **Pinia** | Sadə store-lar |
-| Server state | **TanStack Query (Vue Query)** | Keş, retry, invalidasiya |
-| Router | **vue-router 4** | |
-| i18n | **vue-i18n** — `az` (əsas), `ru`, `en` | Azərbaycan bazarı |
-| Formalar | **VeeValidate + Zod** | Kontraktla eyni sxem |
-| Cədvəl | **TanStack Table** + virtual scroll | Böyük qaimə/Excel siyahıları |
-| Excel önbaxış | **SheetJS (xlsx)** yalnız oxumaq üçün; ağır iş backend-də | |
-| PDF önbaxış | **pdf.js** | Qaimə PDF-ləri |
-| Diaqram | **ECharts** və ya **Chart.js** | Dashboard |
-| Test | **Vitest**, **Vue Test Utils**, **Playwright** (e2e) | |
-| Lint/format | **ESLint**, **Prettier**, `vue-tsc` | |
-| API tipləri | **openapi-typescript** — backend OpenAPI-dən avtomatik tip | Kontrakt sinxronluğu |
+| İkonlar | **lucide-react** | |
+| Formalar | **react-hook-form** + **zod** | Validasiya sxemi API kontraktı ilə eyni |
+| Cədvəl | **TanStack Table** + **TanStack Virtual** | Böyük qaimə/Excel siyahıları |
+| Excel önbaxış | **SheetJS (xlsx)** — yalnız oxumaq üçün; ağır iş backend-də | |
+| PDF önbaxış | **react-pdf** (pdf.js) | Qaimə PDF-ləri |
+| Diaqram | **Recharts** | Dashboard |
+| Markdown (AI cavabları) | **react-markdown** + **rehype-sanitize** | Təhlükəsiz render |
+| i18n | **react-i18next** — `az` (əsas), `ru`, `en` | Azərbaycan bazarı |
+| API client | **openapi-typescript** + **openapi-fetch** | Tiplər backend-in OpenAPI sxemindən avtomatik |
+| Mock | **MSW** (Mock Service Worker) | Backend hazır olmadan işləmək |
+| Test | **Vitest**, **React Testing Library**, **Playwright** | |
+| Lint/format | **ESLint** (typescript-eslint, react-hooks), **Prettier** | |
+| Paket meneceri | **pnpm** | Sürətli, sərt dependency idarəsi |
 
 ---
 
@@ -53,29 +57,29 @@ Frontend **heç bir biznes qərarı vermir**: hesablama, icazə və AI çağır�
 frontend/
 ├── FRONTEND.md                  # bu sənəd
 ├── package.json
+├── pnpm-lock.yaml
 ├── vite.config.ts
 ├── tsconfig.json
 ├── index.html
-├── .env.example                 # VITE_API_BASE_URL, VITE_DEFAULT_LOCALE
+├── components.json              # shadcn/ui konfiqurasiyası
+├── .env.example                 # VITE_API_BASE_URL, VITE_DEFAULT_LOCALE, VITE_ENABLE_MSW
 ├── public/
-├── src-tauri/                   # Tauri qabığı (minimal Rust: fayl dialoqu, keş, secure storage)
-│   ├── tauri.conf.json          # CSP aktiv, minWidth 1280×800
-│   ├── capabilities/default.json
-│   └── src/
-│       ├── main.rs
-│       └── commands/            # yalnız OS işləri: open_file, save_file, keychain
+│   └── mockServiceWorker.js
 ├── src/
-│   ├── main.ts
-│   ├── App.vue
+│   ├── main.tsx
 │   ├── app/
-│   │   ├── router/              # routes.ts, guards.ts, routeMeta.ts
-│   │   ├── layouts/             # AppLayout.vue, AuthLayout.vue
-│   │   └── providers/           # i18n.ts, query.ts, pinia.ts, api.ts
+│   │   ├── router.tsx           # TanStack Router: route ağacı, guard-lar
+│   │   ├── providers.tsx        # QueryClient, i18n, theme, auth provider
+│   │   └── layouts/             # AppLayout.tsx, AuthLayout.tsx
 │   ├── api/
-│   │   ├── client.ts            # fetch wrapper: base URL, token, refresh, error mapping
+│   │   ├── client.ts            # openapi-fetch: base URL, token, refresh, error mapping
 │   │   ├── sse.ts               # chat streaming üçün SSE client
-│   │   ├── generated/           # openapi-typescript çıxışı (əl ilə dəyişilmir)
+│   │   ├── schema.d.ts          # openapi-typescript çıxışı (əl ilə dəyişilmir)
 │   │   └── errors.ts            # ApiError, xəta kodları
+│   ├── mocks/
+│   │   ├── browser.ts           # MSW start
+│   │   ├── handlers/            # modul üzrə mock handler-lər
+│   │   └── fixtures/            # realistik test məlumatı
 │   ├── features/
 │   │   ├── auth/
 │   │   ├── dashboard/
@@ -93,29 +97,29 @@ frontend/
 │   │   ├── audit-log/           # Audit jurnalı
 │   │   └── admin/               # İstifadəçilər, rollar, mənbələr, model versiyaları
 │   ├── shared/
-│   │   ├── components/          # UiButton, UiTable, UiModal, EmptyState, ErrorState, ...
-│   │   ├── composables/         # usePermission, useTheme, useMoney, useDebounce
-│   │   ├── utils/               # money.ts (decimal string formatlama), date.ts
-│   │   └── types/
+│   │   ├── ui/                  # shadcn/ui komponentləri (Button, Dialog, Table, ...)
+│   │   ├── components/          # EmptyState, ErrorState, PermissionDenied, DataTable, MoneyText ...
+│   │   ├── hooks/               # usePermission, useTheme, useDebounce
+│   │   ├── stores/              # Zustand store-lar
+│   │   └── lib/                 # money.ts (decimal string formatlama), date.ts, cn.ts
 │   ├── locales/
 │   │   ├── az.json
 │   │   ├── ru.json
 │   │   └── en.json
 │   └── styles/
 └── tests/
-    ├── unit/
-    └── e2e/
+    └── e2e/                     # Playwright
 ```
 
 Hər `features/<ad>/` daxilində eyni struktur:
 
 ```
 features/invoices/
-├── api.ts            # bu modulun endpoint çağırışları (Vue Query hook-ları)
+├── api.ts            # bu modulun TanStack Query hook-ları (useInvoices, useUpdateInvoice ...)
 ├── types.ts          # generated tiplərdən re-export / UI tipləri
-├── pages/
+├── routes/           # səhifə komponentləri
 ├── components/
-├── stores/           # yalnız UI state lazım olarsa
+├── schemas.ts        # zod form sxemləri
 └── __tests__/
 ```
 
@@ -126,7 +130,7 @@ features/invoices/
 ### 4.1 Auth
 - **Route:** `/login`, `/forgot-password`
 - Email + şifrə, sonra (istəyə bağlı) 2FA.
-- Token: access token yaddaşda (memory), refresh token Tauri secure storage-da (keychain). `localStorage`/`sessionStorage`-da token **saxlanmır** (audit A-02).
+- Token: access token yalnız yaddaşda (memory); refresh token backend tərəfindən `HttpOnly; Secure; SameSite=Strict` cookie kimi qoyulur — JS ona çata bilmir. `localStorage`/`sessionStorage`-da token **saxlanmır** (audit A-02).
 - 401 → avtomatik refresh → uğursuzsa login-ə yönləndir (audit A-07).
 
 ### 4.2 Dashboard (`/`)
@@ -230,8 +234,8 @@ features/invoices/
 | `auditor` | Hər şeyi oxumaq, audit jurnalı, export; yazma yox |
 | `admin` | İstifadəçi, mənbə, dərəcə, model idarəetməsi |
 
-- `usePermission('invoices:write')` composable yalnız UI üçündür; **əsl yoxlama backend-dədir**.
-- Route guard: `meta.permissions` + `requiresAuth` — hər ikisi həmişə yoxlanır (audit A-11).
+- `usePermission('invoices:write')` hook-u yalnız UI üçündür; **əsl yoxlama backend-dədir**.
+- Route guard (TanStack Router `beforeLoad`): `permissions` + `requiresAuth` — hər ikisi həmişə yoxlanır (audit A-11).
 
 ---
 
@@ -254,10 +258,12 @@ features/invoices/
 
 ## 8. Təhlükəsizlik
 
-- Sərt CSP: `default-src 'self'; connect-src 'self' <API_URL>; img-src 'self' data: blob:` (audit A-06)
-- Tauri capability-ləri minimum: yalnız `dialog:open`, `dialog:save`, `opener` (yalnız http/https), secure storage
-- `v-html` qadağandır; AI cavabları markdown → sanitizasiya olunmuş render (DOMPurify)
-- Token heç vaxt `localStorage`-da saxlanmır
+- Sərt CSP veb serverin başlığı ilə: `default-src 'self'; connect-src 'self'; img-src 'self' data: blob:; frame-ancestors 'none'` (audit A-06)
+- Frontend və API eyni origin-dən verilir (reverse proxy: `/` → statik build, `/api` → backend) — CORS problemi və cookie riskləri azalır
+- Digər başlıqlar: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin`
+- `dangerouslySetInnerHTML` qadağandır (ESLint qaydası); AI cavabları `react-markdown` + `rehype-sanitize` ilə
+- Token heç vaxt `localStorage`-da saxlanmır; refresh cookie üçün CSRF qorunması (SameSite + `X-CSRF-Token`)
+- Xarici linklər `rel="noopener noreferrer"`, yalnız `http/https`
 
 ---
 
@@ -274,8 +280,8 @@ features/invoices/
 
 | Səviyyə | Alət | Nə yoxlanır |
 |---|---|---|
-| Unit | Vitest | `money.ts`, guard-lar, composable-lar, store-lar |
-| Komponent | Vue Test Utils | Qaimə formu, təsdiq kartı (icazəsiz gizlidir), cədvəllər |
+| Unit | Vitest | `money.ts`, guard-lar, hook-lar, Zustand store-lar |
+| Komponent | React Testing Library | Qaimə formu, təsdiq kartı (icazəsiz gizlidir), cədvəllər |
 | Kontrakt | MSW + generated tiplər | API cavablarının sxemə uyğunluğu |
 | E2E | Playwright | Login → qaimə yüklə → düzəlt → təsdiqə göndər → chief təsdiqləyir |
 | Vizual | Playwright screenshot | Əsas ekranlar, açıq/qaranlıq tema |
@@ -286,7 +292,7 @@ features/invoices/
 
 | # | Addım | Nəticə |
 |---|---|---|
-| F1 | Layihə skeleti, Tauri, CSP, lint, test, CI | Boş tətbiq açılır |
+| F1 | Layihə skeleti: Vite + React + TS, Tailwind, shadcn/ui, router, lint, test, CI | Boş tətbiq açılır |
 | F2 | Dizayn sistemi + layout + i18n (az/ru/en) | Shared komponentlər |
 | F3 | API client, generated tiplər, MSW mock | Backend olmadan işləmək |
 | F4 | Auth + rollar + guard-lar | Login, refresh, icazələr |
@@ -298,13 +304,13 @@ features/invoices/
 | F10 | AI Assistent (SSE, mənbələr, alətlər, feedback) | |
 | F11 | Təsdiqlər + audit jurnalı | |
 | F12 | Admin + model idarəetməsi | |
-| F13 | E2E testlər, a11y, performans, release build | |
+| F13 | E2E testlər, a11y, performans, production build + deploy (statik hosting) | |
 
 ---
 
 ## 12. Qəbul meyarları (Definition of Done)
 
-- `vue-tsc`, ESLint, Vitest, Playwright CI-da yaşıl
+- `tsc --noEmit`, ESLint, Vitest, Playwright CI-da yaşıl
 - Hər ekranda 7 UI vəziyyəti var
 - Heç bir sabit (hardcoded) məlumat yoxdur, hamısı API-dən
 - Bütün mətnlər i18n-dədir
