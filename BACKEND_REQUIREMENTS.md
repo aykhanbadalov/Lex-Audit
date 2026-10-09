@@ -218,3 +218,21 @@ See `openapi.yaml` (`/excel/...`, `/reconciliations`, `/imports`, `/exports/onec
 - ❓ Retention, tamper-evidence (hash chain or WORM storage) and who may export are open; the log must outlive the data it describes.
 - ❓ Event `action` strings are a contract with the frontend (translated as `audit.action.<action with . replaced by _>`); unknown
   actions are shown raw, so adding new ones is safe.
+
+## 12. Admin (phase F12)
+
+- ✅ Everything under `/admin/*` needs `admin:manage`; the server answers **403** to anyone else.
+- ✅ **Role change is a request, never a direct write**: `PATCH /admin/users/{id}` with `role` answers **202** with an approval
+  request (kind `access_request`); the role changes only when someone else approves it. `pendingRole` shows it meanwhile.
+  Changing **your own** role or deactivating yourself is **403** (and an audited `denied` event). Deactivating someone else is
+  immediate; it must also revoke their refresh tokens and end their sessions.
+- ✅ **Tax rates change only through approval**: `POST /admin/tax-rates/changes` answers 202. The rate is a fraction (`0.18`), the
+  change has `validFrom`, and an approved change must not alter documents already calculated. ❓ Keep a history of rates per
+  code so an old invoice can always be recalculated with the rate that applied.
+- ✅ **Model release and rollback always need approval** (`POST /admin/models/{id}/change`, 202). Only one pending change per
+  version (**409**); releasing an active version or rolling back to a non-retired one is **422**. Approval applies the switch and
+  retires the previous active version in one transaction; denial just clears `pendingChange`.
+- ❓ The model list is a read of the registry from `MODEL_TRAINING.md`; `evalScore` is a fraction on the frozen eval set and must
+  be comparable between versions of the same task. Canary traffic share and automatic rollback rules are not in this contract.
+- ✅ News source switches apply at once and are audited; `lastError` / `failedFetches` come from the collector.
+- ❓ Missing: inviting a user, resetting a password / 2FA, creating a new source, system health. They need product decisions.

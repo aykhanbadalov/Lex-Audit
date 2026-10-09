@@ -339,6 +339,6 @@ features/invoices/
 | F9 Excel, uzlaşdırma, idxal | tamamlanıb (cədvəl təhlili və yeni fayl verən əməliyyatlar, bank/e-qaimə uzlaşdırması, 1C/e-taxes/bank idxalı xəritələmə ilə, 1C ixracı) |
 | F10 AI Assistent | tamamlanıb (SSE axını və kəsilmədən davam, mənbələr, alət kartları, təsdiq ayrılığı, feedback, söhbət idarəsi, xəbər/qanun/qaimədən «AI-dan soruş») |
 | F11 Təsdiqlər + audit jurnalı | tamamlanıb (növbə: son tarix, əvvəl/sonra cədvəli, məcburi şərh, sorğu verən təsdiq edə bilmir; audit jurnalı: filtr, axtarış, CSV ixracı) |
-| F12 | başlanmayıb (yer tutucu səhifə icazəni artıq yoxlayır) |
+| F12 Admin | tamamlanıb (istifadəçilər və rollar, xəbər mənbələri, vergi dərəcələri, model versiyaları; bütün dəyişikliklər təsdiq üzərindən) |
 
 

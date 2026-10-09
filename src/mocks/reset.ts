@@ -1,5 +1,6 @@
 import { setMockRefreshUser } from "./refreshCookie";
 import { resetFilesDb } from "./fixtures/files";
+import { resetAdmin } from "./fixtures/admin";
 import { resetApprovals } from "./fixtures/approvals";
 import { resetAudit } from "./fixtures/audit";
 import { resetAssistant } from "./fixtures/assistant";
@@ -22,6 +23,7 @@ export function resetMocks(): void {
   resetVat();
   resetAssistant();
   resetApprovals();
+  resetAdmin();
   resetAudit();
   resetExcel();
   resetReconciliation();

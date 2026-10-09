@@ -977,5 +977,99 @@
       "approval_decide": "Approval decision",
       "audit_export": "Audit log exported"
     }
+  },
+  "admin": {
+    "tabsLabel": "Administration sections",
+    "tab": {
+      "users": "Users",
+      "sources": "Sources",
+      "rates": "Tax rates",
+      "models": "Models"
+    },
+    "actions": "Actions",
+    "failed": "The operation failed",
+    "saved": "Saved",
+    "sentForApproval": "Sent for approval. Nothing changes until someone else approves.",
+    "reason": "Reason (required, at least 3 characters)",
+    "sendForApproval": "Send for approval",
+    "roles": {
+      "viewer": "Viewer",
+      "accountant": "Accountant",
+      "chief_accountant": "Chief accountant",
+      "auditor": "Auditor",
+      "admin": "Administrator"
+    },
+    "users": {
+      "hint": "A role change is not applied at once: it creates an approval request. You cannot change your own access.",
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "lastLogin": "Last sign-in",
+      "roleOf": "Role for {{name}}",
+      "pendingRole": "Waiting: {{role}}",
+      "active": "Active",
+      "inactive": "Inactive",
+      "you": "You",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateTitle": "Deactivate {{name}}?",
+      "deactivateDescription": "They will not be able to sign in. Their data is kept and they can be activated again."
+    },
+    "sources": {
+      "hint": "A disabled source collects nothing new. Items already collected stay.",
+      "kind": {
+        "official": "Official",
+        "news": "News"
+      },
+      "failing": "{{count}} failures in a row",
+      "lastFetched": "Last updated: {{date}}",
+      "neverFetched": "Not updated yet",
+      "enabledFor": "Source {{name}}",
+      "on": "On",
+      "off": "Off"
+    },
+    "rates": {
+      "hint": "Rates are not changed directly: a change creates an approval request.",
+      "label": "Rate",
+      "rate": "Current",
+      "validFrom": "In force since",
+      "change": "Propose a change",
+      "dialogTitle": "{{label}}: new rate",
+      "dialogDescription": "Once approved it applies to new calculations. Existing documents do not change.",
+      "newRate": "New rate (%)",
+      "invalid": "Between 0 and 100, with at most two decimals",
+      "validFromNew": "In force from"
+    },
+    "models": {
+      "hint": "A new version or a rollback always needs approval. The active model does not change until then.",
+      "task": {
+        "invoice_extractor": "Invoice extraction",
+        "classifier": "Classification",
+        "assistant": "AI Assistant",
+        "embeddings": "Search (embeddings)"
+      },
+      "status": {
+        "active": "Active",
+        "canary": "Canary",
+        "candidate": "Candidate",
+        "retired": "Retired"
+      },
+      "canary": "{{percent}}% of traffic",
+      "eval": "Accuracy: {{score}}",
+      "was": "was {{score}}",
+      "pending": {
+        "release": "Release waiting for approval",
+        "rollback": "Rollback waiting for approval"
+      },
+      "action": {
+        "release": "Send for release",
+        "rollback": "Roll back"
+      },
+      "dialog": {
+        "release": "Release {{task}} {{version}}?",
+        "rollback": "Go back to {{task}} {{version}}?"
+      },
+      "dialogDescription": "The request goes to the approval queue. You cannot approve it yourself."
+    }
   }
 }

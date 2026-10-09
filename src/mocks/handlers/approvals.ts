@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { decideRequest, findApproval, listApprovals, pendingCountFor, present } from "../fixtures/approvals";
+import { decideRequest, findApproval, listApprovals, pendingCountFor, present, runEffect } from "../fixtures/approvals";
 import { syncToolApproval } from "../fixtures/assistant";
 import { auditCsv, queryAudit, recordAudit } from "../fixtures/audit";
 import { addUploadedFile, toRecord } from "../fixtures/files";
@@ -64,6 +64,7 @@ export const approvalsHandlers = [
 
     if (result.ok) {
       audit("success");
+      runEffect(id, body.decision);
       syncToolApproval(id, body.decision, result.approval.comment);
       return HttpResponse.json(present(result.approval, auth.user));
     }

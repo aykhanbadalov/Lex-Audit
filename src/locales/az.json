@@ -977,5 +977,99 @@
       "approval_decide": "Təsdiq qərarı",
       "audit_export": "Audit jurnalı ixrac edildi"
     }
+  },
+  "admin": {
+    "tabsLabel": "İdarəetmə bölmələri",
+    "tab": {
+      "users": "İstifadəçilər",
+      "sources": "Mənbələr",
+      "rates": "Vergi dərəcələri",
+      "models": "Modellər"
+    },
+    "actions": "Əməliyyatlar",
+    "failed": "Əməliyyat alınmadı",
+    "saved": "Saxlanıldı",
+    "sentForApproval": "Təsdiqə göndərildi. Başqa şəxs təsdiq edənə qədər heç nə dəyişmir.",
+    "reason": "Səbəb (məcburi, ən azı 3 simvol)",
+    "sendForApproval": "Təsdiqə göndər",
+    "roles": {
+      "viewer": "Baxıcı",
+      "accountant": "Mühasib",
+      "chief_accountant": "Baş mühasib",
+      "auditor": "Auditor",
+      "admin": "Administrator"
+    },
+    "users": {
+      "hint": "Rol dəyişikliyi dərhal tətbiq olunmur: təsdiq sorğusu yaranır. Öz girişinizi dəyişə bilməzsiniz.",
+      "user": "İstifadəçi",
+      "role": "Rol",
+      "status": "Vəziyyət",
+      "lastLogin": "Son giriş",
+      "roleOf": "{{name}} üçün rol",
+      "pendingRole": "Gözləyir: {{role}}",
+      "active": "Aktiv",
+      "inactive": "Deaktiv",
+      "you": "Siz",
+      "deactivate": "Deaktiv et",
+      "activate": "Aktiv et",
+      "deactivateTitle": "{{name}} deaktiv edilsin?",
+      "deactivateDescription": "İstifadəçi sistemə daxil ola bilməyəcək. Məlumatları silinmir və sonradan aktiv etmək olar."
+    },
+    "sources": {
+      "hint": "Söndürülən mənbədən yeni xəbər toplanmır. Əvvəl toplanmış xəbərlər qalır.",
+      "kind": {
+        "official": "Rəsmi",
+        "news": "Xəbər"
+      },
+      "failing": "Ardıcıl {{count}} xəta",
+      "lastFetched": "Son yenilənmə: {{date}}",
+      "neverFetched": "Hələ yenilənməyib",
+      "enabledFor": "{{name}} mənbəyi",
+      "on": "Aktiv",
+      "off": "Söndürülüb"
+    },
+    "rates": {
+      "hint": "Dərəcələr birbaşa dəyişmir: dəyişiklik təsdiq sorğusu yaradır.",
+      "label": "Dərəcə",
+      "rate": "Hazırkı",
+      "validFrom": "Qüvvəyə minib",
+      "change": "Dəyişiklik təklif et",
+      "dialogTitle": "{{label}}: yeni dərəcə",
+      "dialogDescription": "Təsdiqdən sonra yeni hesablamalara tətbiq olunur. Mövcud sənədlər dəyişmir.",
+      "newRate": "Yeni dərəcə (%)",
+      "invalid": "0-dan 100-ə qədər, ən çox iki onluq ilə yazın",
+      "validFromNew": "Qüvvəyə minmə"
+    },
+    "models": {
+      "hint": "Yeni versiya və ya geri qaytarma həmişə təsdiq tələb edir. Aktiv model təsdiqə qədər dəyişmir.",
+      "task": {
+        "invoice_extractor": "Qaimə çıxarışı",
+        "classifier": "Təsnifat",
+        "assistant": "AI Assistent",
+        "embeddings": "Axtarış (embedding)"
+      },
+      "status": {
+        "active": "Aktiv",
+        "canary": "Canary",
+        "candidate": "Namizəd",
+        "retired": "Köhnəlib"
+      },
+      "canary": "{{percent}}% trafik",
+      "eval": "Dəqiqlik: {{score}}",
+      "was": "əvvəl {{score}}",
+      "pending": {
+        "release": "Buraxılış təsdiq gözləyir",
+        "rollback": "Geri qaytarma təsdiq gözləyir"
+      },
+      "action": {
+        "release": "Buraxılışa göndər",
+        "rollback": "Geri qaytar"
+      },
+      "dialog": {
+        "release": "{{task}} {{version}} buraxılsın?",
+        "rollback": "{{task}} {{version}} versiyasına qayıdılsın?"
+      },
+      "dialogDescription": "Sorğu təsdiq növbəsinə düşür. Sorğunu siz təsdiq edə bilməzsiniz."
+    }
   }
 }

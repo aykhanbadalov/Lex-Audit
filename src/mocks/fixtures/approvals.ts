@@ -105,8 +105,21 @@ function seed(): StoredApproval[] {
 
 let requests = seed();
 
+/** What happens once a request is decided. The real backend applies the change in the same transaction as the decision. */
+const effects = new Map<string, { approved: () => void; denied: () => void }>();
+
+export function registerEffect(id: string, effect: { approved: () => void; denied: () => void }): void {
+  effects.set(id, effect);
+}
+
+export function runEffect(id: string, decision: "approved" | "denied"): void {
+  effects.get(id)?.[decision]();
+  effects.delete(id);
+}
+
 export function resetApprovals(): void {
   requests = seed();
+  effects.clear();
 }
 
 export function addApprovalRequest(request: StoredApproval): void {

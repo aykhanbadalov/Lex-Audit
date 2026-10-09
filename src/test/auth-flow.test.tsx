@@ -66,7 +66,7 @@ describe("permissions in the layout", () => {
 
   it("lets the admin open the admin page", async () => {
     await signInAndOpen("admin@lexaudit.test", "/admin");
-    expect(await screen.findByText("Bu bölmə hazırlanır")).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "İstifadəçilər" })).toBeInTheDocument();
   });
 
   it("hides sidebar links the user may not follow", async () => {
