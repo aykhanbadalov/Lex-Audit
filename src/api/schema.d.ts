@@ -307,6 +307,175 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Invoices of the signed-in user's company, newest first */
+        get: operations["listInvoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload an invoice document (PDF, image, e-invoice XML/Excel export). One file can contain several invoices. */
+        post: operations["uploadInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getInvoice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Save corrections. The server recalculates every line and total, runs validation again and returns the result. The client never computes money. */
+        patch: operations["updateInvoice"];
+        trace?: never;
+    };
+    "/invoices/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run validation and recalculation again (for example after a rate or master-data change) */
+        post: operations["validateInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The original document, for the side-by-side preview */
+        get: operations["getInvoiceSource"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{id}/propose-entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suggest journal entries for a validated invoice. Nothing is posted. */
+        post: operations["proposeInvoiceEntries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getJournalEntry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journal/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a proposed entry for approval. The requester can never approve it. */
+        post: operations["submitJournalEntry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The company's chart of accounts */
+        get: operations["listAccounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tax-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rates in force on a date, so the UI can offer valid choices */
+        get: operations["listTaxRates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -530,6 +699,176 @@ export interface components {
             name?: string;
             folder?: string;
             tags?: string[];
+        };
+        /** @enum {string} */
+        Currency: "AZN" | "USD" | "EUR" | "RUB" | "TRY";
+        /**
+         * @description Decimal string, never a number
+         * @example 12500.00
+         */
+        Money: string;
+        /** @enum {string} */
+        InvoiceDirection: "purchase" | "sales";
+        /**
+         * @description uploaded → extracting → extracted (needs review) → validated → posted; failed and rejected are terminal
+         * @enum {string}
+         */
+        InvoiceStatus: "uploaded" | "extracting" | "extracted" | "validated" | "posted" | "rejected" | "failed";
+        /** @enum {string} */
+        InvoiceIssueCode: "MISSING_FIELD" | "INVALID_TAX_ID" | "TOTAL_MISMATCH" | "DUPLICATE_INVOICE" | "LOW_CONFIDENCE" | "DATE_IN_FUTURE";
+        /** @description A finding from validation. The frontend translates `code` into the user's language and fills the `params`; `message` is an English fallback for logs and unknown codes. */
+        InvoiceIssue: {
+            id: string;
+            code: components["schemas"]["InvoiceIssueCode"];
+            /** @enum {string} */
+            severity: "info" | "warning" | "error";
+            /** @description Which input it concerns: number, issueDate, counterpartyVoen, lines[1].unitPrice ... */
+            fieldPath: string | null;
+            params: {
+                [key: string]: string;
+            };
+            message: string;
+            resolved: boolean;
+        };
+        InvoiceCounterparty: {
+            name?: string | null;
+            voen?: string | null;
+        };
+        InvoiceTotals: {
+            net: components["schemas"]["Money"];
+            vat: components["schemas"]["Money"];
+            gross: components["schemas"]["Money"];
+        };
+        Invoice: {
+            id: string;
+            direction: components["schemas"]["InvoiceDirection"];
+            number: string | null;
+            /** Format: date */
+            issueDate: string | null;
+            counterpartyName: string | null;
+            counterpartyVoen: string | null;
+            currency: components["schemas"]["Currency"];
+            netTotal: components["schemas"]["Money"];
+            vatTotal: components["schemas"]["Money"];
+            grossTotal: components["schemas"]["Money"];
+            status: components["schemas"]["InvoiceStatus"];
+            extractionConfidence: number | null;
+            /** @description Open issues of any severity */
+            issueCount: number;
+            /** @description Open issues of severity error */
+            errorCount: number;
+            sourceFileName: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        InvoicePage: {
+            items: components["schemas"]["Invoice"][];
+            nextCursor: string | null;
+        };
+        InvoiceUploadResult: {
+            items: components["schemas"]["Invoice"][];
+        };
+        AccountSuggestion: {
+            code: string;
+            name: string;
+            confidence: number;
+        };
+        InvoiceLine: {
+            id: string;
+            position: number;
+            description: string;
+            quantity: components["schemas"]["Money"];
+            unitPrice: components["schemas"]["Money"];
+            /** @description A code from /tax-rates */
+            vatRateCode: string;
+            net: components["schemas"]["Money"];
+            vat: components["schemas"]["Money"];
+            gross: components["schemas"]["Money"];
+            accountSuggestion: components["schemas"]["AccountSuggestion"] | null;
+            /** @description Account code chosen by a person */
+            accountFinal: string | null;
+        };
+        InvoiceSource: {
+            mimeType: string;
+            fileName: string;
+            pageCount: number | null;
+        };
+        InvoiceDetail: components["schemas"]["Invoice"] & {
+            lines: components["schemas"]["InvoiceLine"][];
+            issues: components["schemas"]["InvoiceIssue"][];
+            /** @description The totals printed on the document, as read by the model. Compared with the recalculated ones. */
+            declaredTotals: components["schemas"]["InvoiceTotals"] | null;
+            /** @description 0..1 per header field: number, issueDate, counterpartyName, counterpartyVoen, currency */
+            fieldConfidence: {
+                [key: string]: number;
+            };
+            source: components["schemas"]["InvoiceSource"];
+            journalEntryId: string | null;
+            /** @description Reason when status is failed */
+            statusDetail: string | null;
+        };
+        InvoiceLineInput: {
+            /** @description null for a new line */
+            id?: string | null;
+            description: string;
+            quantity: components["schemas"]["Money"];
+            unitPrice: components["schemas"]["Money"];
+            vatRateCode: string;
+            accountFinal?: string | null;
+        };
+        /** @description Only the fields present are changed. When `lines` is present it replaces all lines. */
+        InvoiceUpdate: {
+            direction?: components["schemas"]["InvoiceDirection"];
+            number?: string;
+            /** Format: date */
+            issueDate?: string;
+            counterpartyName?: string;
+            counterpartyVoen?: string;
+            currency?: components["schemas"]["Currency"];
+            lines?: components["schemas"]["InvoiceLineInput"][];
+        };
+        Account: {
+            code: string;
+            name: string;
+            /** @enum {string} */
+            type: "asset" | "liability" | "equity" | "income" | "expense";
+        };
+        TaxRate: {
+            /** @example AZ_VAT_STANDARD */
+            code: string;
+            label: string;
+            rate: components["schemas"]["Money"];
+            /** Format: date */
+            validFrom: string;
+            /** Format: date */
+            validTo: string | null;
+        };
+        JournalLine: {
+            accountCode: string;
+            accountName: string;
+            debit: components["schemas"]["Money"];
+            credit: components["schemas"]["Money"];
+            description: string;
+        };
+        JournalEntry: {
+            id: string;
+            /** Format: date */
+            date: string;
+            description: string;
+            /** @enum {string} */
+            status: "proposed" | "pending_approval" | "approved" | "posted" | "rejected";
+            /** @enum {string} */
+            source: "invoice" | "manual" | "ai";
+            sourceInvoiceId: string | null;
+            lines: components["schemas"]["JournalLine"][];
+            totalDebit: components["schemas"]["Money"];
+            totalCredit: components["schemas"]["Money"];
+            /** @description totalDebit equals totalCredit, decided by the server */
+            balanced: boolean;
+            /** Format: date-time */
+            createdAt: string;
         };
     };
     responses: {
@@ -1125,6 +1464,286 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    listInvoices: {
+        parameters: {
+            query?: {
+                /** @description Matches number and counterparty name or VÖEN */
+                q?: string;
+                status?: components["schemas"]["InvoiceStatus"];
+                direction?: components["schemas"]["InvoiceDirection"];
+                /** @description true = only invoices with at least one open issue */
+                hasIssues?: boolean;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicePage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    uploadInvoice: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Accepted. Every returned invoice is `uploaded`; extraction continues in the background. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceUploadResult"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            413: components["responses"]["PayloadTooLarge"];
+            415: components["responses"]["UnsupportedType"];
+        };
+    };
+    getInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceUpdate"];
+            };
+        };
+        responses: {
+            /** @description The invoice with recalculated totals and fresh issues */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationFailed"];
+        };
+    };
+    validateInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The invoice with fresh issues */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDetail"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getInvoiceSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document bytes (the Content-Type is the stored one) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    proposeInvoiceEntries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A journal entry in status `proposed` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    getJournalEntry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    submitJournalEntry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The entry, now `pending_approval` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listAccounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    listTaxRates: {
+        parameters: {
+            query?: {
+                /** @description Only VAT for now */
+                type?: "VAT";
+                /** @description Defaults to today */
+                date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxRate"][];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
         };
     };
 }

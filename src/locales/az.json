@@ -277,28 +277,173 @@
       "folderInvalid": "Qovluq yolu düzgün deyil",
       "tagsTooMany": "Ən çox 10 teq ola bilər",
       "tagTooLong": "Teq 30 simvoldan uzun ola bilməz"
-    },
-    "upload": {
-      "title": "Fayl yüklə",
-      "drop": "Faylları bura sürüşdürün",
-      "hint": "PDF, şəkil, Excel, CSV, XML və ya ZIP. Ən çox {{size}}.",
-      "choose": "Fayl seç",
-      "input": "Fayl seçin",
-      "queue": "Yükləmə növbəsi",
-      "clear": "Tamamlananları təmizlə",
-      "queued": "Növbədə gözləyir",
-      "uploading": "Yüklənir… {{percent}}%",
-      "done": "Yükləndi",
-      "cancel": "{{name}} yüklənməsini ləğv et",
-      "remove": "{{name}} siyahıdan sil",
-      "error": {
-        "empty": "Fayl boşdur",
-        "tooLarge": "Fayl çox böyükdür",
-        "unsupportedType": "Bu fayl növü dəstəklənmir",
-        "network": "Şəbəkə xətası. Yenidən cəhd edin.",
-        "forbidden": "Fayl yükləmək icazəniz yoxdur",
-        "server": "Fayl yüklənmədi. Yenidən cəhd edin."
-      }
     }
+  },
+  "upload": {
+    "title": "Fayl yüklə",
+    "drop": "Faylları bura sürüşdürün",
+    "hint": "PDF, şəkil, Excel, CSV, XML və ya ZIP. Ən çox {{size}}.",
+    "choose": "Fayl seç",
+    "input": "Fayl seçin",
+    "queue": "Yükləmə növbəsi",
+    "clear": "Tamamlananları təmizlə",
+    "queued": "Növbədə gözləyir",
+    "uploading": "Yüklənir… {{percent}}%",
+    "done": "Yükləndi",
+    "cancel": "{{name}} yüklənməsini ləğv et",
+    "remove": "{{name}} siyahıdan sil",
+    "error": {
+      "empty": "Fayl boşdur",
+      "tooLarge": "Fayl çox böyükdür",
+      "unsupportedType": "Bu fayl növü dəstəklənmir",
+      "network": "Şəbəkə xətası. Yenidən cəhd edin.",
+      "forbidden": "Fayl yükləmək icazəniz yoxdur",
+      "server": "Fayl yüklənmədi. Yenidən cəhd edin."
+    }
+  },
+  "invoices": {
+    "status": {
+      "uploaded": "Növbədə",
+      "extracting": "Oxunur",
+      "extracted": "Yoxlama tələb edir",
+      "validated": "Yoxlanılıb",
+      "posted": "Uçota alınıb",
+      "rejected": "Rədd edilib",
+      "failed": "Xəta"
+    },
+    "direction": {
+      "purchase": "Alış",
+      "sales": "Satış"
+    },
+    "columns": {
+      "invoice": "Qaimə",
+      "date": "Tarix",
+      "gross": "Yekun məbləğ",
+      "status": "Status",
+      "issues": "Problemlər"
+    },
+    "fields": {
+      "number": "Qaimə nömrəsi",
+      "issueDate": "Tarix",
+      "counterpartyName": "Kontragent",
+      "counterpartyVoen": "VÖEN",
+      "direction": "Növ",
+      "currency": "Valyuta"
+    },
+    "searchPlaceholder": "Nömrə, kontragent və ya VÖEN",
+    "onlyWithIssues": "Yalnız problemli olanlar",
+    "empty": "Hələ qaimə yoxdur",
+    "emptyHint": "Qaimələr yükləndikdə burada görünəcək.",
+    "emptyHintWrite": "Yuxarıdakı sahədən ilk qaiməni yükləyin.",
+    "back": "Qaimələrə qayıt",
+    "notFound": "Qaimə tapılmadı",
+    "notFoundHint": "Qaimə silinmiş və ya əlçatan olmaya bilər.",
+    "confidence": "Oxuma dəqiqliyi: {{percent}}%",
+    "processing": "Qaimə oxunur. Nəticə hazır olanda bu səhifə özü yenilənəcək.",
+    "failedTitle": "Qaimə oxuna bilmədi",
+    "locked": {
+      "posted": "Qaimə uçota alınıb və dəyişdirilə bilməz.",
+      "rejected": "Qaimə rədd edilib və dəyişdirilə bilməz."
+    },
+    "issues": {
+      "title": "Problemlər",
+      "none": "Problem tapılmadı.",
+      "goToField": "Sahəyə keç",
+      "openOther": "Mövcud qaiməni aç",
+      "errors": "Xəta: {{count}}",
+      "warnings": "Xəbərdarlıq: {{count}}"
+    },
+    "severity": {
+      "error": "Xəta",
+      "warning": "Xəbərdarlıq",
+      "info": "Məlumat"
+    },
+    "issue": {
+      "MISSING_FIELD": "«{{field}}» sahəsi boşdur.",
+      "INVALID_TAX_ID": "VÖEN 10 rəqəmdən ibarət olmalıdır (daxil edilən: {{value}}).",
+      "TOTAL_MISMATCH": "Sənəddə yazılan yekun məbləğ ({{declared}}) hesablanmış məbləğdən ({{computed}}) fərqlənir.",
+      "DUPLICATE_INVOICE": "{{number}} nömrəli qaimə bu kontragentdən artıq mövcuddur.",
+      "LOW_CONFIDENCE": "«{{field}}» sahəsi aşağı dəqiqliklə oxunub ({{percent}}%). Sənədlə yoxlayın.",
+      "DATE_IN_FUTURE": "Qaimənin tarixi gələcəkdədir."
+    },
+    "form": {
+      "label": "Qaimə məlumatları",
+      "tooLong": "Mətn çox uzundur",
+      "voenTooLong": "VÖEN 10 rəqəmdən uzun ola bilməz",
+      "dateInvalid": "Tarix düzgün deyil",
+      "descriptionRequired": "Təsvir boş ola bilməz",
+      "decimalInvalid": "Düzgün rəqəm daxil edin (məsələn, 8,50)",
+      "rateRequired": "ƏDV dərəcəsi seçin",
+      "accountUnknown": "Bu hesab hesablar planında yoxdur",
+      "linesRequired": "Ən azı bir sətir olmalıdır",
+      "checkThis": "Yoxlayın · {{percent}}%",
+      "discard": "Dəyişiklikləri ləğv et",
+      "revalidate": "Yenidən yoxla"
+    },
+    "lines": {
+      "title": "Sətirlər",
+      "unsaved": "Yadda saxlanmamış dəyişikliklər var. Məbləğlər yalnız yadda saxladıqdan sonra yenidən hesablanır.",
+      "line": "Sətir {{number}}",
+      "remove": "{{number}}-ci sətri sil",
+      "description": "Təsvir",
+      "quantity": "Miqdar",
+      "unitPrice": "Vahidin qiyməti",
+      "vatRate": "ƏDV dərəcəsi",
+      "account": "Hesab",
+      "suggestion": "Təklif: {{code}} · {{name}} ({{percent}}%)",
+      "accept": "Qəbul et",
+      "computed": "Hesablanmış məbləğlər",
+      "add": "Sətir əlavə et"
+    },
+    "totals": {
+      "title": "Yekun məbləğlər",
+      "net": "ƏDV-siz",
+      "vat": "ƏDV",
+      "gross": "Cəmi",
+      "printed": "Sənəddə yazılan yekun",
+      "stale": "Məbləğlər köhnədir: dəyişiklikləri yadda saxlayın."
+    },
+    "leave": {
+      "title": "Dəyişikliklər itəcək",
+      "description": "Yadda saxlanmamış dəyişikliklər var. Bu səhifədən çıxsanız, onlar itəcək.",
+      "confirm": "Çıx və at"
+    },
+    "journal": {
+      "title": "Jurnal yazılışı",
+      "propose": "Jurnal yazılışı təklif et",
+      "none": "Bu qaimə üçün hələ yazılış təklif olunmayıb.",
+      "fixFirst": "Yazılış təklif etmək üçün əvvəlcə bütün xətaları və xəbərdarlıqları aradan qaldırın.",
+      "proposed": "Yazılış təklif olundu",
+      "submitted": "Yazılış təsdiqə göndərildi",
+      "status": {
+        "proposed": "Təklif",
+        "pending_approval": "Təsdiq gözləyir",
+        "approved": "Təsdiqlənib",
+        "posted": "Uçota alınıb",
+        "rejected": "Rədd edilib"
+      },
+      "balanced": "Balanslıdır",
+      "unbalanced": "Balanslı deyil",
+      "aiNote": "Təklif süni intellekt tərəfindən hazırlanıb.",
+      "account": "Hesab",
+      "debit": "Debet",
+      "credit": "Kredit",
+      "total": "Cəmi",
+      "submit": "Təsdiqə göndər",
+      "waiting": "Yazılış baş mühasibin təsdiqini gözləyir."
+    },
+    "preview": {
+      "title": "Sənəd",
+      "alt": "{{name}} sənədinin önbaxışı",
+      "failed": "Sənəd göstərilə bilmədi.",
+      "unavailable": "Bu sənədin önbaxışı yoxdur",
+      "previous": "Əvvəlki səhifə",
+      "next": "Növbəti səhifə",
+      "page": "Səhifə {{page}} / {{pages}}"
+    },
+    "saved": "Qaimə yadda saxlanıldı",
+    "saveFailed": "Yadda saxlanmadı. Yenidən cəhd edin.",
+    "revalidated": "Qaimə yenidən yoxlanıldı",
+    "actionFailed": "Əməliyyat alınmadı. Yenidən cəhd edin."
   }
 }

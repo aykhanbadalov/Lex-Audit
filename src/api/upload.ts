@@ -4,11 +4,9 @@ import { API_BASE_URL, refreshSession } from "./session";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 export type FileRecord = components["schemas"]["File"];
+export type InvoiceUploadResult = components["schemas"]["InvoiceUploadResult"];
 
-export interface UploadMeta {
-  folder?: string;
-  tags?: string[];
-}
+export type UploadFields = Record<string, string | string[] | undefined>;
 
 export interface UploadOptions {
   signal?: AbortSignal;
@@ -16,10 +14,16 @@ export interface UploadOptions {
   onProgress?: (fraction: number) => void;
 }
 
-function send(file: File, meta: UploadMeta, idempotencyKey: string, options: UploadOptions): Promise<FileRecord> {
+function send<T>(
+  path: string,
+  file: File,
+  fields: UploadFields,
+  idempotencyKey: string,
+  options: UploadOptions,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_BASE_URL}/files`);
+    xhr.open("POST", `${API_BASE_URL}${path}`);
     xhr.withCredentials = true;
     xhr.responseType = "text";
 
@@ -40,7 +44,7 @@ function send(file: File, meta: UploadMeta, idempotencyKey: string, options: Upl
           return null;
         }
       })();
-      if (xhr.status >= 200 && xhr.status < 300) resolve(body as FileRecord);
+      if (xhr.status >= 200 && xhr.status < 300) resolve(body as T);
       else reject(toApiError(xhr.status, body));
     };
     xhr.onerror = () => reject(new ApiError("NETWORK", "Network error", 0));
@@ -54,25 +58,44 @@ function send(file: File, meta: UploadMeta, idempotencyKey: string, options: Upl
 
     const form = new FormData();
     form.append("file", file);
-    if (meta.folder) form.append("folder", meta.folder);
-    meta.tags?.forEach((tag) => form.append("tags", tag));
+    for (const [name, value] of Object.entries(fields)) {
+      if (value === undefined) continue;
+      for (const item of Array.isArray(value) ? value : [value]) form.append(name, item);
+    }
     xhr.send(form);
   });
 }
 
 /**
- * Uploads one file. An expired access token (401) is refreshed once and the upload is sent again with the same
- * Idempotency-Key, so the server can never store the file twice.
+ * Uploads one file as multipart/form-data. An expired access token (401) is refreshed once and the upload is sent
+ * again with the same Idempotency-Key, so the server can never store the file twice.
  */
-export async function uploadFile(file: File, meta: UploadMeta = {}, options: UploadOptions = {}): Promise<FileRecord> {
+export async function uploadMultipart<T>(
+  path: string,
+  file: File,
+  fields: UploadFields = {},
+  options: UploadOptions = {},
+): Promise<T> {
   const idempotencyKey = crypto.randomUUID();
   try {
-    return await send(file, meta, idempotencyKey, options);
+    return await send<T>(path, file, fields, idempotencyKey, options);
   } catch (error) {
     if (error instanceof ApiError && error.status === 401 && (await refreshSession())) {
-      return send(file, meta, idempotencyKey, options);
+      return send<T>(path, file, fields, idempotencyKey, options);
     }
     if (error instanceof ApiError && error.status === 401) useAuthStore.getState().clear();
     throw error;
   }
+}
+
+export function uploadFile(
+  file: File,
+  fields: { folder?: string; tags?: string[] } = {},
+  options: UploadOptions = {},
+): Promise<FileRecord> {
+  return uploadMultipart<FileRecord>("/files", file, fields, options);
+}
+
+export function uploadInvoice(file: File, options: UploadOptions = {}): Promise<InvoiceUploadResult> {
+  return uploadMultipart<InvoiceUploadResult>("/invoices/upload", file, {}, options);
 }

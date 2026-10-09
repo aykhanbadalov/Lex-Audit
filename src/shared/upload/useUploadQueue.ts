@@ -1,8 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "@/api/errors";
-import { uploadFile } from "@/api/upload";
-import { fileKeys } from "./api";
+import type { UploadOptions } from "@/api/upload";
 import { checkUpload, type UploadRejection } from "./limits";
 
 export type UploadError = UploadRejection | "network" | "forbidden" | "server";
@@ -33,7 +32,10 @@ function toUploadError(error: unknown): UploadError {
  * Uploads files with at most three running at once. Files that break the known limits are shown as failed
  * straight away and never leave the browser. Each upload can be cancelled while it runs.
  */
-export function useUploadQueue() {
+export function useUploadQueue(
+  upload: (file: File, options: UploadOptions) => Promise<unknown>,
+  queryKey: readonly unknown[],
+) {
   const queryClient = useQueryClient();
   const [items, setItems] = useState<UploadItem[]>([]);
   const files = useRef(new Map<string, File>());
@@ -76,10 +78,10 @@ export function useUploadQueue() {
         controllers.current.set(item.id, controller);
         patch(item.id, { status: "uploading" });
 
-        uploadFile(file, {}, { signal: controller.signal, onProgress: (progress) => patch(item.id, { progress }) })
+        upload(file, { signal: controller.signal, onProgress: (progress) => patch(item.id, { progress }) })
           .then(() => {
             patch(item.id, { status: "done", progress: 1 });
-            return queryClient.invalidateQueries({ queryKey: fileKeys.all });
+            return queryClient.invalidateQueries({ queryKey });
           })
           .catch((error: unknown) => {
             if (error instanceof DOMException && error.name === "AbortError") return; // removed by the user
@@ -90,7 +92,7 @@ export function useUploadQueue() {
             controllers.current.delete(item.id);
           });
       });
-  }, [items, patch, queryClient]);
+  }, [items, patch, queryClient, upload, queryKey]);
 
   // Leaving the page stops uploads that are still running.
   useEffect(() => {

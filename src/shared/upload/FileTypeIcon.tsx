@@ -7,7 +7,7 @@ import {
   FileText,
   type LucideIcon,
 } from "lucide-react";
-import { extensionOf } from "../limits";
+import { extensionOf } from "./limits";
 
 const ICONS: Record<string, LucideIcon> = {
   pdf: FileText,

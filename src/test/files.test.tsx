@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { delay, http, HttpResponse } from "msw";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { pollConfig } from "@/features/files/api";
-import { MAX_UPLOAD_BYTES } from "@/features/files/limits";
+import { MAX_UPLOAD_BYTES } from "@/shared/upload/limits";
 import { processingMs } from "@/mocks/fixtures/files";
 import { apiPath } from "@/mocks/handlers/base";
 import { setMockRefreshUser } from "@/mocks/refreshCookie";

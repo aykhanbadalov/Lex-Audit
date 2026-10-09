@@ -10,10 +10,18 @@ import { routeTree } from "@/routeTree.gen";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 /** Starts the MSW server for a test file and resets every piece of shared state between tests. */
+const clients = new Set<QueryClient>();
+
 export function setupMockApi(): void {
   beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
   beforeEach(() => useAuthStore.getState().clear());
   afterEach(() => {
+    // Stop anything still in flight, so a request started by this test cannot land in the next one.
+    clients.forEach((client) => {
+      void client.cancelQueries();
+      client.clear();
+    });
+    clients.clear();
     server.resetHandlers();
     resetMocks();
   });
@@ -37,6 +45,7 @@ export function renderApp(path: string) {
   const router = createRouter({ routeTree, history: createMemoryHistory({ initialEntries: [path] }) });
   // No retries: a failing request should fail the test immediately, not after backoff.
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  clients.add(queryClient);
   const view = render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />

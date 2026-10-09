@@ -334,7 +334,8 @@ features/invoices/
 | F4 Auth | qismən: login, refresh, logout, guard-lar var; 2FA və "şifrəni unutdum" yoxdur |
 | F5 Xəbərlər + qanunvericilik | tamamlanıb (filtrlər URL-də, əlfəcin, AI bölməsi ayrıca, versiya müqayisəsi) |
 | F6 Fayllar | tamamlanıb (yükləmə növbəsi və irəliləyiş, avtomatik status yenilənməsi, redaktə, arxivləmə, yenidən işləmə, yükləmə) |
-| F7–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
+| F7 Qaimələr | tamamlanıb (siyahı, yükləmə, mənbə sənədi ilə yanaşı redaktə, serverdə yenidən hesablama, problemlər, saxlanmamış dəyişikliklərdən qoruma, jurnal təklifi) |
+| F8–F12 | başlanmayıb (yer tutucu səhifələr icazəni artıq yoxlayır) |
 
 **Səhifələr yenilənmir, "Ask AI" düyməsi yoxdur:** AI Assistent (F10) hazır olmadığı üçün xəbər detalında "AI-dan soruş" düyməsi qəsdən əlavə olunmayıb.
 

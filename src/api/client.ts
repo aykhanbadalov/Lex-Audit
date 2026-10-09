@@ -60,6 +60,8 @@ const authMiddleware: Middleware = {
 
   onError({ id, error }) {
     replayable.delete(id);
+    // A cancelled request (a newer one replaced it, or the screen closed) is not a failure; leave it recognisable.
+    if (error instanceof DOMException && error.name === "AbortError") return undefined;
     return new ApiError("NETWORK", error instanceof Error ? error.message : "Network error", 0, undefined, error);
   },
 };

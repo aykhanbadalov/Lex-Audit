@@ -94,8 +94,13 @@ export function DataTable<TData>({
   const paddingBottom =
     virtualRows.length > 0 ? virtualizer.getTotalSize() - (virtualRows[virtualRows.length - 1]?.end ?? 0) : 0;
 
+  // The height cap only matters when rows are virtualized; a short list should grow with the page, not scroll inside it.
   return (
-    <div ref={scrollRef} className="overflow-auto rounded-lg border" style={{ maxHeight: height }}>
+    <div
+      ref={scrollRef}
+      className="overflow-auto rounded-lg border"
+      style={virtualize ? { maxHeight: height } : undefined}
+    >
       <table className="w-full text-sm">
         <thead className="sticky top-0 z-10 bg-muted">
           {table.getHeaderGroups().map((group) => (

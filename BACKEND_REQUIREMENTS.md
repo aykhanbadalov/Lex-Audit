@@ -76,3 +76,41 @@ See `openapi.yaml` (`/files`). Behaviour the frontend relies on:
   with an authenticated `fetch` and a blob URL (an `<a href>` cannot send the bearer token).
 - ❓ Virus scanning (ClamAV) result: should it be a status (`quarantined`)? The UI has no state for it yet.
 - ❓ Soft delete only (`archive` / `restore`); there is no permanent delete in the UI.
+
+## 7. Invoices (phase F7)
+
+See `openapi.yaml` (`/invoices`, `/accounts`, `/tax-rates`, `/journal`). This is the part of the product where the
+division of labour matters most.
+
+- ✅ **The backend computes all money; the frontend only shows it.** `PATCH /invoices/{id}` takes corrected strings
+  (quantity, unit price, VAT rate _code_), recalculates every line and total, validates again and returns the whole
+  `InvoiceDetail`. The browser never adds, multiplies or rounds an amount. Rounding rule (per line, half away from zero,
+  two decimals) must be agreed and documented by the backend developer; the mock uses it.
+- ✅ **Printed vs recalculated totals.** `declaredTotals` is what the model read from the document; `netTotal/vatTotal/
+grossTotal` are recalculated from the lines. A difference produces a `TOTAL_MISMATCH` issue.
+- ✅ **Issues are codes plus params, not sentences.** The UI writes the sentence in the user's language. Codes in use:
+  `MISSING_FIELD`, `INVALID_TAX_ID`, `TOTAL_MISMATCH`, `DUPLICATE_INVOICE`, `LOW_CONFIDENCE`, `DATE_IN_FUTURE`.
+  Unknown codes fall back to `message`, so new codes can ship without breaking the UI, but each new code needs a
+  translation added on the frontend. `fieldPath` uses `number`, `issueDate`, `counterpartyVoen`, … and
+  `lines[<0-based index>].unitPrice` for lines; the UI focuses the matching input.
+- ✅ **Status lifecycle:** `uploaded → extracting → extracted → validated → posted`, plus `rejected` and `failed`.
+  `validated` means no open `error` or `warning` issue. The frontend polls while a status is `uploaded` or `extracting`.
+  Editing is allowed only in `extracted` and `validated`; any other state must answer **409** to `PATCH`.
+- ✅ **Upload** `POST /invoices/upload` returns **202** with the created invoices (one file can hold several, for example an
+  e-invoice register). `Idempotency-Key` makes a retried upload return the same invoices.
+- ✅ **Original document** `GET /invoices/{id}/source` returns the stored bytes with the right `Content-Type`. The
+  frontend renders PDF (pdf.js, worker from our own origin) and images; anything else shows "no preview".
+- ❓ **Highlighting a field on the document** (a box around where the model found a value) needs a page number and a
+  bounding box per field. Not in the contract yet; add `fieldLocations` when the model service can produce it.
+- ✅ **Account suggestions** (`accountSuggestion`) come with a confidence. When a person accepts or changes one, the
+  chosen code arrives as `accountFinal`. **Please record the pair (suggestion, final) as training feedback**: this is the
+  signal `model-training/MODEL_TRAINING.md` calls the most valuable.
+- ❓ `GET /accounts` returns the whole chart in one list and the UI filters it in the browser. If a company has thousands
+  of accounts, paging or server-side search is needed.
+- ✅ `GET /tax-rates?type=VAT` lists the rates in force. Lines carry a rate **code** (`AZ_VAT_STANDARD`, …), never a number,
+  so a rate change never requires editing invoices.
+- ✅ **Journal:** `POST /invoices/{id}/propose-entries` creates an entry in `proposed` and nothing is posted.
+  `POST /journal/{id}/submit` moves it to `pending_approval`. `balanced` is decided by the server. The requester must not be
+  able to approve it (see §2); approval itself belongs to phase F11.
+- ❓ Concurrent edits: two people editing one invoice. The mock does not detect it. Suggest an `If-Match` / `version`
+  field so the second save gets **409** instead of silently overwriting.

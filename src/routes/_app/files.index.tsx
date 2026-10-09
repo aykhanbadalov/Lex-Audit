@@ -2,10 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useFileList, type FileRecord } from "@/features/files/api";
+import { uploadFile } from "@/api/upload";
+import { fileKeys, useFileList, type FileRecord } from "@/features/files/api";
 import { FileStatusBadge } from "@/features/files/components/FileStatusBadge";
-import { FileTypeIcon } from "@/features/files/components/FileTypeIcon";
-import { UploadDropzone } from "@/features/files/components/UploadDropzone";
+import { FileTypeIcon } from "@/shared/upload/FileTypeIcon";
+import { UploadDropzone } from "@/shared/upload/UploadDropzone";
 import {
   ARCHIVE_FILTERS,
   FILE_STATUSES,
@@ -106,7 +107,7 @@ function FilesPageContent() {
 
       {canWrite ? (
         <div className="mb-6">
-          <UploadDropzone />
+          <UploadDropzone upload={(file, options) => uploadFile(file, {}, options)} queryKey={fileKeys.all} />
         </div>
       ) : null}
 

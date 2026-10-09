@@ -17,11 +17,12 @@ import { Route as AppApprovalsRouteImport } from './routes/_app/approvals'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppExcelRouteImport } from './routes/_app/excel'
-import { Route as AppInvoicesRouteImport } from './routes/_app/invoices'
 import { Route as AppLedgerRouteImport } from './routes/_app/ledger'
 import { Route as AppVatRouteImport } from './routes/_app/vat'
 import { Route as AppFilesIndexRouteImport } from './routes/_app/files.index'
 import { Route as AppFilesIdRouteImport } from './routes/_app/files.$id'
+import { Route as AppInvoicesIndexRouteImport } from './routes/_app/invoices.index'
+import { Route as AppInvoicesIdRouteImport } from './routes/_app/invoices.$id'
 import { Route as AppLegislationIndexRouteImport } from './routes/_app/legislation.index'
 import { Route as AppLegislationIdRouteImport } from './routes/_app/legislation.$id'
 import { Route as AppNewsIndexRouteImport } from './routes/_app/news.index'
@@ -66,11 +67,6 @@ const AppExcelRoute = AppExcelRouteImport.update({
   path: '/excel',
   getParentRoute: () => AppRoute,
 } as any)
-const AppInvoicesRoute = AppInvoicesRouteImport.update({
-  id: '/invoices',
-  path: '/invoices',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppLedgerRoute = AppLedgerRouteImport.update({
   id: '/ledger',
   path: '/ledger',
@@ -89,6 +85,16 @@ const AppFilesIndexRoute = AppFilesIndexRouteImport.update({
 const AppFilesIdRoute = AppFilesIdRouteImport.update({
   id: '/files/$id',
   path: '/files/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicesIndexRoute = AppInvoicesIndexRouteImport.update({
+  id: '/invoices/',
+  path: '/invoices/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicesIdRoute = AppInvoicesIdRouteImport.update({
+  id: '/invoices/$id',
+  path: '/invoices/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLegislationIndexRoute = AppLegislationIndexRouteImport.update({
@@ -120,13 +126,14 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
   '/excel': typeof AppExcelRoute
-  '/invoices': typeof AppInvoicesRoute
   '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
   '/files/$id': typeof AppFilesIdRoute
+  '/invoices/$id': typeof AppInvoicesIdRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/files/': typeof AppFilesIndexRoute
+  '/invoices/': typeof AppInvoicesIndexRoute
   '/legislation/': typeof AppLegislationIndexRoute
   '/news/': typeof AppNewsIndexRoute
 }
@@ -138,13 +145,14 @@ export interface FileRoutesByTo {
   '/assistant': typeof AppAssistantRoute
   '/dashboard': typeof AppDashboardRoute
   '/excel': typeof AppExcelRoute
-  '/invoices': typeof AppInvoicesRoute
   '/ledger': typeof AppLedgerRoute
   '/vat': typeof AppVatRoute
   '/files/$id': typeof AppFilesIdRoute
+  '/invoices/$id': typeof AppInvoicesIdRoute
   '/legislation/$id': typeof AppLegislationIdRoute
   '/news/$id': typeof AppNewsIdRoute
   '/files': typeof AppFilesIndexRoute
+  '/invoices': typeof AppInvoicesIndexRoute
   '/legislation': typeof AppLegislationIndexRoute
   '/news': typeof AppNewsIndexRoute
 }
@@ -158,13 +166,14 @@ export interface FileRoutesById {
   '/_app/assistant': typeof AppAssistantRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/excel': typeof AppExcelRoute
-  '/_app/invoices': typeof AppInvoicesRoute
   '/_app/ledger': typeof AppLedgerRoute
   '/_app/vat': typeof AppVatRoute
   '/_app/files/$id': typeof AppFilesIdRoute
+  '/_app/invoices/$id': typeof AppInvoicesIdRoute
   '/_app/legislation/$id': typeof AppLegislationIdRoute
   '/_app/news/$id': typeof AppNewsIdRoute
   '/_app/files/': typeof AppFilesIndexRoute
+  '/_app/invoices/': typeof AppInvoicesIndexRoute
   '/_app/legislation/': typeof AppLegislationIndexRoute
   '/_app/news/': typeof AppNewsIndexRoute
 }
@@ -178,13 +187,14 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/excel'
-    | '/invoices'
     | '/ledger'
     | '/vat'
     | '/files/$id'
+    | '/invoices/$id'
     | '/legislation/$id'
     | '/news/$id'
     | '/files/'
+    | '/invoices/'
     | '/legislation/'
     | '/news/'
   fileRoutesByTo: FileRoutesByTo
@@ -196,13 +206,14 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/excel'
-    | '/invoices'
     | '/ledger'
     | '/vat'
     | '/files/$id'
+    | '/invoices/$id'
     | '/legislation/$id'
     | '/news/$id'
     | '/files'
+    | '/invoices'
     | '/legislation'
     | '/news'
   id:
@@ -215,13 +226,14 @@ export interface FileRouteTypes {
     | '/_app/assistant'
     | '/_app/dashboard'
     | '/_app/excel'
-    | '/_app/invoices'
     | '/_app/ledger'
     | '/_app/vat'
     | '/_app/files/$id'
+    | '/_app/invoices/$id'
     | '/_app/legislation/$id'
     | '/_app/news/$id'
     | '/_app/files/'
+    | '/_app/invoices/'
     | '/_app/legislation/'
     | '/_app/news/'
   fileRoutesById: FileRoutesById
@@ -290,13 +302,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppExcelRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/invoices': {
-      id: '/_app/invoices'
-      path: '/invoices'
-      fullPath: '/invoices'
-      preLoaderRoute: typeof AppInvoicesRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/ledger': {
       id: '/_app/ledger'
       path: '/ledger'
@@ -323,6 +328,20 @@ declare module '@tanstack/react-router' {
       path: '/files/$id'
       fullPath: '/files/$id'
       preLoaderRoute: typeof AppFilesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoices/': {
+      id: '/_app/invoices/'
+      path: '/invoices'
+      fullPath: '/invoices/'
+      preLoaderRoute: typeof AppInvoicesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoices/$id': {
+      id: '/_app/invoices/$id'
+      path: '/invoices/$id'
+      fullPath: '/invoices/$id'
+      preLoaderRoute: typeof AppInvoicesIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/legislation/': {
@@ -362,13 +381,14 @@ interface AppRouteChildren {
   AppAssistantRoute: typeof AppAssistantRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppExcelRoute: typeof AppExcelRoute
-  AppInvoicesRoute: typeof AppInvoicesRoute
   AppLedgerRoute: typeof AppLedgerRoute
   AppVatRoute: typeof AppVatRoute
   AppFilesIdRoute: typeof AppFilesIdRoute
+  AppInvoicesIdRoute: typeof AppInvoicesIdRoute
   AppLegislationIdRoute: typeof AppLegislationIdRoute
   AppNewsIdRoute: typeof AppNewsIdRoute
   AppFilesIndexRoute: typeof AppFilesIndexRoute
+  AppInvoicesIndexRoute: typeof AppInvoicesIndexRoute
   AppLegislationIndexRoute: typeof AppLegislationIndexRoute
   AppNewsIndexRoute: typeof AppNewsIndexRoute
 }
@@ -379,13 +399,14 @@ const AppRouteChildren: AppRouteChildren = {
   AppAssistantRoute: AppAssistantRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppExcelRoute: AppExcelRoute,
-  AppInvoicesRoute: AppInvoicesRoute,
   AppLedgerRoute: AppLedgerRoute,
   AppVatRoute: AppVatRoute,
   AppFilesIdRoute: AppFilesIdRoute,
+  AppInvoicesIdRoute: AppInvoicesIdRoute,
   AppLegislationIdRoute: AppLegislationIdRoute,
   AppNewsIdRoute: AppNewsIdRoute,
   AppFilesIndexRoute: AppFilesIndexRoute,
+  AppInvoicesIndexRoute: AppInvoicesIndexRoute,
   AppLegislationIndexRoute: AppLegislationIndexRoute,
   AppNewsIndexRoute: AppNewsIndexRoute,
 }

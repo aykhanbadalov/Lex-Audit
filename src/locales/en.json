@@ -277,28 +277,173 @@
       "folderInvalid": "The folder path is not valid",
       "tagsTooMany": "No more than 10 tags",
       "tagTooLong": "A tag cannot be longer than 30 characters"
-    },
-    "upload": {
-      "title": "Upload files",
-      "drop": "Drag files here",
-      "hint": "PDF, images, Excel, CSV, XML or ZIP. Up to {{size}}.",
-      "choose": "Choose file",
-      "input": "Choose a file",
-      "queue": "Upload queue",
-      "clear": "Clear finished",
-      "queued": "Waiting in queue",
-      "uploading": "Uploading… {{percent}}%",
-      "done": "Uploaded",
-      "cancel": "Cancel upload of {{name}}",
-      "remove": "Remove {{name}} from the list",
-      "error": {
-        "empty": "The file is empty",
-        "tooLarge": "The file is too large",
-        "unsupportedType": "This file type is not supported",
-        "network": "Network error. Please try again.",
-        "forbidden": "You are not allowed to upload files",
-        "server": "The file could not be uploaded. Please try again."
-      }
     }
+  },
+  "upload": {
+    "title": "Upload files",
+    "drop": "Drag files here",
+    "hint": "PDF, images, Excel, CSV, XML or ZIP. Up to {{size}}.",
+    "choose": "Choose file",
+    "input": "Choose a file",
+    "queue": "Upload queue",
+    "clear": "Clear finished",
+    "queued": "Waiting in queue",
+    "uploading": "Uploading… {{percent}}%",
+    "done": "Uploaded",
+    "cancel": "Cancel upload of {{name}}",
+    "remove": "Remove {{name}} from the list",
+    "error": {
+      "empty": "The file is empty",
+      "tooLarge": "The file is too large",
+      "unsupportedType": "This file type is not supported",
+      "network": "Network error. Please try again.",
+      "forbidden": "You are not allowed to upload files",
+      "server": "The file could not be uploaded. Please try again."
+    }
+  },
+  "invoices": {
+    "status": {
+      "uploaded": "Queued",
+      "extracting": "Being read",
+      "extracted": "Needs review",
+      "validated": "Validated",
+      "posted": "Posted",
+      "rejected": "Rejected",
+      "failed": "Failed"
+    },
+    "direction": {
+      "purchase": "Purchase",
+      "sales": "Sales"
+    },
+    "columns": {
+      "invoice": "Invoice",
+      "date": "Date",
+      "gross": "Total",
+      "status": "Status",
+      "issues": "Issues"
+    },
+    "fields": {
+      "number": "Invoice number",
+      "issueDate": "Date",
+      "counterpartyName": "Counterparty",
+      "counterpartyVoen": "Tax ID (VÖEN)",
+      "direction": "Type",
+      "currency": "Currency"
+    },
+    "searchPlaceholder": "Number, counterparty or tax ID",
+    "onlyWithIssues": "Only with issues",
+    "empty": "No invoices yet",
+    "emptyHint": "Invoices will appear here once they are uploaded.",
+    "emptyHintWrite": "Upload your first invoice using the area above.",
+    "back": "Back to invoices",
+    "notFound": "Invoice not found",
+    "notFoundHint": "It may have been removed or is not available to you.",
+    "confidence": "Reading accuracy: {{percent}}%",
+    "processing": "The invoice is being read. This page updates by itself when the result is ready.",
+    "failedTitle": "The invoice could not be read",
+    "locked": {
+      "posted": "The invoice has been posted and cannot be changed.",
+      "rejected": "The invoice has been rejected and cannot be changed."
+    },
+    "issues": {
+      "title": "Issues",
+      "none": "No issues found.",
+      "goToField": "Go to field",
+      "openOther": "Open the existing one",
+      "errors": "Errors: {{count}}",
+      "warnings": "Warnings: {{count}}"
+    },
+    "severity": {
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Information"
+    },
+    "issue": {
+      "MISSING_FIELD": "The \"{{field}}\" field is empty.",
+      "INVALID_TAX_ID": "The tax ID must be 10 digits (entered: {{value}}).",
+      "TOTAL_MISMATCH": "The total printed on the document ({{declared}}) differs from the recalculated total ({{computed}}).",
+      "DUPLICATE_INVOICE": "Invoice {{number}} from this counterparty already exists.",
+      "LOW_CONFIDENCE": "The \"{{field}}\" field was read with low confidence ({{percent}}%). Check it against the document.",
+      "DATE_IN_FUTURE": "The invoice date is in the future."
+    },
+    "form": {
+      "label": "Invoice details",
+      "tooLong": "The text is too long",
+      "voenTooLong": "The tax ID cannot be longer than 10 digits",
+      "dateInvalid": "The date is not valid",
+      "descriptionRequired": "The description cannot be empty",
+      "decimalInvalid": "Enter a number (for example 8.50)",
+      "rateRequired": "Choose a VAT rate",
+      "accountUnknown": "This account is not in the chart of accounts",
+      "linesRequired": "There must be at least one line",
+      "checkThis": "Check · {{percent}}%",
+      "discard": "Discard changes",
+      "revalidate": "Validate again"
+    },
+    "lines": {
+      "title": "Lines",
+      "unsaved": "There are unsaved changes. Amounts are recalculated only after you save.",
+      "line": "Line {{number}}",
+      "remove": "Remove line {{number}}",
+      "description": "Description",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "vatRate": "VAT rate",
+      "account": "Account",
+      "suggestion": "Suggestion: {{code}} · {{name}} ({{percent}}%)",
+      "accept": "Accept",
+      "computed": "Calculated amounts",
+      "add": "Add line"
+    },
+    "totals": {
+      "title": "Totals",
+      "net": "Excl. VAT",
+      "vat": "VAT",
+      "gross": "Total",
+      "printed": "Total printed on the document",
+      "stale": "Amounts are out of date: save your changes."
+    },
+    "leave": {
+      "title": "Changes will be lost",
+      "description": "There are unsaved changes. If you leave this page they will be lost.",
+      "confirm": "Leave and discard"
+    },
+    "journal": {
+      "title": "Journal entry",
+      "propose": "Suggest journal entry",
+      "none": "No entry has been suggested for this invoice yet.",
+      "fixFirst": "To suggest an entry, first resolve all errors and warnings.",
+      "proposed": "Entry suggested",
+      "submitted": "Entry sent for approval",
+      "status": {
+        "proposed": "Suggested",
+        "pending_approval": "Awaiting approval",
+        "approved": "Approved",
+        "posted": "Posted",
+        "rejected": "Rejected"
+      },
+      "balanced": "Balanced",
+      "unbalanced": "Not balanced",
+      "aiNote": "The suggestion was prepared by AI.",
+      "account": "Account",
+      "debit": "Debit",
+      "credit": "Credit",
+      "total": "Total",
+      "submit": "Send for approval",
+      "waiting": "The entry is waiting for the chief accountant's approval."
+    },
+    "preview": {
+      "title": "Document",
+      "alt": "Preview of {{name}}",
+      "failed": "The document could not be shown.",
+      "unavailable": "There is no preview for this document",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{page}} of {{pages}}"
+    },
+    "saved": "Invoice saved",
+    "saveFailed": "Could not save. Please try again.",
+    "revalidated": "Invoice validated again",
+    "actionFailed": "The action failed. Please try again."
   }
 }

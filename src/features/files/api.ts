@@ -27,9 +27,10 @@ export function useFileList(filters: FilesSearch) {
   return useInfiniteQuery({
     queryKey: fileKeys.list(filters),
     initialPageParam: undefined as string | undefined,
-    queryFn: async ({ pageParam }) =>
+    queryFn: async ({ pageParam, signal }) =>
       unwrap(
         await api.GET("/files", {
+          signal,
           params: {
             query: {
               q: filters.q?.trim() || undefined,
@@ -53,7 +54,7 @@ export function useFileList(filters: FilesSearch) {
 export function useFile(id: string) {
   return useQuery({
     queryKey: fileKeys.detail(id),
-    queryFn: async () => unwrap(await api.GET("/files/{id}", { params: { path: { id } } })),
+    queryFn: async ({ signal }) => unwrap(await api.GET("/files/{id}", { signal, params: { path: { id } } })),
     retry: false,
     refetchInterval: (query) =>
       query.state.data && isInProgress(query.state.data.status) ? pollConfig.intervalMs : false,

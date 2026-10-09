@@ -1,22 +1,13 @@
-import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import "@/app/i18n";
-import { server } from "@/mocks/server";
-import { routeTree } from "@/routeTree.gen";
+import { describe, expect, it } from "vitest";
 import { useAuthStore } from "@/shared/stores/authStore";
+import { renderApp, setupMockApi } from "./utils";
 
-beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-beforeEach(() => useAuthStore.getState().clear());
+setupMockApi();
 
-function renderAt(path: string) {
-  const router = createRouter({ routeTree, history: createMemoryHistory({ initialEntries: [path] }) });
-  render(<RouterProvider router={router} />);
-  return router;
-}
+/** These tests care about the router and the session, so they only need the router back. */
+const renderAt = (path: string) => renderApp(path).router;
 
 describe("auth flow", () => {
   it("redirects an anonymous visitor from a protected page to /login", async () => {

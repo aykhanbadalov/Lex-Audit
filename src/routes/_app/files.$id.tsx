@@ -14,7 +14,7 @@ import {
 } from "@/features/files/api";
 import { FileEditDialog } from "@/features/files/components/FileEditDialog";
 import { FileStatusBadge } from "@/features/files/components/FileStatusBadge";
-import { FileTypeIcon } from "@/features/files/components/FileTypeIcon";
+import { FileTypeIcon } from "@/shared/upload/FileTypeIcon";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";

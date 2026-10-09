@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from "msw";
-import { ALLOWED_EXTENSIONS, extensionOf, MAX_UPLOAD_BYTES } from "@/features/files/limits";
+import { ALLOWED_EXTENSIONS, extensionOf, MAX_UPLOAD_BYTES } from "@/shared/upload/limits";
 import { addUploadedFile, allFiles, findFile, restartProcessing, toDetail, toRecord, touch } from "../fixtures/files";
 import { apiError, authorize } from "./auth";
 import { parseMultipart } from "../multipart";

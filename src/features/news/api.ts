@@ -30,7 +30,7 @@ export const newsKeys = {
 export function useNewsSources() {
   return useQuery({
     queryKey: newsKeys.sources,
-    queryFn: async () => unwrap(await api.GET("/news/sources")),
+    queryFn: async ({ signal }) => unwrap(await api.GET("/news/sources", { signal })),
     staleTime: 5 * 60_000,
   });
 }
@@ -39,8 +39,10 @@ export function useNewsList(filters: NewsFilters) {
   return useInfiniteQuery({
     queryKey: newsKeys.list(filters),
     initialPageParam: undefined as string | undefined,
-    queryFn: async ({ pageParam }) =>
-      unwrap(await api.GET("/news", { params: { query: { ...filters, cursor: pageParam, limit: PAGE_SIZE } } })),
+    queryFn: async ({ pageParam, signal }) =>
+      unwrap(
+        await api.GET("/news", { signal, params: { query: { ...filters, cursor: pageParam, limit: PAGE_SIZE } } }),
+      ),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 }
@@ -48,7 +50,7 @@ export function useNewsList(filters: NewsFilters) {
 export function useNewsDetail(id: string) {
   return useQuery({
     queryKey: newsKeys.detail(id),
-    queryFn: async () => unwrap(await api.GET("/news/{id}", { params: { path: { id } } })),
+    queryFn: async ({ signal }) => unwrap(await api.GET("/news/{id}", { signal, params: { path: { id } } })),
     // A missing item will not appear by retrying.
     retry: false,
   });
