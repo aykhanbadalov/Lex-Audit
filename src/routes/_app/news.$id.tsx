@@ -111,7 +111,7 @@ function NewsDetailPageContent() {
             <div className="flex gap-1.5">
               <dt>{t("news.source")}:</dt>
               <dd className="text-foreground">
-                {sources.data?.find((source) => source.id === item.sourceId)?.name ?? "—"}
+                {sources.data?.find((source) => source.id === item.sourceId)?.name ?? "-"}
               </dd>
             </div>
             <div className="flex gap-1.5">

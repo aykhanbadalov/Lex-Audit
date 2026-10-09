@@ -172,7 +172,7 @@ function FileView({ file, locale }: { file: FileDetail; locale: string }) {
         <Info label={t("files.columns.folder")} value={file.folder} />
         <Info label={t("files.columns.size")} value={formatBytes(file.size, locale)} />
         <Info label={t("files.type")} value={file.mime} />
-        <Info label={t("files.detectedKind")} value={file.extraction?.detectedKind || "—"} />
+        <Info label={t("files.detectedKind")} value={file.extraction?.detectedKind || "-"} />
         <Info label={t("files.created")} value={formatDateTime(file.createdAt, locale)} />
         <Info label={t("files.columns.updated")} value={formatDateTime(file.updatedAt, locale)} />
         <div className="sm:col-span-2 lg:col-span-3">

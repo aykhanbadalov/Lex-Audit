@@ -51,7 +51,7 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 15_000 });
       // Let lists, tables and the PDF finish loading so their markup is checked, not their skeletons.
       await page.waitForLoadState("networkidle");
-      for (const issue of await violations(page)) found.push(`${path} — ${issue}`);
+      for (const issue of await violations(page)) found.push(`${path} - ${issue}`);
     }
     expect(found).toEqual([]);
   });

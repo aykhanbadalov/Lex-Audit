@@ -670,18 +670,18 @@ function seedPostedEntries(): void {
   }
   // Entries that did not come from an invoice, in every state, so the ledger screens have something to show.
   for (const entry of [
-    manualEntry("je-seed-1", "2026-10-01", "Ofis icarəsi — oktyabr", "posted", "manual", "721", "223", "1200.00"),
+    manualEntry("je-seed-1", "2026-10-01", "Ofis icarəsi - oktyabr", "posted", "manual", "721", "223", "1200.00"),
     manualEntry(
       "je-seed-2",
       "2026-09-30",
-      "Əmək haqqı hesablanması — sentyabr",
+      "Əmək haqqı hesablanması - sentyabr",
       "pending_approval",
       "manual",
       "721",
       "223",
       "8500.00",
     ),
-    manualEntry("je-seed-3", "2026-09-30", "Amortizasiya — sentyabr", "proposed", "ai", "721", "201", "640.00"),
+    manualEntry("je-seed-3", "2026-09-30", "Amortizasiya - sentyabr", "proposed", "ai", "721", "201", "640.00"),
     manualEntry("je-seed-4", "2026-09-15", "Düzəliş yazılışı", "rejected", "manual", "731", "223", "99.00"),
   ]) {
     journal.set(entry.id, entry);

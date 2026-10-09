@@ -28,7 +28,7 @@ function DashboardPage() {
       <PageHeader title={t("dashboard.title")} description={t("dashboard.welcome", { name })} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2">
               {t("dashboard.notifications")}
               {notifications.data && notifications.data.unreadCount > 0 ? (

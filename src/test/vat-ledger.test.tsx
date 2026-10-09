@@ -130,7 +130,7 @@ describe("journal", () => {
   it("lists entries of every origin and narrows by status", async () => {
     signInAs();
     renderApp("/ledger");
-    expect(await screen.findByText("Ofis icarəsi — oktyabr")).toBeInTheDocument();
+    expect(await screen.findByText("Ofis icarəsi - oktyabr")).toBeInTheDocument();
     expect(screen.getAllByRole("row").length).toBeGreaterThan(3);
   });
 

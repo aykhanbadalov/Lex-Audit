@@ -45,7 +45,7 @@ export function RatesTab() {
                 <td className="px-3 py-2">{percent(rate.ratePercent)}</td>
                 <td className="px-3 py-2">{t(`vat.rates.treatments.${rate.treatment}`)}</td>
                 <td className="px-3 py-2">
-                  {formatDate(rate.validFrom, locale)} –{" "}
+                  {formatDate(rate.validFrom, locale)} -{" "}
                   {rate.validTo ? formatDate(rate.validTo, locale) : t("vat.rates.now")}
                 </td>
                 <td className="px-3 py-2">
@@ -64,7 +64,7 @@ export function RatesTab() {
                       {t("vat.rates.openSource")}
                     </Link>
                   ) : (
-                    "—"
+                    "-"
                   )}
                 </td>
               </tr>

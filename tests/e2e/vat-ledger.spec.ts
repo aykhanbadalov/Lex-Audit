@@ -31,7 +31,7 @@ test("the chart of accounts is its own page, not mistaken for a journal entry", 
   await page.goto("/ledger/accounts");
   await expect(page.getByRole("heading", { name: "Aktivlər" })).toBeVisible();
   await page.getByRole("link", { name: "Yazılışlar" }).click();
-  await expect(page.getByText("Ofis icarəsi — oktyabr")).toBeVisible();
+  await expect(page.getByText("Ofis icarəsi - oktyabr")).toBeVisible();
 });
 
 test("drilling down from the VAT summary lands on that period's invoices of that direction", async ({ page }) => {

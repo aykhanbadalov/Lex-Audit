@@ -101,10 +101,10 @@ export function JournalEntryCard({ entry, canSubmit, showSourceLink = false }: J
                   ) : null}
                 </td>
                 <td className="px-3 py-2 text-right">
-                  {!sameAmount(line.debit, "0") ? <MoneyText amount={line.debit} /> : "—"}
+                  {!sameAmount(line.debit, "0") ? <MoneyText amount={line.debit} /> : "-"}
                 </td>
                 <td className="px-3 py-2 text-right">
-                  {!sameAmount(line.credit, "0") ? <MoneyText amount={line.credit} /> : "—"}
+                  {!sameAmount(line.credit, "0") ? <MoneyText amount={line.credit} /> : "-"}
                 </td>
               </tr>
             ))}

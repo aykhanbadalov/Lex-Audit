@@ -174,7 +174,7 @@ function AuditContent() {
 /** What the event changed, as plain text. The backend masks personal data before it stores it. */
 function Change({ event }: { event: AuditEvent }) {
   const { t } = useTranslation();
-  if (event.before == null && event.after == null) return <span className="text-muted-foreground">—</span>;
+  if (event.before == null && event.after == null) return <span className="text-muted-foreground">-</span>;
   const show = (value: unknown) => JSON.stringify(value, null, 2);
   return (
     <details>

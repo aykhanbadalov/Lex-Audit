@@ -156,7 +156,7 @@ function JobView({ job }: { job: ExcelJob }) {
                     </td>
                     <td className="px-3 py-2 tabular-nums">{column.nonEmpty}</td>
                     <td className="px-3 py-2 tabular-nums">{column.distinct}</td>
-                    <td className="px-3 py-2">{column.sum ? <MoneyText amount={column.sum} /> : "—"}</td>
+                    <td className="px-3 py-2">{column.sum ? <MoneyText amount={column.sum} /> : "-"}</td>
                     <td className="px-3 py-2 text-xs text-muted-foreground">{column.samples.join(" · ")}</td>
                   </tr>
                 ))}

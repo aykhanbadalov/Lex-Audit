@@ -3,6 +3,7 @@ import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { signOut } from "@/api/session";
 import { NAV_GROUPS, visibleNavItems } from "@/app/navigation";
+import { Logo } from "@/shared/components/Logo";
 import { DemoBanner } from "@/shared/components/DemoBanner";
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
@@ -42,7 +43,10 @@ function AppLayout() {
 
       <aside className="min-w-0 border-b border-sidebar-border bg-sidebar text-sidebar-foreground md:border-r md:border-b-0">
         <div className="flex flex-col gap-4 p-4 md:sticky md:top-0 md:h-dvh md:overflow-y-auto">
-          <p className="text-lg font-semibold">{t("app.name")}</p>
+          <p className="flex items-center gap-2 text-lg font-semibold">
+            <Logo />
+            {t("app.name")}
+          </p>
           <nav aria-label={t("nav.main")} className="flex gap-4 overflow-x-auto md:flex-col md:gap-5">
             {NAV_GROUPS.map((group) => {
               const groupItems = items.filter((item) => item.group === group);
@@ -70,14 +74,18 @@ function AppLayout() {
 
       <div className="flex min-w-0 flex-col">
         <DemoBanner />
-        <header className="flex flex-wrap items-center justify-end gap-3 border-b px-4 py-3 md:px-6">
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <span className="text-sm text-muted-foreground">{user?.name}</span>
-          <Button variant="outline" size="sm" onClick={logout}>
-            <LogOut className="size-4" aria-hidden="true" />
-            {t("auth.logout")}
-          </Button>
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b px-4 py-3 md:px-6">
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="min-w-0 truncate text-sm text-muted-foreground">{user?.name}</span>
+            <Button variant="outline" size="sm" onClick={logout}>
+              <LogOut className="size-4" aria-hidden="true" />
+              {t("auth.logout")}
+            </Button>
+          </div>
         </header>
         <main id="main" tabIndex={-1} className="p-4 md:p-6">
           <Outlet />

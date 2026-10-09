@@ -67,7 +67,7 @@ function LegislationPageContent() {
       {
         accessorKey: "adoptedAt",
         header: t("legislation.columns.adopted"),
-        cell: ({ row }) => (row.original.adoptedAt ? formatDate(row.original.adoptedAt, tag) : "—"),
+        cell: ({ row }) => (row.original.adoptedAt ? formatDate(row.original.adoptedAt, tag) : "-"),
       },
       {
         accessorKey: "latestVersionNo",

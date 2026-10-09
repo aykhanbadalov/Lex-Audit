@@ -78,7 +78,7 @@ function InvoicesPageContent() {
       {
         accessorKey: "issueDate",
         header: t("invoices.columns.date"),
-        cell: ({ row }) => (row.original.issueDate ? formatDate(row.original.issueDate, tag) : "—"),
+        cell: ({ row }) => (row.original.issueDate ? formatDate(row.original.issueDate, tag) : "-"),
       },
       {
         accessorKey: "gross",

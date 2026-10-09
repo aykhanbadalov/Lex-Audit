@@ -58,7 +58,7 @@ function LegislationDetailPageContent() {
   }
 
   const describe = (version: LegislationVersion) =>
-    `v${version.versionNo} · ${formatDate(version.validFrom, tag)} – ${version.validTo ? formatDate(version.validTo, tag) : t("legislation.inForce")}`;
+    `v${version.versionNo} · ${formatDate(version.validFrom, tag)} - ${version.validTo ? formatDate(version.validTo, tag) : t("legislation.inForce")}`;
 
   const back = (
     <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
@@ -106,7 +106,7 @@ function LegislationDetailPageContent() {
       {back}
       <PageHeader
         title={data.title}
-        description={`${t(`legislation.type.${data.type}`, { defaultValue: data.type })} · ${data.officialNumber} · ${t("legislation.adopted", { date: data.adoptedAt ? formatDate(data.adoptedAt, tag) : "—" })}`}
+        description={`${t(`legislation.type.${data.type}`, { defaultValue: data.type })} · ${data.officialNumber} · ${t("legislation.adopted", { date: data.adoptedAt ? formatDate(data.adoptedAt, tag) : "-" })}`}
       />
 
       <div className="mb-4">

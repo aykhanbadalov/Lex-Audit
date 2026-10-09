@@ -528,7 +528,7 @@
       "open": "Açıq",
       "filed": "Təqdim edilib"
     },
-    "periodInfo": "{{from}} – {{to}} · təqdim müddəti: {{due}}",
+    "periodInfo": "{{from}} - {{to}} · təqdim müddəti: {{due}}",
     "bucket": {
       "all": "bütün qaimələr",
       "output": "hesablanmış ƏDV",
@@ -949,7 +949,7 @@
       "what": "Nə",
       "before": "Əvvəl",
       "after": "Sonra",
-      "none": "—"
+      "none": "-"
     },
     "openConversation": "Söhbətə bax",
     "commentRequired": "Şərh (məcburi, ən azı 3 simvol)",

@@ -230,7 +230,7 @@ describe("what a model writes is never trusted", () => {
     );
     const { container } = renderApp("/assistant/conv-2");
     await screen.findByText("mətn");
-    expect(container.querySelector("script, img, iframe, [onerror]")).toBeNull();
+    expect(container.querySelector("script, img:not([src='/favicon.svg']), iframe, [onerror]")).toBeNull();
     expect(container.innerHTML).not.toContain("evil.example");
     expect(container.querySelector("a[href^='javascript']")).toBeNull();
   });

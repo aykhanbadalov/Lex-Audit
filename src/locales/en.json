@@ -528,7 +528,7 @@
       "open": "Open",
       "filed": "Filed"
     },
-    "periodInfo": "{{from}} – {{to}} · due {{due}}",
+    "periodInfo": "{{from}} - {{to}} · due {{due}}",
     "bucket": {
       "all": "all invoices",
       "output": "output VAT",
@@ -949,7 +949,7 @@
       "what": "What",
       "before": "Before",
       "after": "After",
-      "none": "—"
+      "none": "-"
     },
     "openConversation": "Open the conversation",
     "commentRequired": "Comment (required, at least 3 characters)",

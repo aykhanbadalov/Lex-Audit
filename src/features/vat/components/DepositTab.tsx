@@ -43,7 +43,7 @@ export function DepositTab({ period }: { period: string }) {
       <section className="space-y-1">
         <h2 className="text-sm text-muted-foreground">{t("vat.summary.depositBalance")}</h2>
         <p className="text-2xl font-semibold">
-          {summary.data ? <MoneyText amount={summary.data.depositBalance ?? "0.00"} /> : "—"}
+          {summary.data ? <MoneyText amount={summary.data.depositBalance ?? "0.00"} /> : "-"}
         </p>
         <p className="text-xs text-muted-foreground">{t("vat.deposit.hint")}</p>
       </section>

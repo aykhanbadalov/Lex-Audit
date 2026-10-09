@@ -29,7 +29,8 @@ interface ThemeState {
 const stored = readPreference(THEME_KEY);
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  mode: isThemeMode(stored) ? stored : "system",
+  // Light unless the person chose otherwise: the first visit does not follow the computer's dark mode.
+  mode: isThemeMode(stored) ? stored : "light",
   setMode: (mode) => {
     writePreference(THEME_KEY, mode);
     applyTheme(mode);

@@ -76,7 +76,7 @@ function ResultContent() {
         </span>
       </span>
     ) : (
-      "—"
+      "-"
     );
   };
 
@@ -136,7 +136,7 @@ function ResultContent() {
                 </td>
                 <td className="px-3 py-2">{side(match, "left")}</td>
                 <td className="px-3 py-2">{side(match, "right")}</td>
-                <td className="px-3 py-2">{match.difference ? <MoneyText amount={match.difference} /> : "—"}</td>
+                <td className="px-3 py-2">{match.difference ? <MoneyText amount={match.difference} /> : "-"}</td>
                 <td className="px-3 py-2 text-xs text-muted-foreground">{match.explanation}</td>
                 <td className="px-3 py-2">
                   {match.status === "confirmed" ? (

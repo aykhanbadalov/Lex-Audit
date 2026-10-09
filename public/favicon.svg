@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LexAudit AI">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e40af"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#g)"/>
+  <!-- scales of justice: a post, a beam and two pans -->
+  <path d="M32 13v34" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M19 19h26" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M19 19 12 33h14zM45 19l-7 14h14z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M11 33a8 6 0 0 0 16 0M37 33a8 6 0 0 0 16 0" fill="#fff"/>
+  <path d="M23 49h18" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- the check mark: audited -->
+  <circle cx="48" cy="48" r="10" fill="#22c55e" stroke="#0f172a" stroke-width="3"/>
+  <path d="m43.5 48 3.2 3.2 5.8-6.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
