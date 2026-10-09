@@ -40,7 +40,9 @@
     "mfaCode": "Təsdiq kodu",
     "mfaHint": "Autentifikator tətbiqindəki 6 rəqəmli kodu daxil edin.",
     "invalidCode": "Kod yanlışdır",
-    "tooManyAttempts": "Çox cəhd edildi. Bir dəqiqə gözləyib yenidən yoxlayın."
+    "tooManyAttempts": "Çox cəhd edildi. Bir dəqiqə gözləyib yenidən yoxlayın.",
+    "demoEmail": "Demo e-poçt",
+    "demoPassword": "Demo şifrə"
   },
   "dashboard": {
     "title": "Bu gün",

@@ -40,7 +40,9 @@
     "mfaCode": "Verification code",
     "mfaHint": "Enter the 6-digit code from your authenticator app.",
     "invalidCode": "The code is wrong",
-    "tooManyAttempts": "Too many attempts. Wait a minute and try again."
+    "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
+    "demoEmail": "Demo e-mail",
+    "demoPassword": "Demo password"
   },
   "dashboard": {
     "title": "Today",

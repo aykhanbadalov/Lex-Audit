@@ -11,6 +11,9 @@ import { isAuthenticated } from "@/shared/stores/authStore";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
+// Sample sign-in details are shown only in the demo build, whose data is fake. A production bundle never contains them.
+const DEMO = import.meta.env.VITE_ENABLE_MSW === "true";
+
 const searchSchema = z.object({ redirect: z.string().optional() });
 
 export const Route = createFileRoute("/login")({
@@ -92,6 +95,11 @@ function LoginPage() {
               {...register("email")}
             />
             {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+            {DEMO ? (
+              <p className="text-xs text-muted-foreground">
+                {t("auth.demoEmail")}: <code className="font-mono">muhasib@lexaudit.test</code>
+              </p>
+            ) : null}
           </div>
           <div className="space-y-1">
             <label htmlFor="password" className="text-sm font-medium">
@@ -105,6 +113,11 @@ function LoginPage() {
               {...register("password")}
             />
             {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
+            {DEMO ? (
+              <p className="text-xs text-muted-foreground">
+                {t("auth.demoPassword")}: <code className="font-mono">demo1234</code>
+              </p>
+            ) : null}
           </div>
           {needsCode ? (
             <div className="space-y-1">
