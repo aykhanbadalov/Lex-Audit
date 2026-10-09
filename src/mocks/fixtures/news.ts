@@ -242,6 +242,56 @@ const seeds: Seed[] = [
     summary: "Həftənin vergi və uçot xəbərlərinin qısa icmalı.",
     riskExplanation: "Məlumat xarakterlidir.",
   },
+  {
+    id: "news-demo-vat-close",
+    sourceId: "src-taxes",
+    title: "DEMO: Sentyabr ƏDV uzlaşdırmasında yoxlama ssenarisi",
+    category: "vat",
+    riskLevel: "medium",
+    publishedAt: "2026-10-08T16:05:00Z",
+    tags: ["DEMO", "ƏDV", "uzlaşdırma"],
+    paragraphs: [
+      "Bu, Lex-Audit təqdimatı üçün hazırlanmış uydurma ssenaridir; rəsmi açıqlama deyil.",
+      "Ssenaridə depozit hesabı hərəkətlərinin sentyabr dövrünün satış və alış qaimələri ilə tutuşdurulması göstərilir.",
+    ],
+    summary: "DEMO ssenarisi: bir depozit hesabı sətri qaimə ilə avtomatik uyğunlaşmır.",
+    riskExplanation: "Nümunə əməliyyatın tarix və məbləğini ilkin sənədlərlə yoxlamaq üçün nəzərdə tutulub.",
+    related: [{ id: "leg-tax-code", title: "Vergi Məcəlləsi", articleRef: "3" }],
+    impact: [
+      {
+        id: "imp-demo-vat-1",
+        resourceType: "record",
+        resourceTitle: "ƏDV dövrü 2026-09",
+        score: 0.78,
+        explanation: "Demo uzlaşdırma sətri sentyabr ƏDV dövrü ilə əlaqələndirilib.",
+      },
+    ],
+  },
+  {
+    id: "news-demo-payroll-review",
+    sourceId: "src-dsmf",
+    title: "DEMO: Əmək haqqı hesabatında yoxlama ssenarisi",
+    category: "labor",
+    riskLevel: "high",
+    publishedAt: "2026-10-08T13:30:00Z",
+    tags: ["DEMO", "əmək haqqı", "hesabat"],
+    paragraphs: [
+      "Bu material yalnız demo ssenarisidir və DSMF-nin real xəbəri və ya rəsmi hüquqi izahı deyil.",
+      "Nümunədə əmək haqqı cədvəlindəki sosial sığorta bazası ilə hesabat xanası arasında fərq göstərilir.",
+    ],
+    summary: "DEMO ssenarisi: əmək haqqı cədvəli ilə hesabat göstəricisi tutuşdurulur.",
+    riskExplanation: "Məbləği təsdiqləməzdən əvvəl əmək haqqı hesablamasını və ilkin cədvəli yoxlayın.",
+    related: [{ id: "leg-accounting-law", title: '"Mühasibat uçotu haqqında" Qanun', articleRef: "2" }],
+    impact: [
+      {
+        id: "imp-demo-payroll-1",
+        resourceType: "file",
+        resourceTitle: "Əmək haqqı cədvəli.xlsx",
+        score: 0.86,
+        explanation: "Demo ssenarisi mövcud əmək haqqı faylına bağlanıb.",
+      },
+    ],
+  },
 ];
 
 function toItem(seed: Seed): NewsItem {

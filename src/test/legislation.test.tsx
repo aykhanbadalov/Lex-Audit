@@ -11,6 +11,9 @@ describe("legislation list", () => {
     renderApp("/legislation");
 
     expect(await screen.findByRole("link", { name: "Vergi Məcəlləsi" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "DEMO: Elektron uçot sənədləri üzrə nümunə qaydalar" }),
+    ).toBeInTheDocument();
     const rows = screen.getAllByRole("row");
     expect(rows.length).toBeGreaterThan(3);
     expect(screen.getAllByText(/^v\d+$/).length).toBeGreaterThan(0);

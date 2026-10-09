@@ -56,6 +56,33 @@ const seed = (): StoredConversation[] => [
       },
     ],
   },
+  {
+    id: "conv-3",
+    title: "BT-118 qaiməsinin yoxlanması · demo nümunəsi",
+    createdAt: "2026-10-09T15:24:00Z",
+    updatedAt: "2026-10-09T15:25:00Z",
+    messages: [
+      {
+        id: "msg-demo-user-1",
+        role: "user",
+        content: "BT-118 qaiməsində hansı rəqəmləri tutuşdurmalıyam?",
+        citations: [],
+        toolCalls: null,
+        modelVersion: null,
+        createdAt: "2026-10-09T15:24:00Z",
+      },
+      {
+        id: "msg-demo-assistant-1",
+        role: "assistant",
+        content:
+          "Demo nümunəsində BT-118 üzrə bəyan edilən ümumi məbləğ sətirlərin hesablanmış cəmindən ₼20,00 fərqlənir. İlkin sənəddəki yekunu, sətir qiymətlərini və ƏDV kodunu tutuşdurun. Bu, yalnız nümayiş üçün hazırlanmış nümunə izahıdır; yekun qərar üçün sənədin özünü yoxlayın.",
+        citations: [],
+        toolCalls: null,
+        modelVersion: "lexaudit-llm-demo-0.1",
+        createdAt: "2026-10-09T15:25:00Z",
+      },
+    ],
+  },
   { id: "conv-2", title: null, createdAt: "2026-10-07T08:00:00Z", updatedAt: "2026-10-07T08:00:00Z", messages: [] },
 ];
 

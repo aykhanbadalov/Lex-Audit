@@ -209,6 +209,69 @@ const docs: DocSeed[] = [
       },
     ],
   },
+  {
+    summary: {
+      id: "leg-demo-digital-records",
+      type: "cabinet_decision",
+      officialNumber: null,
+      title: "DEMO: Elektron uçot sənədləri üzrə nümunə qaydalar",
+      status: "in_force",
+      adoptedAt: "2024-03-01",
+    },
+    versions: [
+      {
+        id: "leg-demo-digital-records-v2",
+        validFrom: "2026-01-01",
+        validTo: null,
+        articles: [
+          a(
+            "1",
+            "Nümunənin məqsədi",
+            "Bu uydurma demo sənədi elektron uçot sənədlərinin axtarış və versiya ekranlarını göstərmək üçündür. Rəsmi hüquqi mətn deyil.",
+          ),
+          a(
+            "2",
+            "Saxlama ssenarisi",
+            "Nümayişdə sənədin saxlanma müddəti və məsul şəxsi qeyd olunur. Bu müddəa yalnız demo mətnidir.",
+          ),
+        ],
+      },
+      {
+        id: "leg-demo-digital-records-v1",
+        validFrom: "2024-03-01",
+        validTo: "2025-12-31",
+        articles: [
+          a("1", "Nümunənin məqsədi", "Bu demo sənədi elektron uçot sənədlərini nümunə kimi təsvir edir."),
+          a("2", "Saxlama ssenarisi", "İlkin sənədlərin saxlanması nümunə kimi göstərilir."),
+        ],
+      },
+    ],
+  },
+  {
+    summary: {
+      id: "leg-demo-payroll-guidance",
+      type: "standard",
+      officialNumber: null,
+      title: "DEMO: Əmək haqqı uçotu üçün nümunə standart",
+      status: "in_force",
+      adoptedAt: "2023-01-01",
+    },
+    versions: [
+      {
+        id: "leg-demo-payroll-guidance-v1",
+        validFrom: "2023-01-01",
+        validTo: null,
+        articles: [
+          a(
+            "1",
+            "Nümunə əhatə dairəsi",
+            "Bu uydurma standart əmək haqqı hesablaması demo axınlarını göstərir; rəsmi normativ akt deyil.",
+          ),
+          a("2", "Yoxlama addımı", "Nümunə üzrə hesablanmış məbləğ ilkin əmək haqqı cədvəli ilə tutuşdurulur."),
+        ],
+      },
+    ],
+  },
 ];
 
 function toVersion(docId: string, v: DocSeed["versions"][number], index: number, total: number): Version {

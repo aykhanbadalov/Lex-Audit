@@ -62,7 +62,25 @@
     "markRead": "Oxundu",
     "noNotifications": "Yeni bildiriş yoxdur.",
     "deadlines": "Yaxınlaşan son tarixlər",
-    "noDeadlines": "Yaxın vaxtda son tarix yoxdur."
+    "noDeadlines": "Yaxın vaxtda son tarix yoxdur.",
+    "demoSnapshotNote": "Nümunə şirkət üçün demo icmalı · göstəricilər real maliyyə məlumatı deyil.",
+    "metricsTitle": "Əsas göstəricilər",
+    "metric": {
+      "invoices": "Qaimələr",
+      "vat": "Cari ƏDV öhdəliyi",
+      "reconciliation": "Uzlaşdırma",
+      "files": "Emal gözləyən fayllar"
+    },
+    "activityTitle": "Son fəaliyyət",
+    "viewActivity": "Audit jurnalına bax",
+    "riskTitle": "Risk göstəriciləri",
+    "risk": {
+      "high": "Yüksək",
+      "medium": "Orta",
+      "low": "Aşağı"
+    },
+    "approvalsTitle": "Gözləyən təsdiqlər",
+    "viewApprovals": "Bütün təsdiqlər"
   },
   "errors": {
     "notFound": "Səhifə tapılmadı",
@@ -967,7 +985,9 @@
       "journal_post": "Jurnal yazılışı uçota alınsın",
       "tax_rate_proposal": "Yeni vergi dərəcəsi qüvvəyə mindirilsin",
       "import_commit": "İdxal icra edilsin",
-      "tool": "AI əməliyyatı: {{detail}}"
+      "tool": "AI əməliyyatı: {{detail}}",
+      "access_request": "Giriş icazəsi üçün qərar",
+      "model_release": "Model buraxılışını təsdiqlə"
     },
     "openEntry": "Yazılışı jurnalda aç",
     "openRates": "Dərəcələrə bax",

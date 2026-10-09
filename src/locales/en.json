@@ -62,7 +62,25 @@
     "markRead": "Read",
     "noNotifications": "No new notifications.",
     "deadlines": "Upcoming deadlines",
-    "noDeadlines": "No deadlines coming up."
+    "noDeadlines": "No deadlines coming up.",
+    "demoSnapshotNote": "Demo overview for the sample company · figures are not real financial data.",
+    "metricsTitle": "Key metrics",
+    "metric": {
+      "invoices": "Invoices",
+      "vat": "Current VAT liability",
+      "reconciliation": "Reconciliation",
+      "files": "Files processing"
+    },
+    "activityTitle": "Recent activity",
+    "viewActivity": "View audit log",
+    "riskTitle": "Risk indicators",
+    "risk": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "approvalsTitle": "Pending approvals",
+    "viewApprovals": "All approvals"
   },
   "errors": {
     "notFound": "Page not found",
@@ -967,7 +985,9 @@
       "journal_post": "Post the entry to the books",
       "tax_rate_proposal": "Put the new tax rate in force",
       "import_commit": "Run the import",
-      "tool": "AI action: {{detail}}"
+      "tool": "AI action: {{detail}}",
+      "access_request": "Decide on access request",
+      "model_release": "Approve model release"
     },
     "openEntry": "Open the entry in the journal",
     "openRates": "See the rates",

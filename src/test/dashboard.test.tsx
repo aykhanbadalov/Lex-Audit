@@ -11,6 +11,8 @@ describe("the start page", () => {
     renderApp("/dashboard");
     expect(await screen.findByText("2 oxunmamış")).toBeInTheDocument();
     expect(screen.getByText("Yeni xəbər sənədlərinizə təsir edə bilər")).toBeInTheDocument();
+    expect(screen.getByText("₼ 18 420,50")).toBeInTheDocument();
+    expect(screen.getByText("BT-118 qaiməsində məbləğ fərqi aşkarlandı")).toBeInTheDocument();
     const deadlines = screen.getByRole("heading", { name: "Yaxınlaşan son tarixlər" }).closest("div")!.parentElement!;
     expect(await within(deadlines).findByText(/2026-09/)).toBeInTheDocument();
   });

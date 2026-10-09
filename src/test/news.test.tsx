@@ -30,7 +30,7 @@ describe("news list", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Daha çox yüklə" }));
 
-    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(12));
+    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(14));
     expect(screen.queryByRole("button", { name: "Daha çox yüklə" })).not.toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe("news list", () => {
 
     await userEvent.type(screen.getByRole("searchbox", { name: "Axtarış" }), "depozit");
 
-    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(1), { timeout: 3000 });
+    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(2), { timeout: 3000 });
     expect(router.state.location.search).toMatchObject({ q: "depozit" });
   });
 

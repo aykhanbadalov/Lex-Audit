@@ -20,6 +20,14 @@ async function accountantAsks() {
 }
 
 describe("the approval queue", () => {
+  it("shows multiple clearly labeled demo approval scenarios", async () => {
+    signInAs(CHIEF);
+    renderApp("/approvals");
+
+    expect(await screen.findByRole("heading", { name: "Giriş icazəsi üçün qərar" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Model buraxılışını təsdiqlə" })).toBeInTheDocument();
+  });
+
   it("opens on what is waiting, and shows what the request would post", async () => {
     await accountantAsks();
     signInAs(CHIEF);
